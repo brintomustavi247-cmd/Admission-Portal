@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { toBanglaNum } from '../lib/banglaUtils';
 import { useAuth } from '../contexts/AuthContext';
-import { X, Crown, Ticket, Copy, Check, MessageCircle, Send, LogOut, ShieldCheck, Mail } from 'lucide-react';
+import { X, Crown, Ticket, Copy, Check, MessageCircle, Send, LogOut, ShieldCheck, Mail, Heart } from 'lucide-react';
 
 const WHATSAPP = 'https://wa.me/8801XXXXXXXXX';
 const TELEGRAM = 'https://t.me/TOMAR_CHANNEL';
+const TIP_BKASH = '01XXXXXXXXX';
 
 interface Props {
   open: boolean;
@@ -14,6 +17,17 @@ interface Props {
 export const SettingsPanel: React.FC<Props> = ({ open, onClose, onOpenAdmin }) => {
   const { session, profile, signOut } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [donationOn, setDonationOn] = useState(false);
+  const [tip, setTip] = useState(20);
+  const [tipTrx, setTipTrx] = useState('');
+  const [tipBusy, setTipBusy] = useState(false);
+  const [tipMsg, setTipMsg] = useState('');
+  const [numCopied, setNumCopied] = useState(false);
+
+  useEffect(() => {
+    supabase.from('app_settings').select('donation_enabled').eq('id', 1).single()
+      .then(({ data }) => data && setDonationOn(data.donation_enabled !== false));
+  }, []);
 
   if (!open) return null;
 
@@ -25,10 +39,24 @@ export const SettingsPanel: React.FC<Props> = ({ open, onClose, onOpenAdmin }) =
     } catch {}
   };
 
+  const copyNum = async () => {
+    try { await navigator.clipboard.writeText(TIP_BKASH); setNumCopied(true); setTimeout(() => setNumCopied(false), 1500); } catch {}
+  };
+
+  const sendTip = async () => {
+    if (!profile || tipTrx.trim().length < 6) { setTipMsg('সঠিক TrxID লিখো'); return; }
+    setTipBusy(true); setTipMsg('');
+    const { error } = await supabase.from('payment_requests').insert({
+      user_id: profile.id, trx_id: tipTrx.trim(), plan: 'donation', amount: tip, status: 'pending',
+    });
+    setTipBusy(false);
+    setTipMsg(error ? 'ব্যর্থ: ' + error.message : '💜 ধন্যবাদ! তোমার support পেয়েছি');
+    setTipTrx('');
+  };
+
   const shareText = encodeURIComponent(
     `🎓 বিশ্ববিদ্যালয় ভর্তি ২০২৬-২৭ অ্যাপ! আমার কোড ${profile?.referral_code} দিয়ে signup কর — ছাড় পাবি!`
   );
-
   return (
     <div className="fixed inset-0 z-[70]">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
@@ -65,7 +93,6 @@ export const SettingsPanel: React.FC<Props> = ({ open, onClose, onOpenAdmin }) =
           </div>
         </div>
 
-
         {/* ===== Referral ===== */}
         {profile?.referral_code && (
           <div className="rounded-2xl bg-slate-100 dark:bg-[#0f141d] border border-slate-200 dark:border-white/10 p-4 mb-3">
@@ -89,7 +116,48 @@ export const SettingsPanel: React.FC<Props> = ({ open, onClose, onOpenAdmin }) =
             </p>
           </div>
         )}
+        {/* ===== Donation (admin ON করলে দেখাবে) ===== */}
+        {donationOn && (
+          <div className="rounded-2xl bg-gradient-to-br from-violet-500/15 to-pink-500/10 border border-violet-500/30 p-4 mb-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-500 to-pink-500 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                <Heart className="w-4 h-4 text-white fill-white" />
+              </div>
+              <div>
+                <div className="text-xs font-black text-white">ডেভেলপার সাপোর্ট</div>
+                <div className="text-[10px] text-slate-400">ঐচ্ছিক tip — premium নয়, শুধু ভালোবাসা 💜</div>
+              </div>
+            </div>
 
+            <div className="grid grid-cols-4 gap-1.5 my-3">
+              {[10, 20, 50, 100].map((t) => (
+                <button key={t} onClick={() => setTip(t)}
+                  className={`py-2 rounded-xl text-[11px] font-black cursor-pointer transition ${
+                    tip === t ? 'bg-gradient-to-r from-violet-500 to-pink-500 text-white shadow-lg shadow-violet-500/30' : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                  }`}>
+                  ৳{toBanglaNum(t)}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between gap-2 mb-2 rounded-xl bg-[#0f141d] border border-white/10 px-3 py-2">
+              <span className="text-[10px] text-slate-400 font-bold">bKash:</span>
+              <button onClick={copyNum} className="flex items-center gap-1 text-[10px] font-black text-pink-300 cursor-pointer">
+                {numCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {TIP_BKASH}
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <input value={tipTrx} onChange={(e) => setTipTrx(e.target.value)} placeholder="Donation TrxID"
+                className="flex-1 bg-[#0f141d] border border-white/10 rounded-xl px-3 py-2.5 text-[11px] text-white placeholder:text-slate-500 focus:outline-none" />
+              <button onClick={sendTip} disabled={tipBusy}
+                className="px-4 rounded-xl bg-gradient-to-r from-violet-500 to-pink-500 text-white text-[11px] font-black cursor-pointer disabled:opacity-50 shadow-lg shadow-violet-500/25">
+                পাঠাও
+              </button>
+            </div>
+            {tipMsg && <p className="text-[10px] text-violet-300 mt-2 text-center font-bold">{tipMsg}</p>}
+          </div>
+        )}
 
         {/* ===== Admin ===== */}
         {profile?.role === 'admin' && onOpenAdmin && (

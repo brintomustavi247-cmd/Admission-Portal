@@ -164,14 +164,19 @@ export const Login: React.FC<{ onDone: () => void }> = ({ onDone }) => {
                   className="w-full bg-[#0f141d] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none"
                 />
               </div>
-              <div className="relative">
-                <Ticket className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="rounded-2xl bg-blue-500/10 border border-blue-400/30 p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-black text-blue-300 mb-2">
+                  <Ticket className="w-3.5 h-3.5" /> রেফারেল কোড আছে? (ঐচ্ছিক)
+                </div>
                 <input
                   value={refCode}
                   onChange={(e) => setRefCode(e.target.value)}
-                  placeholder="রেফারেল কোড (থাকলে দাও — ছাড় পাবে)"
-                  className="w-full bg-[#0f141d] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none uppercase"
+                  placeholder="Friend-এর কোড লিখো — যেমন: 2193CE"
+                  className="w-full bg-[#0f141d] border border-blue-400/30 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none uppercase tracking-widest font-bold"
                 />
+                <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
+                  কোড দিলে subscription-এর সময় তুমি ৳৪৯ পাবে আর কোড-এর মালিকও ডিসকাউন্ট unlock পাবে 🎁
+                </p>
               </div>
 
             </>

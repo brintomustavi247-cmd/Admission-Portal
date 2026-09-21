@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { toBanglaNum } from '../lib/banglaUtils';
-import { ArrowLeft, Users, Crown, Clock, Power, Check, X, Search, Ticket, CalendarClock, Save } from 'lucide-react';
+import { ArrowLeft, Users, Crown, Clock, Power, Check, X, Search, Ticket, CalendarClock, Save, Heart } from 'lucide-react';
 
 interface AdminUser {
   id: string; full_name: string | null; phone: string | null; role: string;
@@ -31,6 +31,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [subEnabled, setSubEnabled] = useState(true);
   const [referralOn, setReferralOn] = useState(true);
+  const [donationOn, setDonationOn] = useState(true);
   const [freeUntil, setFreeUntil] = useState('');
   const [q, setQ] = useState('');
   const [saved, setSaved] = useState('');
@@ -46,6 +47,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     if (s) {
       setSubEnabled(s.subscription_enabled);
       setReferralOn(s.referral_discount_enabled);
+      setDonationOn(s.donation_enabled !== false);
       setFreeUntil(s.free_until ? s.free_until.slice(0, 10) : '');
     }
   }, []);
@@ -60,6 +62,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     await supabase.from('app_settings').update({
       subscription_enabled: subEnabled,
       referral_discount_enabled: referralOn,
+      donation_enabled: donationOn,
       free_until: freeUntil ? new Date(freeUntil + 'T23:59:59').toISOString() : null,
       updated_at: new Date().toISOString(),
     }).eq('id', 1);
@@ -141,6 +144,19 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
               </div>
             </div>
             <Switch on={referralOn} onChange={() => setReferralOn(!referralOn)} />
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${donationOn ? 'bg-violet-500/15 text-violet-400' : 'bg-slate-500/15 text-slate-400'}`}>
+                <Heart className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-sm font-bold text-white">ডোনেশন সিস্টেম</div>
+                <p className="text-[11px] text-slate-400">{donationOn ? 'ON — settings-এ donation box দেখাবে' : 'OFF — লুকানো থাকবে'}</p>
+              </div>
+            </div>
+            <Switch on={donationOn} onChange={() => setDonationOn(!donationOn)} />
           </div>
 
           <div className="flex items-center justify-between gap-4 flex-wrap">
