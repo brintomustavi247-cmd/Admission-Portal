@@ -132,7 +132,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ open, onClose, onO
             <div className="flex items-center gap-2">
               <code className="flex-1 text-center py-2.5 rounded-xl bg-blue-500/10 border border-blue-400/30 text-blue-600 dark:text-blue-300 font-black tracking-widest text-sm">
                 {profile.referral_code}
-              Code>
+              </code>
               <button onClick={copyCode} className="p-2.5 rounded-xl bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 cursor-pointer">
                 {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
               </button>
