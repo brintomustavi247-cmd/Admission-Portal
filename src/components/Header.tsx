@@ -190,7 +190,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       {/* ===================== HEADER BAR ===================== */}
-      <header className="sticky top-0 z-30 bg-white/85 dark:bg-[#151a23]/90 backdrop-blur-xl border-b border-slate-200/70 dark:border-white/5 shadow-sm dark:shadow-[0_8px_24px_rgba(59,130,246,0.08)] transition-colors">
+      <header className="sticky top-0 z-30 bg-white/85 dark:bg-[#151a23]/90 backdrop-blur-xl border-b border-slate-200/70 dark:border-white/5 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             {/* Logo & Identity */}
@@ -198,7 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
               <motion.div
                 whileHover={{ rotate: -8, scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-500 via-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/40 dark:shadow-[0_8px_24px_-6px_rgba(59,130,246,0.35)] shrink-0"
+                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/30 shrink-0"
               >
                 <BookMarked className="w-5 h-5" />
               </motion.div>
@@ -209,18 +209,18 @@ export const Header: React.FC<HeaderProps> = ({
                     বিশ্ববিদ্যালয় ভর্তি
                   </h1>
                   <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-sky-100 to-cyan-100 dark:from-sky-950/60 dark:to-cyan-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shrink-0">
-                    ২০২–২৭
+                    ২০২৬-২৭
                   </span>
                 </div>
-                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5 hidden xs:block">
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5 hidden sm:block">
                   পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তি পোর্টাল
                 </p>
               </div>
             </div>
 
-            {/* Desktop Navigation Tabs (হোম / যোগ্যতা / ক্যালেন্ডার) */}
+            {/* Desktop Nav Tabs */}
             {onSelectTab && (
-              <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-[#232b3a]/70 p-1 rounded-xl border border-slate-200/70 dark:border-[#333d4d]/60">
+              <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/70 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/60">
                 {desktopTabs.map((tab) => (
                   <button
                     key={tab.key}
@@ -228,14 +228,14 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => onSelectTab(tab.key)}
                     className={`relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                       activeTab === tab.key
-                        ? "text-blue-700 dark:text-blue-400"
+                        ? "text-sky-700 dark:text-sky-400"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     {activeTab === tab.key && (
                       <motion.div
                         layoutId="desktop-tab-bg"
-                        className="absolute inset-0 bg-white dark:bg-[#1e2530] rounded-lg shadow-sm"
+                        className="absolute inset-0 bg-white dark:bg-slate-900 rounded-lg shadow-sm"
                         transition={{
                           type: "spring",
                           stiffness: 380,
@@ -255,56 +255,122 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Right Side Controls */}
             <div className="flex items-center gap-2 shrink-0">
               {/* Desktop Metrics */}
-              <div className="hidden lg:flex items-center gap-4 text-xs pr-3 border-r border-slate-200 dark:border-[#333d4d]/60">
-                <MetricBadge
-                  icon={<Layers className="w-3.5 h-3.5 text-sky-500" />}
-                  label="প্রতিষ্ঠান"
-                  value={totalCount}
-                />
-                <MetricBadge
-                  icon={
-                    <GraduationCap className="w-3.5 h-3.5 text-emerald-500" />
-                  }
-                  label="২য় বার"
-                  value={secondTimerCount}
-                />
+              <div className="hidden lg:flex items-center gap-4 text-xs pr-3 border-r border-slate-200 dark:border-slate-700/60">
+                <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                  <Layers className="w-3.5 h-3.5 text-sky-500" />
+                  <span className="font-medium">
+                    প্রতিষ্ঠান:{" "}
+                    <strong className="text-slate-900 dark:text-white font-number tabular-nums">
+                      {toBanglaNum(totalCount)}
+                    </strong>
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                  <GraduationCap className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="font-medium">
+                    ২য় বার:{" "}
+                    <strong className="text-slate-900 dark:text-white font-number tabular-nums">
+                      {toBanglaNum(secondTimerCount)}
+                    </strong>
+                  </span>
+                </div>
               </div>
-
-              {/* Mobile Settings Button */}
-              {onOpenSettings && (
-                <button
-                  type="button"
-                  onClick={onOpenSettings}
-                  title="সেটিংস"
-                  className="sm:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer active:scale-95"
-                >
-                  <Settings className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                </button>
-              )}
 
               {/* Search Button (desktop) */}
               <button
                 type="button"
                 onClick={() => setShowSearchModal(true)}
                 title="অনুসন্ধান করুন (Ctrl+K)"
-                className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-sky-800 dark:text-sky-300 border border-sky-200/90 dark:border-[#333d4d] active:scale-95 text-xs font-bold transition-all shadow-sm cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-sky-800 dark:text-sky-300 border border-sky-200/90 dark:border-slate-700 active:scale-95 text-xs font-bold transition-all shadow-sm cursor-pointer"
               >
-                <Search className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <Search className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                 <span className="hidden sm:inline">খুঁজুন</span>
-                <kbd className="hidden lg:inline-block text-[10px] px-1.5 py-0.5 rounded bg-white dark:bg-[#1e2530] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-[#333d4d] font-mono">
+                <kbd className="hidden lg:inline-block text-[10px] px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
                   ⌘K
                 </kbd>
               </button>
+
+              {/* Font Switcher (desktop dropdown) */}
+              <div className="relative hidden sm:block" ref={fontMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowFontMenu(!showFontMenu)}
+                  title="ফন্ট পরিবর্তন"
+                  aria-label="ফন্ট পরিবর্তন"
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer active:scale-95 hover:border-blue-300 dark:hover:border-blue-600 transition-all"
+                >
+                  <Type className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                </button>
+
+                <AnimatePresence>
+                  {showFontMenu && onFontChange && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#1e2530] border border-slate-200 dark:border-[#333d4d] rounded-2xl shadow-xl overflow-hidden z-50"
+                    >
+                      <div className="px-3 py-2.5 border-b border-slate-100 dark:border-[#2a3344] flex items-center gap-2">
+                        <Type className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                          ফন্ট বাছাই করুন
+                        </span>
+                      </div>
+                      <div className="space-y-1 mt-1 p-2">
+                        {FONT_OPTIONS.map((f) => (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => {
+                              onFontChange(f.id);
+                              setShowFontMenu(false);
+                            }}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between transition-colors cursor-pointer ${
+                              currentFont === f.id
+                                ? "bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-950/70 dark:to-cyan-950/70 text-sky-900 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800"
+                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#2a3344]"
+                            }`}
+                          >
+                            <div>
+                              <div className="text-sm font-semibold">
+                                {f.name}
+                              </div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                {f.note} • {f.preview}
+                              </div>
+                            </div>
+                            {currentFont === f.id && (
+                              <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* ⚙️ SETTINGS — সব device-এ (PC + mobile) */}
+              {onOpenSettings && (
+                <button
+                  type="button"
+                  onClick={onOpenSettings}
+                  title="সেটিংস"
+                  aria-label="সেটিংস"
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer active:scale-95 hover:border-sky-300 dark:hover:border-sky-600 transition-all"
+                >
+                  <Settings className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                </button>
+              )}
 
               {/* Dark Mode Toggle */}
               {onToggleDarkMode && (
                 <button
                   type="button"
                   onClick={onToggleDarkMode}
-                  aria-label={
-                    isDarkMode ? "লাইট মোড চালু করুন" : "ডার্ক মোড চালু করুন"
-                  }
-                  className="p-2 rounded-xl border border-slate-200 dark:border-[#333d4d] hover:border-amber-400/60 dark:hover:border-amber-400/60 bg-slate-50 dark:bg-[#232b3a] text-slate-800 dark:text-slate-100 text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95"
+                  aria-label={isDarkMode ? "লাইট মোড" : "ডার্ক মোড"}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-amber-400/60 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm cursor-pointer active:scale-95 transition-all"
                 >
                   <AnimatePresence mode="wait" initial={false}>
                     {isDarkMode ? (
@@ -331,78 +397,11 @@ export const Header: React.FC<HeaderProps> = ({
                   </AnimatePresence>
                 </button>
               )}
-
-              {/* Font Switcher */}
-              <div className="relative hidden" ref={fontMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowFontMenu(!showFontMenu)}
-                  aria-label="বাংলা ফন্ট পরিবর্তন করুন"
-                  className="p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 dark:border-[#333d4d] hover:border-sky-300 dark:hover:border-sky-600 hover:bg-sky-50/60 dark:hover:bg-[#2a3344] text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all shadow-sm cursor-pointer flex items-center gap-1.5 active:scale-95"
-                >
-                  <Type className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                  <span className="hidden sm:inline">
-                    {currentFont === "noto"
-                      ? "নোটো"
-                      : currentFont === "anek"
-                        ? "অনেকা"
-                        : "হিন্দ"}
-                  </span>
-                </button>
-
-                <AnimatePresence>
-                  {showFontMenu && onFontChange && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1e2530] rounded-2xl shadow-2xl border border-slate-200 dark:border-[#2a3344] p-2 z-50 text-xs"
-                    >
-                      <div className="font-bold text-slate-800 dark:text-slate-100 px-3 py-2 border-b border-slate-100 dark:border-[#2a3344]">
-                        বাংলা ফন্ট নির্বাচন করুন
-                      </div>
-                      <div className="space-y-1 mt-1">
-                        {FONT_OPTIONS.map((f) => (
-                          <button
-                            key={f.id}
-                            type="button"
-                            onClick={() => {
-                              onFontChange(f.id);
-                              setShowFontMenu(false);
-                            }}
-                            className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between transition-colors cursor-pointer ${
-                              currentFont === f.id
-                                ? "bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-950/70 dark:to-cyan-950/70 text-sky-900 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800"
-                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#2a3344]"
-                            }`}
-                          >
-                            <div>
-                              <div className="text-xs font-semibold">
-                                {f.name}
-                              </div>
-                              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-number mt-0.5">
-                                {f.preview}
-                              </div>
-                              <div className="text-[10px] text-slate-400 dark:text-slate-500">
-                                {f.note}
-                              </div>
-                            </div>
-                            {currentFont === f.id && (
-                              <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Urgent Notice Strip (only when ongoing > 0) */}
+        {/* Urgent Notice */}
         {ongoingCount > 0 && (
           <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 dark:from-amber-950/40 dark:via-amber-900/20 dark:to-amber-950/40 border-t border-amber-200/50 dark:border-amber-900/50 px-4 sm:px-6 py-2 text-xs text-amber-900 dark:text-amber-200">
             <div className="max-w-7xl mx-auto w-full flex items-center gap-2 min-w-0">
@@ -425,11 +424,10 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </header>
 
-      {/* ===================== SEARCH MODAL ===================== */}
+      {/* Search Modal */}
       <AnimatePresence>
         {showSearchModal && (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 overflow-y-auto">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -437,18 +435,15 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setShowSearchModal(false)}
               className="fixed inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm"
             />
-
-            {/* Dialog */}
             <motion.div
               initial={{ opacity: 0, y: -20, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-xl bg-white dark:bg-[#1e2530] rounded-2xl shadow-2xl border border-slate-200 dark:border-[#333d4d]/60 overflow-hidden z-10"
+              className="relative w-full max-w-xl bg-white dark:bg-[#1e2530] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700/60 overflow-hidden z-10"
             >
-              {/* Input Row */}
-              <div className="p-4 border-b border-slate-100 dark:border-[#2a3344] flex items-center gap-3 bg-gradient-to-r from-sky-50/50 to-cyan-50/30 dark:from-slate-800/60 dark:to-slate-800/40">
-                <Search className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 ml-1" />
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3 bg-gradient-to-r from-sky-50/50 to-cyan-50/30 dark:from-slate-800/60 dark:to-slate-800/40">
+                <Search className="w-5 h-5 text-sky-600 dark:text-sky-400 shrink-0 ml-1" />
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -462,7 +457,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-[#2a3344]/60 cursor-pointer"
+                    className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -470,27 +465,27 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowSearchModal(false)}
-                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-[#232b3a] hover:bg-slate-200 dark:hover:bg-[#2a3344] text-slate-600 dark:text-slate-300 text-xs font-semibold cursor-pointer shrink-0"
+                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold cursor-pointer shrink-0"
                 >
                   Esc
                 </button>
               </div>
 
-              {/* Results / Popular */}
               <div className="max-h-[60vh] overflow-y-auto p-3">
                 {searchQuery.trim() ? (
                   filteredUniversities.length > 0 ? (
                     <div className="space-y-1">
                       <div className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-2 mb-1.5">
-                        পাওয়া গেছে {toBanglaNum(filteredUniversities.length)}টি
-                        ফলাফল
+                        পাওয়া গেছে{" "}
+                        {toBanglaNum(filteredUniversities.length)}
+                        টি ফলাফল
                       </div>
                       {filteredUniversities.map((uni) => (
                         <button
                           key={uni.id}
                           type="button"
                           onClick={() => handleSelectUni(uni)}
-                          className="w-full text-left p-2.5 rounded-xl hover:bg-sky-50/80 dark:hover:bg-[#2a3344]/80 active:bg-sky-100 dark:active:bg-slate-800 flex items-center justify-between gap-3 transition-colors cursor-pointer group"
+                          className="w-full text-left p-2.5 rounded-xl hover:bg-sky-50/80 dark:hover:bg-slate-800/80 flex items-center justify-between gap-3 transition-colors cursor-pointer group"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div
@@ -506,7 +501,7 @@ export const Header: React.FC<HeaderProps> = ({
                                 {uni.name}
                               </div>
                               <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-                                <span className="text-blue-700 dark:text-blue-400 font-medium">
+                                <span className="text-sky-700 dark:text-sky-400 font-medium">
                                   {uni.categoryLabel}
                                 </span>
                                 <span>•</span>
@@ -521,6 +516,7 @@ export const Header: React.FC<HeaderProps> = ({
                         </button>
                       ))}
                     </div>
+
                   ) : (
                     <div className="py-12 text-center text-slate-500 dark:text-slate-400">
                       <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -543,7 +539,7 @@ export const Header: React.FC<HeaderProps> = ({
                           key={uni.id}
                           type="button"
                           onClick={() => handleSelectUni(uni)}
-                          className="text-left p-3 rounded-xl bg-slate-50 dark:bg-[#232b3a]/80 hover:bg-sky-50 dark:hover:bg-[#2a3344] border border-slate-200/80 dark:border-[#333d4d]/80 hover:border-sky-200 dark:hover:border-sky-700 transition-all flex items-center gap-2.5 cursor-pointer group"
+                          className="text-left p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-sky-50 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/80 hover:border-sky-200 dark:hover:border-sky-700 transition-all flex items-center gap-2.5 cursor-pointer group"
                         >
                           <div
                             className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black shrink-0 ${
@@ -569,7 +565,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="p-3 bg-slate-50 dark:bg-[#232b3a]/60 border-t border-slate-100 dark:border-[#2a3344] flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                 <span>যেকোনো বিশ্ববিদ্যালয়ে ক্লিক করে সার্কুলার দেখুন</span>
                 <kbd className="hidden sm:inline-block px-1.5 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-[10px] text-slate-600 dark:text-slate-300 font-mono">
                   Esc বন্ধ
@@ -582,20 +578,3 @@ export const Header: React.FC<HeaderProps> = ({
     </>
   );
 };
-
-/* ---------- Small helper ---------- */
-const MetricBadge: React.FC<{
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-}> = ({ icon, label, value }) => (
-  <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-    {icon}
-    <span className="font-medium">
-      {label}:{" "}
-      <strong className="text-slate-900 dark:text-white font-number tabular-nums">
-        {toBanglaNum(value)}
-      </strong>
-    </span>
-  </div>
-);
