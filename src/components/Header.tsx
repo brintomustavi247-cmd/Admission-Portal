@@ -15,6 +15,7 @@ import {
   Calendar,
   Sun,
   Moon,
+  Settings,
 } from "lucide-react";
 import { toBanglaNum } from "../lib/banglaUtils";
 import { University } from "../types/admission";
@@ -33,6 +34,7 @@ interface HeaderProps {
   onSearchOpenChange?: (open: boolean) => void;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
+  onOpenSettings?: () => void;
 }
 
 type FontKey = "noto" | "anek" | "hind";
@@ -78,6 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSearchOpenChange,
   isDarkMode = false,
   onToggleDarkMode,
+  onOpenSettings,
 }) => {
   const [showFontMenu, setShowFontMenu] = useState(false);
   const [internalSearchModal, setInternalSearchModal] = useState(false);
@@ -267,12 +270,24 @@ export const Header: React.FC<HeaderProps> = ({
                 />
               </div>
 
-              {/* Search Button */}
+              {/* Mobile Settings Button */}
+              {onOpenSettings && (
+                <button
+                  type="button"
+                  onClick={onOpenSettings}
+                  title="সেটিংস"
+                  className="sm:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer active:scale-95"
+                >
+                  <Settings className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                </button>
+              )}
+
+              {/* Search Button (desktop) */}
               <button
                 type="button"
                 onClick={() => setShowSearchModal(true)}
                 title="অনুসন্ধান করুন (Ctrl+K)"
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-sky-800 dark:text-sky-300 border border-sky-200/90 dark:border-[#333d4d] active:scale-95 text-xs font-bold transition-all shadow-sm cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-sky-800 dark:text-sky-300 border border-sky-200/90 dark:border-[#333d4d] active:scale-95 text-xs font-bold transition-all shadow-sm cursor-pointer"
               >
                 <Search className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                 <span className="hidden sm:inline">খুঁজুন</span>

@@ -26,6 +26,7 @@ import { UniversityModal } from "./components/UniversityModal";
 import { SheetConfigModal } from "./components/SheetConfigModal";
 import { CalendarTimeline } from "./components/CalendarTimeline";
 import { MobileBottomNav } from "./components/MobileBottomNav";
+import { SettingsPanel } from "./components/SettingsPanel";
 import { SkeletonCard } from "./components/SkeletonCard";
 import {
   GraduationCap,
@@ -44,7 +45,7 @@ type FontKey = "noto" | "anek" | "hind";
 const FONT_STORAGE_KEY = "admission_font_pref";
 const THEME_STORAGE_KEY = "varsity_theme";
 
-export default function AdmissionDashboard() {
+export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () => void } = {}) {
   /* ---------- 1. Data Source ---------- */
   const [sheetData, setSheetData] = useState<SheetFetchResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -94,6 +95,7 @@ export default function AdmissionDashboard() {
     useState<University | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   /* ---------- Side Effects ---------- */
   useEffect(() => {
@@ -258,6 +260,7 @@ export default function AdmissionDashboard() {
         onSearchOpenChange={setIsSearchOpen}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* ================= MAIN ================= */}
@@ -393,6 +396,11 @@ export default function AdmissionDashboard() {
       </main>
 
       {/* ================= MODALS & NAV ================= */}
+      <SettingsPanel
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onOpenAdmin={onOpenAdmin}
+      />
       <UniversityModal
         university={selectedUniversity}
         isOpen={isModalOpen}
@@ -419,6 +427,7 @@ export default function AdmissionDashboard() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
     </div>
   );
