@@ -318,7 +318,7 @@ export const Header: React.FC<HeaderProps> = ({
               )}
 
               {/* Font Switcher */}
-              <div className="relative" ref={fontMenuRef}>
+              <div className="relative hidden" ref={fontMenuRef}>
                 <button
                   type="button"
                   onClick={() => setShowFontMenu(!showFontMenu)}
