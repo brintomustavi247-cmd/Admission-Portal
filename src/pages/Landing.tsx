@@ -90,7 +90,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1017] text-slate-100 overflow-x-hidden">
+    <div className="min-h-screen bg-[#0d1017] text-slate-100 overflow-x-hidden font-anek">
       {/* ===== NAVBAR ===== */}
       <header className="sticky top-0 z-40 bg-[#0d1017]/85 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
@@ -101,7 +101,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
               className="w-9 h-9 rounded-xl bg-white object-cover shadow-lg shadow-sky-500/30"
             />
             <div>
-              <div className="text-sm font-black text-white leading-none">
+              <div className="font-anek text-sm font-extrabold text-white leading-none tracking-wide">
                 Admission Portal
               </div>
               <div className="text-[9px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">
@@ -144,7 +144,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
                 এক অ্যাপে
               </span>
             </h1>
-            <p className="text-slate-400 text-sm sm:text-base mt-5 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="font-anek font-medium text-slate-300 text-sm sm:text-base mt-5 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তির সময়সূচি, জিপিএ
               যোগ্যতা চেক ও মাস্টার ক্যালেন্ডার — সব এক জায়গায়। একদম ফ্রি,
               লঞ্চ অফারে।
@@ -277,7 +277,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
           <div className="text-[11px] font-black text-sky-400 tracking-widest uppercase">
             Features
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white mt-2">
+          <h2 className="font-tiro text-3xl sm:text-4xl text-white mt-2 leading-snug">
             যা যা পাচ্ছো এক অ্যাপে
           </h2>
         </div>
@@ -302,7 +302,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
       {/* ===== HOW IT WORKS ===== */}
       <section className="max-w-5xl mx-auto px-5 pb-14">
         <div className="rounded-3xl bg-gradient-to-br from-[#151a23] to-[#10141d] border border-white/10 p-8">
-          <h2 className="text-xl sm:text-2xl font-black text-white text-center mb-8">
+          <h2 className="font-tiro text-2xl sm:text-3xl text-white text-center mb-8">
             ৩ step-এ শুরু করো
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
@@ -432,7 +432,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
       <section className="max-w-5xl mx-auto px-5 pb-16">
         <div className="rounded-3xl bg-gradient-to-r from-blue-600/20 via-violet-600/20 to-sky-600/20 border border-blue-400/30 p-8 text-center">
           <Smartphone className="w-8 h-8 text-sky-400 mx-auto mb-3" />
-          <h2 className="text-xl sm:text-2xl font-black text-white">
+          <h2 className="font-tiro text-2xl sm:text-3xl text-white">
             ফোনে অ্যাপের মতো ব্যবহার করো
           </h2>
           <p className="text-xs text-slate-400 mt-2 max-w-md mx-auto">

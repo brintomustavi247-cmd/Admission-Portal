@@ -430,11 +430,19 @@ html.dark .shine-on-hover:hover::after {
     sans-serif !important;
 }
 .font-tiro {
-  font-family: "Tiro Bangla", "Noto Sans Bengali", serif !important;
+  font-family:
+    "Tiro Bangla",
+    "Noto Serif Bengali",
+    "Noto Sans Bengali",
+    serif !important;
+}
+.font-serifbn {
+  font-family: "Noto Serif Bengali", "Tiro Bangla", serif !important;
 }
 .font-anek {
   font-family:
     "Anek Bangla",
+    "Hind Siliguri",
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
