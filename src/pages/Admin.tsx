@@ -31,6 +31,7 @@ interface AdminUser {
   referred_by: string | null;
   discount_unlocked: boolean;
   total_donated: number;
+  email: string | null;
 }
 interface Payment {
   id: string;
@@ -74,6 +75,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const [announcement, setAnnouncement] = useState("");
   const [q, setQ] = useState("");
   const [saved, setSaved] = useState("");
+  const [selected, setSelected] = useState<AdminUser | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: u }, { data: p }, { data: s }] = await Promise.all([
@@ -222,6 +224,78 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
 
   return (
     <div className="min-h-screen bg-[#0d1017] text-slate-100 pb-16">
+      {/* ===== USER DETAIL MODAL ===== */}
+      {selected && (
+        <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelected(null)} />
+          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-3xl bg-[#151b27] border border-white/10 p-5 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-black text-white">ইউজার ডিটেইলস</h3>
+              <button onClick={() => setSelected(null)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer"><X className="w-4 h-4" /></button>
+            </div>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-violet-500 flex items-center justify-center text-white font-black shrink-0">
+                {(selected.full_name || selected.email || 'U').charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-black text-white truncate">{selected.full_name || '—'}</div>
+                <div className="text-[10px] text-slate-400 truncate">{selected.email || 'email নেই'}</div>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-[11px]">
+              {[
+                ['User ID', selected.id],
+                ['রেফারেল কোড', selected.referral_code || '—'],
+                ['ফোন', selected.phone || '—'],
+                ['Role', selected.role],
+                ['অ্যাক্সেস', selected.access_enabled ? '✅ চালু' : '❌ বন্ধ'],
+                ['প্রিমিয়াম', selected.is_premium ? `✅ ${selected.premium_expires_at ? selected.premium_expires_at.slice(0, 10) : ''}` : '❌ নেই'],
+                ['মোট ডোনেশন', `৳${toBanglaNum(selected.total_donated || 0)}`],
+                ['Discount unlocked', selected.discount_unlocked ? '✅' : '❌'],
+              ].map(([k, v]) => (
+                <div key={k as string} className="flex items-start justify-between gap-3 rounded-xl bg-[#0f141d] border border-white/5 px-3 py-2">
+                  <span className="text-slate-400 font-bold shrink-0">{k}</span>
+                  <span className="text-slate-200 font-bold text-right break-all">{v as string}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">পেমেন্ট হিস্টরি (TrxID + bKash)</div>
+              {payments.filter((p) => p.user_id === selected.id).length === 0 ? (
+                <div className="text-[10px] text-slate-500 text-center py-3 rounded-xl bg-[#0f141d] border border-white/5">কোনো পেমেন্ট নেই</div>
+              ) : (
+                <div className="space-y-2">
+                  {payments.filter((p) => p.user_id === selected.id).map((p) => (
+                    <div key={p.id} className="rounded-xl bg-[#0f141d] border border-white/5 px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-black text-white">৳{toBanglaNum(p.amount)} • {p.plan}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black ${p.status === 'approved' ? 'bg-emerald-500/20 text-emerald-300' : p.status === 'pending' ? 'bg-amber-500/20 text-amber-300' : 'bg-red-500/20 text-red-300'}`}>{p.status}</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1">TrxID: {p.trx_id}</div>
+                      {p.sender_phone && <div className="text-[10px] text-slate-400">bKash নম্বর: {p.sender_phone}</div>}
+                      <div className="text-[9px] text-slate-500 mt-1">{new Date(p.created_at).toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <button onClick={() => { toggleUser(selected, 'access_enabled'); setSelected({ ...selected, access_enabled: !selected.access_enabled }); }}
+                className={`py-2.5 rounded-xl text-[11px] font-black cursor-pointer ${selected.access_enabled ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'}`}>
+                {selected.access_enabled ? 'অ্যাক্সেস বন্ধ করো' : 'অ্যাক্সেস চালু করো'}
+              </button>
+              <button onClick={() => { toggleUser(selected, 'is_premium'); setSelected({ ...selected, is_premium: !selected.is_premium }); }}
+                className={`py-2.5 rounded-xl text-[11px] font-black cursor-pointer ${selected.is_premium ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'}`}>
+                {selected.is_premium ? 'প্রিমিয়াম বাতিল' : 'প্রিমিয়াম দাও'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="sticky top-0 z-30 bg-[#151a23]/90 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -498,7 +572,11 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
               </thead>
               <tbody>
                 {filtered.map((u) => (
-                  <tr key={u.id} className="border-b border-white/5">
+                  <tr
+                    key={u.id}
+                    onClick={() => setSelected(u)}
+                    className="border-b border-white/5 cursor-pointer hover:bg-white/[0.03] transition"
+                  >
                     <td className="py-2.5 pr-3">
                       <div className="font-bold text-white">
                         {u.full_name || "—"}{" "}
@@ -507,6 +585,9 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                             ADMIN
                           </span>
                         )}
+                      </div>
+                      <div className="text-[9px] text-slate-500 truncate max-w-[140px]">
+                        {u.email || "—"}
                       </div>
                       <div className="text-slate-500">
                         {u.phone || "—"}

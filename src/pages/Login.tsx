@@ -1,7 +1,6 @@
 ﻿import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
 import {
-  GraduationCap,
   Mail,
   Lock,
   User as UserIcon,
@@ -111,9 +110,11 @@ export const Login: React.FC<{ onDone: () => void }> = ({ onDone }) => {
       <div className="w-full max-w-sm bg-[#151b27] border border-white/10 shadow-xl shadow-black/30 rounded-3xl p-6 relative z-10">
         {/* Brand */}
         <div className="text-center mb-6">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-blue-500 to-violet-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <GraduationCap className="w-7 h-7 text-white" />
-          </div>
+          <img
+            src="/icons/icon-512.png"
+            alt="Admission Portal"
+            className="w-14 h-14 mx-auto rounded-2xl object-cover shadow-lg shadow-blue-500/30"
+          />
           <h1 className="text-lg font-black text-white mt-3">
             {mode === "login" ? "স্বাগতম! লগইন করো" : "অ্যাকাউন্ট খোলো"}
           </h1>
