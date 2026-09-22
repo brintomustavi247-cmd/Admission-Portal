@@ -112,7 +112,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   }
 
   const saveSettings = async () => {
-    await supabase
+    const { data, error } = await supabase
       .from("app_settings")
       .update({
         subscription_enabled: subEnabled,
@@ -126,9 +126,18 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         announcement_text: announcement,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", 1);
-    setSaved("✅ Saved — সব user-এর কাছে live!");
-    setTimeout(() => setSaved(""), 2500);
+      .eq("id", 1)
+      .select();
+
+    if (error) {
+      console.error("settings save failed:", error);
+      setSaved("❌ Save failed: " + error.message);
+    } else if (!data || data.length === 0) {
+      setSaved("❌ Save হয়নি — RLS permission সমস্যা (SQL fix run করো)");
+    } else {
+      setSaved("✅ Saved — সব user-এর কাছে live!");
+    }
+    setTimeout(() => setSaved(""), 4000);
   };
 
   const toggleUser = async (
@@ -139,10 +148,14 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     setUsers((prev) =>
       prev.map((x) => (x.id === u.id ? { ...x, [field]: val } : x)),
     );
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({ [field]: val })
       .eq("id", u.id);
+    if (error) {
+      console.error("user update failed:", error);
+      alert("❌ Update failed: " + error.message);
+    }
   };
 
   const decidePayment = async (p: Payment, approve: boolean) => {
@@ -182,10 +195,11 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         }
       }
     }
-    await supabase
+    const { error } = await supabase
       .from("payment_requests")
       .update({ status: approve ? "approved" : "rejected" })
       .eq("id", p.id);
+    if (error) alert("❌ Payment update failed: " + error.message);
     load();
   };
 
