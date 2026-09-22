@@ -1,16 +1,64 @@
 ﻿{
   "name": "বিশ্ববিদ্যালয় ভর্তি ২০২৬-২৭",
   "short_name": "ভর্তি পোর্টাল",
-  "start_url": "/",
+  "description": "সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তি পরীক্ষার সময়সূচি, যোগ্যতা চেক ও মাস্টার ক্যালেন্ডার — এক অ্যাপে।",
+  "id": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#151a23",
-  "theme_color": "#151a23",
+  "background_color": "#0d1017",
+  "theme_color": "#0d1017",
   "lang": "bn",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "যোগ্যতা চেক",
+      "short_name": "যোগ্যতা",
+      "description": "GPA দিয়ে যোগ্যতা যাচাই করো",
+      "url": "/?tab=eligibility",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "মাস্টার ক্যালেন্ডার",
+      "short_name": "ক্যালেন্ডার",
+      "description": "সব ভর্তি পরীক্ষার তারিখ",
+      "url": "/?tab=calendar",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

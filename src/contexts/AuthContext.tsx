@@ -13,6 +13,8 @@ export interface Profile {
   referral_code?: string | null;
   referred_by?: string | null;
   discount_unlocked?: boolean;
+  donor_card?: boolean;
+  total_donated?: number;
 }
 
 interface AuthCtx {

@@ -32,6 +32,8 @@ const FEATURES = [
 export const PremiumPaywall: React.FC = () => {
   const { profile, refreshProfile } = useAuth();
   const [referralOn, setReferralOn] = useState(true);
+  const [basePrice, setBasePrice] = useState(99);
+  const [referralPrice, setReferralPrice] = useState(49);
   const [code, setCode] = useState("");
   const [codeOwner, setCodeOwner] = useState<{
     id: string;
@@ -49,12 +51,15 @@ export const PremiumPaywall: React.FC = () => {
   useEffect(() => {
     supabase
       .from("app_settings")
-      .select("referral_discount_enabled")
+      .select("*")
       .eq("id", 1)
       .single()
-      .then(
-        ({ data }) => data && setReferralOn(data.referral_discount_enabled),
-      );
+      .then(({ data }) => {
+        if (!data) return;
+        setReferralOn(data.referral_discount_enabled);
+        setBasePrice(data.base_price ?? 99);
+        setReferralPrice(data.referral_price ?? 49);
+      });
     if (!profile) return;
     supabase
       .from("payment_requests")
@@ -70,8 +75,8 @@ export const PremiumPaywall: React.FC = () => {
   if (!profile) return null;
 
   const ownDiscount = profile.discount_unlocked || !!profile.referred_by;
-  const price = referralOn && (ownDiscount || !!codeOwner) ? 49 : 99;
-  const discounted = price === 49;
+  const price = referralOn && (ownDiscount || !!codeOwner) ? referralPrice : basePrice;
+  const discounted = price === referralPrice && referralPrice !== basePrice;
 
   const verifyCode = async () => {
     setCodeMsg("");
@@ -84,7 +89,9 @@ export const PremiumPaywall: React.FC = () => {
     const row = Array.isArray(data) ? data[0] : data;
     if (row && row.owner_id !== profile.id) {
       setCodeOwner({ id: row.owner_id, name: row.owner_name || "friend" });
-      setCodeMsg("✅ কোড সক্রিয়! দাম ৳৯৯ → ৪৯");
+      setCodeMsg(
+        `✅ কোড সক্রিয়! দাম ৳${toBanglaNum(basePrice)} → ৳${toBanglaNum(referralPrice)}`,
+      );
     } else {
       setCodeOwner(null);
       setCodeMsg("❌ কোড সঠিক নয় (নিজের কোড দেওয়া যাবে না)");
@@ -167,7 +174,7 @@ export const PremiumPaywall: React.FC = () => {
 
           {/* ===== Launch offer ===== */}
           <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 font-bold text-center mb-4">
-            ⚡ Launch offer — ফ্রি সময় শেষ হলে দাম ৳৯ fixed হয়ে যাবে
+            ⚡ Launch offer — ফ্রি সময় শেষ হলে দাম ৳{toBanglaNum(basePrice)} fixed হয়ে যাবে
           </div>
 
           {/* ===== Price ===== */}
@@ -182,7 +189,7 @@ export const PremiumPaywall: React.FC = () => {
             <div className="flex items-baseline justify-center gap-2">
               {discounted && (
                 <span className="text-lg text-slate-500 line-through font-bold">
-                  ৳৯
+                  ৳{toBanglaNum(basePrice)}
                 </span>
               )}
               <span className="text-4xl font-black text-white">
@@ -316,7 +323,7 @@ export const PremiumPaywall: React.FC = () => {
                   )}
                 </button>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent("ভর্তি অ্যাপে আমার কোড " + profile.referral_code + " দিয়ে signup কর — ছাড় পাবি!")}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`🤫🔥 shon shon! admission 2026-27 er secret weapon app perechi 😍\n📅 সব schedule + 🧠 GPA check + ⚡ live update — ekhono FREE!\n🎁 my code: ${profile.referral_code}\n👉 https://varsity-admission-bd.vercel.app/?ref=${profile.referral_code}\ncode dile subscription-e ৳৪৯ — hurry 🏃💨`)}`}
                   target="_blank"
                   rel="noreferrer"
                   className="p-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 cursor-pointer"

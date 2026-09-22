@@ -53,7 +53,9 @@ export const Login: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [refCode, setRefCode] = useState("");
+  const [refCode, setRefCode] = useState(
+    () => new URLSearchParams(window.location.search).get("ref")?.toUpperCase() || ""
+  );
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [err, setErr] = useState("");

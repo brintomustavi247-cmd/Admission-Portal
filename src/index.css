@@ -412,6 +412,14 @@ html.dark .shine-on-hover:hover::after {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
+.font-gaming {
+  font-family: "Orbitron", "Plus Jakarta Sans", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.font-mono-num {
+  font-family: "Share Tech Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
 .font-noto {
   font-family:
     "Noto Sans Bengali",

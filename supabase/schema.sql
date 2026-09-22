@@ -76,3 +76,19 @@ create policy "admin update payments" on public.payment_requests
 
 -- ========== REALTIME ==========
 alter publication supabase_realtime add table public.app_settings;
+
+-- ========== DONOR CARD SYSTEM ==========
+alter table public.profiles add column if not exists donor_card boolean not null default false;
+alter table public.profiles add column if not exists total_donated int not null default 0;
+
+create or replace function public.claim_donor_card()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  update public.profiles set donor_card = true
+  where id = auth.uid() and total_donated > 0;
+end $$;
+
+-- ========== DYNAMIC PRICING + ANNOUNCEMENT ==========
+alter table public.app_settings add column if not exists base_price int not null default 99;
+alter table public.app_settings add column if not exists referral_price int not null default 49;
+alter table public.app_settings add column if not exists announcement_text text not null default '';
