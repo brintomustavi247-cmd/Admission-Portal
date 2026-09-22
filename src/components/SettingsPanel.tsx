@@ -16,7 +16,6 @@ import {
   Lock,
   Gift,
   Download,
-  PencilLine,
 } from "lucide-react";
 
 const BKASH_NUMBER = "01XXXXXXXXX";
@@ -152,7 +151,11 @@ export const SettingsPanel: React.FC<Props> = ({
   };
 
   const shareText = encodeURIComponent(
-    `🤫 shon shon! admission 2026-27 er secret weapon app 😍\n📅 schedule + 🧠 GPA check + ⚡ live update — FREE!\n🎁 code: ${profile?.referral_code}\n👉 ${APP_URL}/?ref=${profile?.referral_code}\ncode dile subscription-e discount — hurry 🏃💨`,
+    `🎓 বিশ্ববিদ্যালয় ভর্তি পোর্টাল ২০২৬-২৭\n` +
+    `সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তির সময়সূচি, জিপিএ যোগ্যতা যাচাই, মাস্টার ক্যালেন্ডার ও লাইভ আপডেট — সব এক অ্যাপে।\n` +
+    `📌 ফিচার: প্রিন্ট/PDF • ২য় বার ফিল্টার • যোগ্যতা চেক\n` +
+    `🔗 অ্যাপ: ${APP_URL}/?ref=${profile?.referral_code}\n` +
+    `🆔 আমার User ID (${profile?.referral_code}) দিয়ে register করলে subscription-এ ছাড় পাবেন।`,
   );
 
   const sendTip = async () => {
@@ -322,6 +325,7 @@ export const SettingsPanel: React.FC<Props> = ({
               <span className="text-xs sm:text-sm font-gaming font-black tracking-wider text-slate-100 uppercase block truncate max-w-[200px]">
                 {name}
               </span>
+              <span className="text-[8px] font-mono-num text-cyan-300/70 block mt-0.5">ID: {profile?.referral_code}</span>
             </div>
             <div className="text-right shrink-0">
               <span className="text-[7px] font-gaming tracking-[0.22em] text-slate-500 uppercase block">
@@ -491,6 +495,7 @@ export const SettingsPanel: React.FC<Props> = ({
               <span className="text-xs sm:text-sm font-gaming font-black tracking-wider text-white uppercase block truncate max-w-[200px]">
                 {name}
               </span>
+              <span className="text-[8px] font-mono-num text-white/60 block mt-0.5">ID: {profile?.referral_code}</span>
             </div>
             <div className="flex -space-x-3 items-center shrink-0">
               <div className="w-7 h-7 rounded-full bg-[#eb001b] shadow-md" />
@@ -712,6 +717,9 @@ export const SettingsPanel: React.FC<Props> = ({
     x.fillStyle = "#ffffff";
     x.font = '900 32px "Orbitron", sans-serif';
     x.fillText(name.slice(0, 26), 70, 665);
+    x.fillStyle = "rgba(255,255,255,0.6)";
+    x.font = '500 20px "Share Tech Mono", monospace';
+    x.fillText(`ID: ${profile.referral_code || ""}`, 70, 700);
 
     /* Session (premium) or Mastercard circles (donor) */
     if (isP) {
@@ -789,6 +797,13 @@ export const SettingsPanel: React.FC<Props> = ({
                   {isPremium ? "প্রিমিয়াম" : "ফ্রি"}
                 </span>
               </div>
+              <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400">
+                <span className="font-bold uppercase tracking-wider">User ID:</span>
+                <code className="text-sky-300 font-black tracking-widest">{profile?.referral_code}</code>
+                <button onClick={copyCode} className="p-1 rounded bg-white/5 hover:bg-white/10 cursor-pointer">
+                  {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -822,21 +837,6 @@ export const SettingsPanel: React.FC<Props> = ({
                 <MessageCircle className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
               </a>
             </div>
-          </div>
-        )}
-
-        {/* ===== NAME EDITOR ===== */}
-        {(isPremium || (donationOn && hasDonation && claimed)) && (
-          <div className="rounded-2xl bg-slate-100 dark:bg-[#0f141d] border border-slate-200 dark:border-white/10 p-3 mb-3">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
-              <PencilLine className="w-3 h-3" /> Card-এর নাম edit করো
-            </div>
-            <input
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
-              maxLength={26}
-              className="w-full bg-white dark:bg-[#151b27] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-400 font-gaming uppercase tracking-wider"
-            />
           </div>
         )}
 

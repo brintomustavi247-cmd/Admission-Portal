@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AppGate } from './components/AppGate';
 import { Landing } from './pages/Landing';
@@ -9,6 +9,12 @@ import AdmissionDashboard from './page';
 const Inner: React.FC = () => {
   const { session, profile, loading } = useAuth();
   const [route, setRoute] = useState<'landing' | 'login' | 'app' | 'admin'>('landing');
+
+  /* referral link (?ref=CODE) → সরাসরি register screen */
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref && !session) setRoute('login');
+  }, [session]);
 
   if (loading) {
     return (

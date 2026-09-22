@@ -48,7 +48,9 @@ const GoogleIcon: React.FC = () => (
 );
 
 export const Login: React.FC<{ onDone: () => void }> = ({ onDone }) => {
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup">(
+    new URLSearchParams(window.location.search).get("ref") ? "signup" : "login",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -177,7 +179,9 @@ export const Login: React.FC<{ onDone: () => void }> = ({ onDone }) => {
                   className="w-full bg-[#0f141d] border border-blue-400/30 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none uppercase tracking-widest font-bold"
                 />
                 <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
-                  কোড দিলে subscription-এর সময় তুমি ৳৪৯ পাবে আর কোড-এর মালিকও ডিসকাউন্ট unlock পাবে 🎁
+                  {refCode
+                    ? `✅ রেফার করা হয়েছে ID ${refCode.toUpperCase()} দ্বারা — subscription-এ তুমি ছাড় পাবে`
+                    : 'বন্ধুর User ID/কোড থাকলে দাও — দুজনেই ছাড় পাবে 🎁'}
                 </p>
               </div>
 

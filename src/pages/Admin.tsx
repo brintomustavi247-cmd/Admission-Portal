@@ -208,7 +208,8 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       !q.trim() ||
       (u.full_name || "").toLowerCase().includes(q.toLowerCase()) ||
       (u.phone || "").includes(q) ||
-      (u.referral_code || "").toLowerCase().includes(q.toLowerCase()),
+      (u.referral_code || "").toLowerCase().includes(q.toLowerCase()) ||
+      u.id.toLowerCase().includes(q.toLowerCase()),
   );
   const premiumCount = users.filter((u) => u.is_premium).length;
   const pending = payments.filter((p) => p.status === "pending");
@@ -508,7 +509,10 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                         )}
                       </div>
                       <div className="text-slate-500">
-                        {u.phone || u.id.slice(0, 8)}
+                        {u.phone || "—"}
+                      </div>
+                      <div className="text-[9px] text-slate-600 font-mono mt-0.5">
+                        ID: {u.id.slice(0, 8)}…
                       </div>
                     </td>
                     <td className="py-2.5 pr-3">
