@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { PremiumPaywall } from "./PremiumModal";
 import { FreePeriodPopup } from "./FreePeriodPopup";
 import { InstallButton } from "./InstallButton";
+import { track } from "../lib/track";
 import {
   ShieldOff,
   RefreshCw,
@@ -55,6 +56,29 @@ export const AppGate: React.FC<{ children: React.ReactNode }> = ({
       alive = false;
       supabase.removeChannel(ch);
     };
+  }, []);
+
+  /* heartbeat — online status (প্রতি ২ মিনিট) */
+  useEffect(() => {
+    const beat = () => { supabase.rpc('touch_last_seen').then(() => {}); };
+    beat();
+    const iv = setInterval(beat, 120000);
+    return () => clearInterval(iv);
+  }, []);
+
+  /* global tap tracker — কোন button/card-এ tap করলো */
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement).closest('button, a');
+      if (!el) return;
+      const txt = (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40);
+      if (!txt) return;
+      const card = el.closest('[class*="rounded-2xl"], [class*="rounded-3xl"]');
+      const nameEl = card ? card.querySelector('h3, h2, [class*="font-black"]') : null;
+      track('tap', { button: txt, context: (nameEl?.textContent || '').trim().slice(0, 40) });
+    };
+    window.addEventListener('click', h, true);
+    return () => window.removeEventListener('click', h, true);
   }, []);
 
   if (loading) {

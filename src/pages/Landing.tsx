@@ -326,8 +326,22 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
             <Crown className="w-3 h-3" /> প্রিমিয়াম
           </div>
           <h2 className="text-2xl font-black text-white">
-            লঞ্চে ফ্রি — তারপর একদম সস্তা
+            লঞ্চ অফারে এখন সম্পূর্ণ ফ্রি
           </h2>
+          <p className="text-xs text-slate-400 mt-2 max-w-md mx-auto leading-relaxed">
+            অফার পিরিয়ড শেষে একবারই পেমেন্ট — পুরো সেশন ২০২৬-২৭ জুড়ে প্রিমিয়াম
+            সুবিধা। কোনো মাসিক ফি নেই।
+          </p>
+        </div>
+        <div className="rounded-2xl bg-[#151a23] border border-white/10 p-5 text-center max-w-2xl mx-auto mb-6">
+          <div className="text-[13px] sm:text-base font-bold text-slate-200 leading-relaxed">
+            ৳৯৯-এ যা পাচ্ছো: সম্পূর্ণ সেশনের সব সময়সূচি • আনলিমিটেড যোগ্যতা চেক •
+            প্রিন্ট ও PDF • তাৎক্ষণিক লাইভ আপডেট • প্রায়োরিটি সাপোর্ট — একবার
+            পেমেন্ট, পুরো সেশন valid।
+          </div>
+          <div className="mt-3 text-base sm:text-lg font-black text-emerald-300">
+            বন্ধুর রেফারেল কোড ব্যবহার করলে দাম মাত্র ৳৪৯ 🎁
+          </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
           <div className="rounded-3xl p-6 bg-[#151a23] border border-white/10">

@@ -32,6 +32,7 @@ interface AdminUser {
   discount_unlocked: boolean;
   total_donated: number;
   email: string | null;
+  last_seen: string | null;
 }
 interface Payment {
   id: string;
@@ -76,6 +77,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const [q, setQ] = useState("");
   const [saved, setSaved] = useState("");
   const [selected, setSelected] = useState<AdminUser | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
 
   const load = useCallback(async () => {
     const [{ data: u }, { data: p }, { data: s }] = await Promise.all([
@@ -104,6 +106,14 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!selected) { setEvents([]); return; }
+    supabase.from('user_events').select('*').eq('user_id', selected.id)
+      .order('created_at', { ascending: false }).limit(40)
+      .then(({ data }) => setEvents(data || []));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.id]);
 
   if (!profile || profile.role !== "admin") {
     return (
@@ -283,6 +293,23 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
               )}
             </div>
 
+            <div className="mt-4">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">সাম্প্রতিক অ্যাক্টিভিটি (ট্যাপ লগ)</div>
+              {events.length === 0 ? (
+                <div className="text-[10px] text-slate-500 text-center py-3 rounded-xl bg-[#0f141d] border border-white/5">কোনো অ্যাক্টিভিটি নেই</div>
+              ) : (
+                <div className="space-y-1.5 max-h-52 overflow-y-auto">
+                  {events.map((ev) => (
+                    <div key={ev.id} className="rounded-lg bg-[#0f141d] border border-white/5 px-3 py-1.5 text-[10px]">
+                      <span className="text-sky-300 font-bold">{ev.meta?.button || ev.event_type}</span>
+                      {ev.meta?.context && <span className="text-slate-400"> — {ev.meta.context}</span>}
+                      <div className="text-[9px] text-slate-500">{new Date(ev.created_at).toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-2 mt-4">
               <button onClick={() => { toggleUser(selected, 'access_enabled'); setSelected({ ...selected, access_enabled: !selected.access_enabled }); }}
                 className={`py-2.5 rounded-xl text-[11px] font-black cursor-pointer ${selected.access_enabled ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'}`}>
@@ -456,8 +483,19 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         </div>
 
         {/* ===== REVENUE STATS ===== */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
+            {
+              icon: <Users className="w-4 h-4" />,
+              l: "অনলাইন এখন",
+              v: String(
+                users.filter(
+                  (u) =>
+                    u.last_seen &&
+                    Date.now() - new Date(u.last_seen).getTime() < 300000,
+                ).length,
+              ),
+            },
             {
               icon: <Users className="w-4 h-4" />,
               l: "ইউজার",
@@ -578,7 +616,10 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                     className="border-b border-white/5 cursor-pointer hover:bg-white/[0.03] transition"
                   >
                     <td className="py-2.5 pr-3">
-                      <div className="font-bold text-white">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${u.last_seen && Date.now() - new Date(u.last_seen).getTime() < 300000 ? "bg-emerald-400 animate-pulse" : "bg-slate-600"}`}
+                        />
                         {u.full_name || "—"}{" "}
                         {u.role === "admin" && (
                           <span className="ml-1 px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 text-[9px] font-black">
