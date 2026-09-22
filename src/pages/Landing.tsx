@@ -138,7 +138,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold mb-5">
               <Zap className="w-3 h-3" /> ভর্তি সেশন ২০২-২৭ • লাইভ আপডেট
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">
+            <h1 className="font-tiro text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.3]">
               বিশ্ববিদ্যালয় ভর্তি{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-violet-400">
                 এক অ্যাপে
@@ -319,82 +319,108 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
         </div>
       </section>
 
-      {/* ===== PRICING + REFERRAL ===== */}
-      <section className="max-w-5xl mx-auto px-5 pb-14">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-400/30 text-violet-300 text-[11px] font-bold mb-3">
-            <Crown className="w-3 h-3" /> প্রিমিয়াম
+      {/* ===== PRICING + REFERRAL (PREMIUM) ===== */}
+      <section className="relative max-w-5xl mx-auto px-5 pb-20">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 to-yellow-500/10 border border-amber-400/30 text-amber-300 text-[11px] font-bold mb-4">
+            <Crown className="w-3.5 h-3.5" /> প্রিমিয়াম সদস্যপদ
           </div>
-          <h2 className="text-2xl font-black text-white">
-            লঞ্চ অফারে এখন সম্পূর্ণ ফ্রি
+          <h2 className="font-tiro text-3xl sm:text-4xl text-white leading-snug">
+            লঞ্চ অফারে এখন{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-200">
+              সম্পূর্ণ ফ্রি
+            </span>
           </h2>
-          <p className="text-xs text-slate-400 mt-2 max-w-md mx-auto leading-relaxed">
+          <p className="font-anek text-sm text-slate-400 mt-3 max-w-md mx-auto leading-relaxed">
             অফার পিরিয়ড শেষে একবারই পেমেন্ট — পুরো সেশন ২০২৬-২৭ জুড়ে প্রিমিয়াম
             সুবিধা। কোনো মাসিক ফি নেই।
           </p>
         </div>
-        <div className="rounded-2xl bg-[#151a23] border border-white/10 p-5 text-center max-w-2xl mx-auto mb-6">
-          <div className="text-[13px] sm:text-base font-bold text-slate-200 leading-relaxed">
-            ৳৯৯-এ যা পাচ্ছো: সম্পূর্ণ সেশনের সব সময়সূচি • আনলিমিটেড যোগ্যতা চেক •
-            প্রিন্ট ও PDF • তাৎক্ষণিক লাইভ আপডেট • প্রায়োরিটি সাপোর্ট — একবার
-            পেমেন্ট, পুরো সেশন valid।
+
+        {/* Value banner */}
+        <div className="relative rounded-3xl overflow-hidden border border-amber-400/25 bg-gradient-to-br from-[#1a1610] via-[#151a23] to-[#10141d] p-6 sm:p-8 text-center mb-8 shadow-2xl shadow-amber-500/5">
+          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-16 w-64 h-64 rounded-full bg-yellow-500/5 blur-3xl pointer-events-none" />
+          <div className="relative font-anek text-base sm:text-lg font-semibold text-slate-100 leading-relaxed">
+            ৳৯৯-এ যা পাচ্ছো — সম্পূর্ণ সেশনের সব সময়সূচি • আনলিমিটেড যোগ্যতা চেক •
+            প্রিন্ট ও PDF • তাৎক্ষণিক লাইভ আপডেট • প্রায়োরিটি সাপোর্ট
           </div>
-          <div className="mt-3 text-base sm:text-lg font-black text-emerald-300">
-            বন্ধুর রেফারেল কোড ব্যবহার করলে দাম মাত্র ৳৪৯ 🎁
+          <div className="relative mt-4 font-tiro text-xl sm:text-2xl text-emerald-300">
+            বন্ধুর রেফারেল কোডে দাম মাত্র ৳৪৯ 🎁
           </div>
         </div>
-        <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
-          <div className="rounded-3xl p-6 bg-[#151a23] border border-white/10">
-            <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+
+        {/* Pricing cards */}
+        <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          {/* Season Pass */}
+          <div className="relative rounded-3xl p-6 bg-[#151a23] border border-white/10 hover:border-amber-400/40 hover:-translate-y-1 transition-all shadow-xl">
+            <div className="text-[10px] font-black tracking-[0.25em] text-slate-400 uppercase">
               Season Pass
             </div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-4xl font-black text-white">৳৯৯</span>
-              <span className="text-[11px] text-slate-400 font-bold">
-                one-time
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="font-tiro text-5xl text-white">৳৯৯</span>
+              <span className="font-anek text-xs text-slate-400 font-semibold">
+                একবারই
               </span>
             </div>
-            <ul className="mt-4 space-y-2 text-[11px] text-slate-300">
+            <div className="mt-5 space-y-2.5">
               {[
-                "পুরো সেশন ২০২৬-২৭ access",
+                "পুরো সেশন ২০২৬-২৭ অ্যাক্সেস",
                 "সব ফিচার আনলিমিটেড",
                 "প্রিন্ট / PDF / ক্যালেন্ডার",
+                "লাইভ আপডেট নোটিফিকেশন",
               ].map((x) => (
-                <li key={x} className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />{" "}
+                <div
+                  key={x}
+                  className="flex items-center gap-2.5 font-anek text-[12px] text-slate-300 font-medium"
+                >
+                  <span className="w-4 h-4 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-amber-300" />
+                  </span>
                   {x}
-                </li>
+                </div>
               ))}
-            </ul>
-          </div>
-          <div className="relative rounded-3xl p-6 bg-gradient-to-br from-emerald-500/10 to-sky-500/10 border border-emerald-400/40 shadow-xl shadow-emerald-500/10">
-            <div className="absolute -top-3 right-5 px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-white text-[9px] font-black flex items-center gap-1">
-              <Ticket className="w-3 h-3" /> REFERAL OFFER
             </div>
-            <div className="text-[11px] font-black text-emerald-300 uppercase tracking-widest">
+          </div>
+
+          {/* Referral offer */}
+          <div className="relative rounded-3xl p-6 bg-gradient-to-br from-emerald-500/10 via-[#12201c] to-[#10141d] border border-emerald-400/40 shadow-2xl shadow-emerald-500/10 hover:-translate-y-1 transition-all">
+            <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[9px] font-black tracking-widest flex items-center gap-1 shadow-lg">
+              <Ticket className="w-3 h-3" /> রেফারেল অফার
+            </div>
+            <div className="text-[10px] font-black tracking-[0.25em] text-emerald-300 uppercase">
               কোড সহ
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-4xl font-black text-white">৳৪৯</span>
-              <span className="text-sm text-slate-500 line-through font-bold">
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="font-tiro text-5xl text-white">৳৪৯</span>
+              <span className="font-anek text-sm text-slate-500 line-through font-semibold">
                 ৳৯৯
               </span>
             </div>
-            <ul className="mt-4 space-y-2 text-[11px] text-slate-300">
+            <div className="mt-5 space-y-2.5">
               {[
                 "Friend-এর কোড ব্যবহার করলে",
                 "সব ফিচার একই রকম",
                 "কোড দাতাও ডিসকাউন্ট পায় 🎁",
+                "দুজনের জন্যই একবার পেমেন্ট",
               ].map((x) => (
-                <li key={x} className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />{" "}
+                <div
+                  key={x}
+                  className="flex items-center gap-2.5 font-anek text-[12px] text-slate-200 font-medium"
+                >
+                  <span className="w-4 h-4 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-emerald-300" />
+                  </span>
                   {x}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
-        <div className="flex items-center justify-center gap-2 mt-6 text-[11px] text-slate-400">
+
+        <div className="flex items-center justify-center gap-2 mt-8 font-anek text-xs text-slate-400">
           <Bot className="w-4 h-4 text-violet-400" />
           ভালো লাগলে ঐচ্ছিক donation-এ{" "}
           <span className="text-violet-300 font-bold">Donor Card</span> জিতে নাও

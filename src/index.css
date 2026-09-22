@@ -429,6 +429,9 @@ html.dark .shine-on-hover:hover::after {
     Roboto,
     sans-serif !important;
 }
+.font-tiro {
+  font-family: "Tiro Bangla", "Noto Sans Bengali", serif !important;
+}
 .font-anek {
   font-family:
     "Anek Bangla",
