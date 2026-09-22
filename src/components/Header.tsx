@@ -200,7 +200,11 @@ export const Header: React.FC<HeaderProps> = ({
                 whileTap={{ scale: 0.95 }}
                 className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/30 shrink-0"
               >
-                <BookMarked className="w-5 h-5" />
+                <img
+                  src="/icons/icon-512.png"
+                  alt="logo"
+                  className="w-full h-full object-cover rounded-2xl"
+                />
               </motion.div>
 
               <div className="min-w-0">
@@ -476,8 +480,7 @@ export const Header: React.FC<HeaderProps> = ({
                   filteredUniversities.length > 0 ? (
                     <div className="space-y-1">
                       <div className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-2 mb-1.5">
-                        পাওয়া গেছে{" "}
-                        {toBanglaNum(filteredUniversities.length)}
+                        পাওয়া গেছে {toBanglaNum(filteredUniversities.length)}
                         টি ফলাফল
                       </div>
                       {filteredUniversities.map((uni) => (
@@ -516,7 +519,6 @@ export const Header: React.FC<HeaderProps> = ({
                         </button>
                       ))}
                     </div>
-
                   ) : (
                     <div className="py-12 text-center text-slate-500 dark:text-slate-400">
                       <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
