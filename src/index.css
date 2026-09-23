@@ -434,24 +434,13 @@ html.dark .shine-on-hover:hover::after {
     sans-serif !important;
 }
 .font-tiro {
-  font-family:
-    "Tiro Bangla",
-    "Noto Serif Bengali",
-    "Noto Sans Bengali",
-    serif !important;
+  font-family: "Tiro Bangla", "Noto Serif Bengali", serif !important;
 }
 .font-serifbn {
   font-family: "Noto Serif Bengali", "Tiro Bangla", serif !important;
 }
 .font-anek {
-  font-family:
-    "Anek Bangla",
-    "Hind Siliguri",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif !important;
+  font-family: "Anek Bangla", "Noto Sans Bengali", "Hind Siliguri", sans-serif !important;
 }
 .font-hind {
   font-family:
@@ -463,15 +452,21 @@ html.dark .shine-on-hover:hover::after {
     sans-serif !important;
 }
 
-/* ===== GLOBAL PREMIUM BANGLA TYPOGRAPHY ===== */
+/* ===== GLOBAL PREMIUM BANGLA TYPOGRAPHY =====
+   Fonts are self-hosted: src/fonts.css → public/fonts/*.woff2 (same-origin).
+   No Google Fonts @import is needed here — the <link> in index.html is a
+   harmless fallback; the local @font-face rules always take precedence. */
 body {
-  font-family: 'Anek Bangla', 'Hind Siliguri', sans-serif !important;
+  font-family: 'Anek Bangla', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif !important;
+  font-optical-sizing: auto;
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: 'Tiro Bangla', 'Noto Serif Bengali', serif !important;
+  font-optical-sizing: auto;
 }
 
 /* ============================================================

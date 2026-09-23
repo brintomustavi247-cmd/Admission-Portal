@@ -241,7 +241,7 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
 
   return (
     <div
-      className={`min-h-screen font-bangla ${fontClass} transition-colors duration-300 ${
+      className={`min-h-screen ${fontClass} transition-colors duration-300 ${
         isDarkMode ? "dark text-slate-100" : "text-slate-900"
       }`}
     >
