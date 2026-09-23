@@ -1,15 +1,13 @@
-/* NOTE: Web fonts (Tiro Bangla, Noto Serif Bengali, Anek Bangla, etc.)
-   are loaded via <link> in index.html — intentionally NOT @import'ed here,
-   because external url() imports can break the production build pipeline. */
+/* ============================================================
+   Tailwind + Global Setup
+   ============================================================ */
 @import "tailwindcss";
-@import "./fonts.css"; /* self-hosted @font-face (public/fonts/*.woff2) */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-bangla: "Noto Sans Bengali", "Anek Bangla", sans-serif;
-  --font-sans: "Plus Jakarta Sans", "Noto Sans Bengali", sans-serif;
-
+  --font-bangla: "Anek Bangla", "Noto Sans Bengali", sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Anek Bangla", sans-serif;
   --color-emerald-brand: #059669;
   --color-emerald-deep: #065f46;
   --color-blue-brand: #2563eb;
@@ -25,17 +23,13 @@ html {
 }
 
 /* ============================================================
-   LIGHT MODE BASE
+   🎨 GLOBAL TYPOGRAPHY — PREMIUM BANGLA
+   Body = Anek Bangla (modern) | Headings = Tiro Bangla (serif)
    ============================================================ */
 body {
   font-family:
-    "Noto Sans Bengali",
-    "Anek Bangla",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+    "Anek Bangla", "Noto Sans Bengali", "Hind Siliguri", sans-serif !important;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f6f8fb;
@@ -46,27 +40,57 @@ body {
   overscroll-behavior-y: none;
 }
 
-/* ============================================================
-   🌙 DARK MODE v3 — SIMPLE & CLEAN (Soft Navy + Blue/Purple)
-   Palette:
-     bg      : #151a23
-     card    : #1e2530
-     inset   : #141922
-     hover   : #2a3344
-     border  : #2a3344 / rgba(255,255,255,0.07)
-     accent  : blue #3b82f6, purple #8b5cf6,
-               teal #2dd4a8, orange #fb923c
-   ============================================================ */
 html.dark body {
   color: #eef2f7;
   background-color: #151a23;
-  background-image: none;
 }
 
-/* No overlays — clean & simple */
-html.dark body::before,
-html.dark body::after {
-  content: none;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Tiro Bangla", "Noto Serif Bengali", serif !important;
+  font-optical-sizing: auto;
+}
+
+/* Font utility classes */
+.font-tiro {
+  font-family: "Tiro Bangla", "Noto Serif Bengali", serif !important;
+}
+.font-anek {
+  font-family: "Anek Bangla", "Noto Sans Bengali", sans-serif !important;
+}
+.font-serifbn {
+  font-family: "Noto Serif Bengali", "Tiro Bangla", serif !important;
+}
+.font-bangla {
+  font-family:
+    "Anek Bangla", "Noto Sans Bengali", "Hind Siliguri", sans-serif !important;
+}
+.font-hind {
+  font-family: "Hind Siliguri", sans-serif !important;
+}
+.font-noto {
+  font-family: "Noto Sans Bengali", sans-serif !important;
+}
+.font-gaming {
+  font-family: "Orbitron", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.font-lexend {
+  font-family: "Lexend", "Noto Sans Bengali", sans-serif;
+}
+.font-mono-num,
+.font-mono-code {
+  font-family: "Share Tech Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+.font-number {
+  font-family: "Anek Bangla", sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* Selection */
@@ -78,109 +102,8 @@ html.dark ::selection {
   color: #f8fafc;
 }
 
-/* ---------- Cards ---------- */
-html.dark .surface-card {
-  background: #1e2530;
-  border-color: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.35);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-html.dark .surface-card:hover {
-  border-color: rgba(59, 130, 246, 0.35);
-  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.45);
-  transform: translateY(-2px);
-}
-
-/* ---------- Inputs / wells ---------- */
-html.dark .surface-inset {
-  background: #141922;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: none;
-}
-
-html.dark .surface-inset:focus-within {
-  border-color: rgba(59, 130, 246, 0.6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-/* ---------- Gradient text (simple blue → purple) ---------- */
-html.dark .text-gradient {
-  background: linear-gradient(90deg, #60a5fa, #a78bfa);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: none;
-}
-
-/* ---------- Soft shadows (no neon) ---------- */
-html.dark .shadow-neon-blue {
-  box-shadow: 0 8px 24px -6px rgba(59, 130, 246, 0.35);
-}
-html.dark .shadow-neon-purple {
-  box-shadow: 0 8px 24px -6px rgba(139, 92, 246, 0.35);
-}
-
-/* ---------- Focus ring ---------- */
-html.dark *:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.6);
-}
-
-/* ---------- Chips / pills ---------- */
-html.dark .dark-chip {
-  background: #232b3a;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: none;
-}
-html.dark .dark-chip:hover {
-  background: #2a3344;
-  transform: none;
-}
-html.dark .dark-chip-active {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  color: #ffffff;
-  box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
-}
-
 /* ============================================================
-   🌌 HERO PANEL (Curved gradient wing effect)
-   ============================================================ */
-/* ============================================================
-   ☀️ HERO PANEL BASE — সবসময় dark premium panel (light mode সহ)
-   ============================================================ */
-.hero-panel {
-  background: linear-gradient(135deg, #0f172a 0%, #0c1a2e 45%, #082f49 100%);
-  color: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.55);
-  box-shadow: 0 24px 60px -24px rgba(15, 23, 42, 0.45);
-}
-
-/* ---------- Hero panel (simple elevated card) ---------- */
-html.dark .hero-panel {
-  background: linear-gradient(135deg, #1b2330 0%, #202a3a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.5);
-  position: relative;
-  overflow: hidden;
-}
-html.dark .hero-panel::before,
-html.dark .hero-panel::after {
-  content: none;
-}
-
-/* ---------- Legacy glow utilities (soft-mapped) ---------- */
-html.dark .shadow-sky-glow {
-  box-shadow: 0 8px 24px -6px rgba(59, 130, 246, 0.35);
-}
-html.dark .shadow-purple-glow {
-  box-shadow: 0 8px 24px -6px rgba(139, 92, 246, 0.35);
-}
-
-/* ============================================================
-   SURFACE SYSTEM (Light + Dark unified cards)
+   Surface System (Light + Dark)
    ============================================================ */
 .surface-card {
   background: rgba(255, 255, 255, 0.92);
@@ -190,195 +113,103 @@ html.dark .shadow-purple-glow {
     0 1px 2px rgba(15, 23, 42, 0.04),
     0 8px 24px -12px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+}
+html.dark .surface-card {
+  background: #1e2530;
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.35);
+}
+html.dark .surface-card:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  transform: translateY(-2px);
 }
 
-.dark .surface-card {
-  background: linear-gradient(
-    180deg,
-    rgba(30, 41, 59, 0.72) 0%,
-    rgba(15, 23, 42, 0.72) 100%
-  );
-  border-color: rgba(71, 85, 105, 0.45);
-  box-shadow:
-    0 10px 30px -12px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(148, 163, 184, 0.08);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-/* Inset surfaces: inputs, search boxes, wells */
 .surface-inset {
   background: rgba(248, 250, 252, 0.9);
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 0.9rem;
 }
-
-.dark .surface-inset {
-  background: rgba(2, 6, 23, 0.45);
-  border-color: rgba(71, 85, 105, 0.5);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+html.dark .surface-inset {
+  background: #141922;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Hero gradient border glow */
-.hero-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    140deg,
-    rgba(56, 189, 248, 0.45),
-    rgba(56, 189, 248, 0) 45%,
-    rgba(99, 102, 241, 0.35)
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+/* Hero panel */
+.hero-panel {
+  background: linear-gradient(135deg, #0f172a 0%, #0c1a2e 45%, #082f49 100%);
+  color: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.55);
+  box-shadow: 0 24px 60px -24px rgba(15, 23, 42, 0.45);
+}
+html.dark .hero-panel {
+  background: linear-gradient(135deg, #1b2330 0%, #202a3a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ---------- Buttons ---------- */
+/* Buttons */
 html.dark .neu-btn {
   background: #232b3a;
   border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: none;
 }
 html.dark .neu-btn:hover {
   background: #2a3344;
-  transform: none;
-}
-html.dark .neu-btn:active {
-  transform: scale(0.98);
 }
 html.dark .btn-glow {
   background: linear-gradient(90deg, #3b82f6, #8b5cf6);
   box-shadow: 0 6px 18px -4px rgba(99, 102, 241, 0.45);
 }
-html.dark .btn-glow:hover {
-  box-shadow: 0 8px 22px -4px rgba(99, 102, 241, 0.55);
-  transform: translateY(-1px);
+
+/* Text gradient */
+html.dark .text-gradient {
+  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* ---------- Bottom nav dock ---------- */
+/* Chips */
+html.dark .dark-chip {
+  background: #232b3a;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+html.dark .dark-chip:hover {
+  background: #2a3344;
+}
+html.dark .dark-chip-active {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+/* Bottom nav */
 html.dark .nav-dock {
   background: rgba(30, 37, 48, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 html.dark .nav-pill-active {
   background: linear-gradient(90deg, #3b82f6, #8b5cf6);
   box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.5);
 }
 
-/* ---------- Feature tiles ---------- */
+/* Feature tiles */
 html.dark .feature-tile {
   background: #232b3a;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: none;
 }
 html.dark .icon-box-inset {
   background: #141922;
-  box-shadow: none;
 }
 
-/* ---------- Scrollbar (simple gray) ---------- */
-html.dark ::-webkit-scrollbar-track {
-  background: transparent;
+/* Focus */
+*:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
 }
-html.dark ::-webkit-scrollbar-thumb {
-  background: #39424f;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  border-radius: 9999px;
-}
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #4a5563;
-  background-clip: padding-box;
-  border: 2px solid transparent;
+.dark *:focus-visible {
+  outline-color: #38bdf8;
 }
 
-/* ---------- Divider ---------- */
-html.dark .dark-divider {
-  height: 1px;
-  border: none;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
-}
-
-/* ============================================================
-   🚀 OPTIONAL WOW FEATURES (Dark)
-   ============================================================ */
-
-/* Feature 1: Animated Aurora Background */
-@keyframes aurora {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-html.dark .aurora-bg {
-  background: linear-gradient(-45deg, #0c1a2e, #1e293b, #0f172a, #1e3a8a);
-  background-size: 400% 400%;
-  animation: aurora 15s ease infinite;
-}
-
-/* Feature 2: Neon Text for Critical Numbers */
-html.dark .neon-text {
-  color: #60a5fa;
-  text-shadow:
-    0 0 5px rgba(59, 130, 246, 0.6),
-    0 0 10px rgba(59, 130, 246, 0.4),
-    0 0 16px rgba(59, 130, 246, 0.25);
-}
-
-/* Feature 3: Card Shine Effect */
-@keyframes card-shine {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-html.dark .shine-on-hover {
-  position: relative;
-  overflow: hidden;
-}
-
-html.dark .shine-on-hover::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    transparent 100%
-  );
-  transform: translateX(-100%);
-  pointer-events: none;
-}
-
-html.dark .shine-on-hover:hover::after {
-  animation: card-shine 0.8s ease-out;
-}
-
-/* ============================================================
-   SCROLLBAR
-   ============================================================ */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -389,89 +220,26 @@ html.dark .shine-on-hover:hover::after {
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-  background-clip: padding-box;
-  border: 2px solid transparent;
+html.dark ::-webkit-scrollbar-thumb {
+  background: #39424f;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-  background-clip: padding-box;
-  border: 2px solid transparent;
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-  background-clip: padding-box;
-  border: 2px solid transparent;
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4a5563;
 }
 
-/* ============================================================
-   FONTS
-   ============================================================ */
-.font-number {
-  font-family: "Noto Sans Bengali", "Plus Jakarta Sans", sans-serif;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-}
-.font-gaming {
-  font-family: "Orbitron", "Plus Jakarta Sans", sans-serif;
-  font-variant-numeric: tabular-nums;
-}
-.font-mono-num {
-  font-family: "Share Tech Mono", ui-monospace, SFMono-Regular, monospace;
-  font-variant-numeric: tabular-nums;
-}
-.font-noto {
-  font-family:
-    "Noto Sans Bengali",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif !important;
-}
-.font-tiro {
-  font-family: "Tiro Bangla", "Noto Serif Bengali", serif !important;
-}
-.font-serifbn {
-  font-family: "Noto Serif Bengali", "Tiro Bangla", serif !important;
-}
-.font-anek {
-  font-family: "Anek Bangla", "Noto Sans Bengali", "Hind Siliguri", sans-serif !important;
-}
-.font-hind {
-  font-family:
-    "Hind Siliguri",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif !important;
+/* Divider */
+html.dark .dark-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
 }
 
-/* ===== GLOBAL PREMIUM BANGLA TYPOGRAPHY =====
-   Fonts are self-hosted: src/fonts.css → public/fonts/*.woff2 (same-origin).
-   No Google Fonts @import is needed here — the <link> in index.html is a
-   harmless fallback; the local @font-face rules always take precedence. */
-body {
-  font-family: 'Anek Bangla', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif !important;
-  font-optical-sizing: auto;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: 'Tiro Bangla', 'Noto Serif Bengali', serif !important;
-  font-optical-sizing: auto;
-}
-
-/* ============================================================
-   ANIMATIONS
-   ============================================================ */
+/* Animations */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -491,206 +259,133 @@ h4 {
   animation: shimmer 2s infinite;
 }
 
+@keyframes aurora {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+html.dark .aurora-bg {
+  background: linear-gradient(-45deg, #0c1a2e, #1e293b, #0f172a, #1e3a8a);
+  background-size: 400% 400%;
+  animation: aurora 15s ease infinite;
+}
+
+html.dark .neon-text {
+  color: #60a5fa;
+  text-shadow:
+    0 0 5px rgba(59, 130, 246, 0.6),
+    0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+@keyframes card-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+html.dark .shine-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+html.dark .shine-on-hover:hover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  animation: card-shine 0.8s ease-out;
+}
+
+/* Safe area + reduced motion */
 .pb-safe {
   padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
 }
-
-/* ============================================================
-   ACCESSIBILITY
-   ============================================================ */
-*:focus-visible {
-  outline: 2px solid #0ea5e9;
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-.dark *:focus-visible {
-  outline-color: #38bdf8;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
 /* ============================================================
-   🖨️ PRINT / PDF — BOLD, STYLISH, HIGH-CONTRAST
+   🖨️ PRINT / PDF
    ============================================================ */
 @media print {
-  /* Colors exact রাখো (header row, zebra, badges print হবে) */
   *,
   *::before,
   *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     box-shadow: none !important;
-    text-shadow: none !important;
-    backdrop-filter: none !important;
   }
-
   @page {
     size: A4 portrait;
     margin: 1.2cm;
   }
-
   html,
   body {
     background: #ffffff !important;
     color: #0f172a !important;
     font-size: 11.5pt !important;
   }
-
-  /* ---------- Dark mode-এর হালকা text → print-এ গাঢ় ---------- */
-  .text-white,
-  .dark\:text-white,
-  .dark\:text-slate-100,
-  .dark\:text-slate-200,
-  .dark\:text-slate-300,
-  .dark\:text-slate-400,
-  .dark\:text-slate-500,
-  .text-slate-300,
-  .text-slate-400,
-  .text-slate-500 {
-    color: #1e293b !important;
-  }
-
-  .dark\:text-sky-200,
-  .dark\:text-sky-300,
-  .dark\:text-sky-400,
-  .text-sky-300,
-  .text-sky-400 {
-    color: #0369a1 !important;
-  }
-  .text-sky-600,
-  .text-sky-700,
-  .text-sky-800,
-  .dark\:text-sky-600,
-  .dark\:text-sky-700,
-  .dark\:text-sky-800 {
-    color: #075985 !important;
-  }
-  .dark\:text-emerald-300,
-  .dark\:text-emerald-400,
-  .text-emerald-500,
-  .text-emerald-600 {
-    color: #047857 !important;
-  }
-  .dark\:text-amber-300,
-  .dark\:text-amber-400,
-  .text-amber-500,
-  .text-amber-600 {
-    color: #b45309 !important;
-  }
-  .dark\:text-red-300,
-  .dark\:text-red-400,
-  .text-red-500,
-  .text-red-600 {
-    color: #b91c1c !important;
-  }
-
-  /* ---------- BOLD typography ---------- */
   h1,
   h2,
   h3,
   h4 {
+    font-family: "Tiro Bangla", serif !important;
     color: #000000 !important;
     font-weight: 800 !important;
   }
   h1 {
     font-size: 19pt !important;
     text-align: center !important;
-    padding-bottom: 6px !important;
     border-bottom: 3px double #0f172a !important;
-    margin-bottom: 6px !important;
   }
-  p,
-  div,
-  span {
-    font-weight: 500 !important;
+  body * {
+    background-color: transparent !important;
   }
-  td {
-    font-weight: 600 !important;
-  }
-  th {
-    font-weight: 800 !important;
-  }
-
-  /* ---------- Screen chrome hide ---------- */
   header,
   nav,
-  #mobile-bottom-navigation,
   button,
   .print\:hidden {
     display: none !important;
   }
-  main {
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  .surface-card,
-  .surface-inset {
-    border: none !important;
-  }
-
-  /* ---------- Background reset (শুধু table সাজানো থাকবে) ---------- */
-  body * {
-    background-color: transparent !important;
-  }
-
-  /* ---------- STYLISH TABLE ---------- */
   table {
     width: 100% !important;
     border-collapse: separate !important;
-    border-spacing: 0 !important;
     border: 1.5px solid #0f172a !important;
     border-radius: 12px !important;
-    overflow: hidden !important;
-    font-size: 10.5pt !important;
-  }
-  thead {
-    display: table-header-group;
   }
   th {
     background-color: #0f172a !important;
     color: #ffffff !important;
-    text-align: left !important;
     padding: 9px 10px !important;
-    border-bottom: 2px solid #0f172a !important;
-    letter-spacing: 0.02em;
+    font-weight: 800 !important;
   }
   td {
     padding: 9px 10px !important;
     border-bottom: 1px solid #dbe3ee !important;
-    border-right: 1px solid #e6ebf3 !important;
-    vertical-align: top !important;
-  }
-  th:last-child,
-  td:last-child {
-    border-right: none !important;
+    font-weight: 600 !important;
   }
   tbody tr:nth-child(even) td {
     background-color: #f2f6fb !important;
   }
-  tbody tr:last-child td {
-    border-bottom: none !important;
-  }
   tr {
     page-break-inside: avoid;
-  }
-
-  /* ---------- Status badges → outlined pills ---------- */
-  td span[class*="rounded-full"],
-  td div[class*="rounded-full"] {
-    border: 1.2px solid currentColor !important;
-    background-color: #ffffff !important;
-    padding: 2px 8px !important;
-    border-radius: 999px !important;
-    font-weight: 700 !important;
-    white-space: nowrap;
   }
 }
