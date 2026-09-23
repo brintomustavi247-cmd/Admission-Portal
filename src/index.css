@@ -2,6 +2,7 @@
    are loaded via <link> in index.html — intentionally NOT @import'ed here,
    because external url() imports can break the production build pipeline. */
 @import "tailwindcss";
+@import "./fonts.css"; /* self-hosted @font-face (public/fonts/*.woff2) */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -470,7 +471,7 @@ body {
 h1,
 h2,
 h3 {
-  font-family: 'Tiro Bangla', 'Noto Serif Bengali', serif;
+  font-family: 'Tiro Bangla', 'Noto Serif Bengali', serif !important;
 }
 
 /* ============================================================
