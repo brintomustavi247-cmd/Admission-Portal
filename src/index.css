@@ -460,6 +460,17 @@ html.dark .shine-on-hover:hover::after {
     sans-serif !important;
 }
 
+/* ===== GLOBAL PREMIUM BANGLA TYPOGRAPHY ===== */
+body {
+  font-family: 'Anek Bangla', 'Hind Siliguri', sans-serif !important;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Tiro Bangla', 'Noto Serif Bengali', serif;
+}
+
 /* ============================================================
    ANIMATIONS
    ============================================================ */

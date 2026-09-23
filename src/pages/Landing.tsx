@@ -105,7 +105,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
                 Admission Portal
               </div>
               <div className="text-[9px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">
-                ২০৬-২৭ • বাংলাদেশ
+                ২০২৬-২৭ • বাংলাদেশ
               </div>
             </div>
           </div>
@@ -136,7 +136,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
           {/* Left copy */}
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold mb-5">
-              <Zap className="w-3 h-3" /> ভর্তি সেশন ২০২-২৭ • লাইভ আপডেট
+              <Zap className="w-3 h-3" /> ভর্তি সেশন ২০২৬-২৭ • লাইভ আপডেট
             </div>
             <h1 className="font-tiro text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.3]">
               বিশ্ববিদ্যালয় ভর্তি{" "}
@@ -210,7 +210,7 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
                     বিশ্ববিদ্যালয় ভর্তি
                   </div>
                   <span className="ml-auto text-[8px] px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold">
-                    ২০৬-২৭
+                    ২০২৬-২৭
                   </span>
                 </div>
                 <div className="rounded-xl bg-gradient-to-br from-sky-500/20 to-violet-500/10 border border-white/10 p-3">
@@ -367,10 +367,11 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
             </div>
             <div className="mt-5 space-y-2.5">
               {[
-                "পুরো সেশন ২০২৬-২৭ অ্যাক্সেস",
-                "সব ফিচার আনলিমিটেড",
-                "প্রিন্ট / PDF / ক্যালেন্ডার",
-                "লাইভ আপডেট নোটিফিকেশন",
+                "সম্পূর্ণ সেশনের সব সময়সূচি",
+                "আনলিমিটেড যোগ্যতা চেক",
+                "প্রিন্ট ও PDF ডাউনলোড",
+                "তাৎক্ষণিক লাইভ আপডেট",
+                "প্রায়োরিটি সাপোর্ট",
               ].map((x) => (
                 <div
                   key={x}
@@ -401,10 +402,10 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
             </div>
             <div className="mt-5 space-y-2.5">
               {[
-                "Friend-এর কোড ব্যবহার করলে",
-                "সব ফিচার একই রকম",
+                "৳৯-এর সব সুবিধা হুবহু একই",
+                "Friend-এর কোড ব্যবহার করলেই",
                 "কোড দাতাও ডিসকাউন্ট পায় 🎁",
-                "দুজনের জন্যই একবার পেমেন্ট",
+                "একবারই পেমেন্ট, পুরো সেশন",
               ].map((x) => (
                 <div
                   key={x}

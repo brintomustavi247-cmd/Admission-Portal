@@ -90,7 +90,7 @@ export const AppGate: React.FC<{ children: React.ReactNode }> = ({
           className="w-24 h-24 rounded-3xl bg-white shadow-2xl shadow-sky-500/40 animate-pulse"
         />
         <div className="text-white font-black text-lg">
-          বিশ্ববিদ্যালয় ভর্তি <span className="text-sky-400">২০৬-৭</span>
+          বিশ্ববিদ্যালয় ভর্তি <span className="text-sky-400">২০২৬-২৭</span>
         </div>
         <RefreshCw className="w-5 h-5 animate-spin text-sky-400" />
       </div>
