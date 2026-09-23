@@ -1,4 +1,4 @@
-﻿const CACHE = 'admission-portal-v3';
+﻿const CACHE = 'admission-portal-v4';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

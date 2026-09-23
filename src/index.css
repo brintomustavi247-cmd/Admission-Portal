@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400..900&family=Anek+Bangla:wght@400..800&display=swap');
+/* NOTE: Web fonts (Tiro Bangla, Noto Serif Bengali, Anek Bangla, etc.)
+   are loaded via <link> in index.html — intentionally NOT @import'ed here,
+   because external url() imports can break the production build pipeline. */
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
