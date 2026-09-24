@@ -51,8 +51,10 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Tiro Bangla", "Noto Serif Bengali", serif !important;
+  font-family: 'Noto Serif Bengali', 'Tiro Bangla', serif !important;
   font-optical-sizing: auto;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
 }
 
 /* Font utility classes */

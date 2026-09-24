@@ -1,48 +1,67 @@
-import React, { useEffect, useState } from 'react';
+﻿{/* ===== LANDING v5.3 • DYNAMIC SEASON PASS • landing-v5.3 ===== */}
+import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 import {
-  Calendar, ShieldCheck, Smartphone, Zap, Crown, Download, GraduationCap,
-  Printer, Users, ArrowRight, Check, Ticket, Bot, Bell, Star,
-} from 'lucide-react';
+  Calendar, ShieldCheck, Smartphone, Crown, Download, GraduationCap,
+  Printer, Users, ArrowRight, CheckCircle2, Ticket, Sparkles, Bell,
+  Flame, Zap, Clock, BadgeCheck,
+} from "lucide-react";
 
 interface LandingProps { onGetStarted: () => void; }
 
-const STATS = [
-  { v: '২+', l: 'প্রতিষ্ঠান' },
-  { v: '১৪', l: '২য় বার সুযোগ' },
-  { v: '১০০%', l: 'লঞ্চে ফ্রি' },
-  { v: '৳৪৯', l: 'রেফারেল অফার' },
-];
-
 const FEATURES = [
-  { icon: <Calendar className="w-5 h-5" />, t: 'মাস্টার ক্যালেন্ডার', d: 'সব ভর্তি পরীক্ষার তারিখ, রুটিন ও সময়সূচি এক টেবিলে — প্রিন্ট/PDF রেডি' },
-  { icon: <ShieldCheck className="w-5 h-5" />, t: 'GPA যোগ্যতা চেক', d: 'নিমেষে জেনে নাও কোন ইউনিট/শাখায় তোমার সুযোগ আছে, কোনটাতে নেই' },
-  { icon: <Users className="w-5 h-5" />, t: '২য় বার ফিল্টার', d: '২য় বার পরীক্ষার্থীদের জন্য আলাদা তালিকা — ১৪টি প্রতিষ্ঠান এক ক্লিকে' },
-  { icon: <Printer className="w-5 h-5" />, t: 'প্রিন্ট / PDF', d: 'সুন্দর বাংলা টাইপোগ্রাফিতে পুরো সেশনের ক্যালেন্ডার প্রিন্ট করো' },
-  { icon: <Bell className="w-5 h-5" />, t: 'লাইভ আপডেট', d: 'তারিখ পরিবর্তন হলে সাথে সাথে app-এ আপডেট — কোনো খবর মিস হবে না' },
-  { icon: <Smartphone className="w-5 h-5" />, t: 'নেটিভ অ্যাপের মতো', d: 'PWA/APK ইনস্টল করো — home screen-এ logo, fullscreen experience' },
+  { n: "০১", icon: <Calendar className="w-5 h-5" />, t: "মাস্টার ক্যালেন্ডার", d: "সব ভর্তি পরীক্ষার পূর্ণাঙ্গ রুটিন, সময়সূচি ও শিফট এক ফ্রেমে — যেকোনো সময় প্রিন্ট বা PDF রেডি।", tag: "জনপ্রিয়" },
+  { n: "০২", icon: <ShieldCheck className="w-5 h-5" />, t: "GPA যোগ্যতা ক্যালকুলেটর", d: "SSC ও HSC জিপিএ ইনপুট দিয়েই চোখের পলকে দেখে নাও কোন কোন ইউনিটে তুমি যোগ্য।", tag: "স্মার্ট" },
+  { n: "০৩", icon: <Users className="w-5 h-5" />, t: "সেকেন্ড টাইম ফিল্টার", d: "২য় বার সুযোগ থাকা ১৪টি শীর্ষ প্রতিষ্ঠানের আলাদা তালিকা ও আবেদন শর্ত এক ক্লিকে।", tag: "২য় বার" },
+  { n: "০৪", icon: <Printer className="w-5 h-5" />, t: "অফিসিয়াল প্রিন্ট ও PDF", d: "ঝকঝকে বাংলা প্রিমিয়াম লেআউটে A4 সাইজে প্রিন্ট অথবা সেভ করে পড়ার টেবিলে রাখো।", tag: "A4 রেডি" },
+  { n: "০৫", icon: <Bell className="w-5 h-5" />, t: "রিয়েল-টাইম নোটিফিকেশন", d: "তারিখ পরিবর্তন, প্রবেশপত্র বা ফলাফল ঘোষণার সাথে সাথে পুশ অ্যালার্ট।", tag: "ইনস্ট্যান্ট" },
+  { n: "০৬", icon: <Smartphone className="w-5 h-5" />, t: "নেটিভ অ্যাপ এক্সপেরিয়েন্স", d: "হোমস্ক্রিনে ইনস্টল — ফুলস্ক্রিন ফাস্ট ইন্টারফেস, অফলাইনেও দ্রুত লোড।", tag: "PWA/APK" },
 ];
 
 const STEPS = [
-  { n: '১', t: 'Google দিয়ে login', d: '১ ক্লিকে account — কোনো ফর্ম লাগবে না' },
-  { n: '২', t: 'যোগ্যতা যাচাই', d: 'GPA দাও → কোন শাখায় সুযোগ দেখো' },
-  { n: '৩', t: 'ক্যালেন্ডার নাও', d: 'সময়সূচি দেখো, প্রিন্ট করো, share করো' },
+  { n: "০১", t: "Google দিয়ে সাইন ইন", d: "কোনো ঝামেলাপূর্ণ ফর্ম ছাড়া এক ক্লিকে অ্যাকাউন্ট চালু করো।" },
+  { n: "০২", t: "জিপিএ যোগ্যতা যাচাই", d: "SSC ও HSC GPA দিন — সিস্টেম নিখুঁতভাবে শাখা বাছাই করে দেবে।" },
+  { n: "০৩", t: "ক্যালেন্ডার ও প্রস্তুতি শুরু", d: "সময়সূচি প্রিন্ট নিন, বুকমার্ক করুন ও রিয়েল-টাইম ট্র্যাকিং শুরু করুন।" },
 ];
 
-const PREMIUM_BENEFITS = [
-  { title: 'সম্পূর্ণ সেশনের সময়সূচি', desc: 'সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ বিশ্ববিদ্যালয়ের ভর্তি পরীক্ষার পূর্ণাঙ্গ সময়সূচি' },
-  { title: 'আনলিমিটেড যোগ্যতা যাচাই', desc: 'GPA দিয়ে যতবার খুশি চেক করো কোন ইউনিট/শাখায় সুযোগ আছে — কোনো সীমাবদ্ধতা নেই' },
-  { title: 'প্রিন্ট ও PDF ডাউনলোড', desc: 'পেশাদার বাংলা টাইপোগ্রাফিতে পুরো সেশনের ক্যালেন্ডার প্রিন্ট করো বা PDF হিসেবে সংরক্ষণ করো' },
-  { title: 'তাৎক্ষণিক লাইভ আপডেট', desc: 'তারিখ পরিবর্তন, প্রবেশপত্র বা রেজাল্ট প্রকাশ — সবকিছু সবার আগে জানো, কোনো খবর মিস হবে না' },
-  { title: 'প্রায়োরিটি সাপোর্ট', desc: 'WhatsApp ও Telegram-এ দ্রুত উত্তর ও সমস্যা সমাধান — প্রিমিয়াম ব্যবহারকারীরা আগে সেবা পান' },
+const BENEFITS = [
+  { t: "পূর্ণাঙ্গ সেশন সময়সূচি", d: "পাবলিক, বিজ্ঞান-প্রযুক্তি, মেডিকেল ও গুচ্ছের সমন্বিত আপডেট।" },
+  { t: "আনলিমিটেড যোগ্যতা চেক", d: "যতবার খুশি বিভিন্ন জিপিএ ও সাবজেক্ট কম্বিনেশনে যাচাই।" },
+  { t: "হাই-রেজ্যুলিউশন প্রিন্ট ও PDF", d: "প্রফেশনাল বাংলা টাইপোগ্রাফিক ফরম্যাটে প্রিন্ট সুবিধা।" },
+  { t: "লাইভ নোটিফিকেশন ও অ্যালার্ট", d: "তারিখ পেছানো বা আসনবিন্যাসের খবর কখনো মিস হবে না।" },
+  { t: "ডেডিকেটেড স্টুডেন্ট সাপোর্ট", d: "ভর্তি সংক্রান্ত দ্বিধায় কমিউনিটি ও সাপোর্ট টিমের সঙ্গ।" },
+  { t: "সেকেন্ড টাইমার এক্সক্লুসিভ ডেটা", d: "কোন ভার্সিটিতে মার্ক কাটা যাবে তার পূর্ণাঙ্গ গাইডলাইন।" },
 ];
+
+const MOCK_UNIS = [
+  { c: "from-rose-500 to-red-600", n: "ঢাকা বিশ্ববিদ্যালয়", u: "ঢাবি • ক ইউনিট • ৫১ দিন বাকি" },
+  { c: "from-emerald-500 to-teal-600", n: "খুলনা বিশ্ববিদ্যালয়", u: "খুবি • গুচ্ছ বিজ্ঞান • ৪১ দিন" },
+  { c: "from-violet-500 to-purple-600", n: "জাহাঙ্গীরনগর", u: "জাবি • এ ইউনিট • ৬০ দিন" },
+];
+
+const PAYMENTS = ["bKash", "Nagad", "Rocket", "Upay"];
 
 export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
   const [installEvt, setInstallEvt] = useState<any>(null);
+  const [paid, setPaid] = useState(false); /* admin paywall ON = true */
 
   useEffect(() => {
     const h = (e: Event) => { e.preventDefault(); setInstallEvt(e); };
-    window.addEventListener('beforeinstallprompt', h);
-    return () => window.removeEventListener('beforeinstallprompt', h);
+    window.addEventListener("beforeinstallprompt", h);
+    return () => window.removeEventListener("beforeinstallprompt", h);
+  }, []);
+
+  /* admin switch-এর সাথে live sync */
+  useEffect(() => {
+    let alive = true;
+    const load = () =>
+      supabase.from("app_settings").select("subscription_enabled").eq("id", 1).single()
+        .then(({ data }) => { if (alive && data) setPaid(!!data.subscription_enabled); });
+    load();
+    const ch = supabase.channel("landing-settings")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "app_settings" }, () => load())
+      .subscribe();
+    return () => { alive = false; supabase.removeChannel(ch); };
   }, []);
 
   const doInstall = async () => {
@@ -52,277 +71,342 @@ export const Landing: React.FC<LandingProps> = ({ onGetStarted }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1017] text-slate-100 overflow-x-hidden font-anek">
-      {/* NAVBAR */}
-      <header className="sticky top-0 z-40 bg-[#0d1017]/85 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img src="/icons/icon-512.png" alt="logo" className="w-9 h-9 rounded-xl bg-white object-cover shadow-lg shadow-sky-500/30" />
-            <div>
-              <div className="font-anek text-sm font-extrabold text-white leading-none tracking-wide">Admission Portal</div>
-              <div className="text-[9px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">২০২৬-২৭ • বাংলাদেশ</div>
+    <div className="min-h-screen bg-[#0a0e16] text-slate-100 selection:bg-blue-500/30 selection:text-blue-200 antialiased overflow-x-clip font-['Anek_Bangla','Hind_Siliguri',sans-serif]">
+      {/* Ambient mesh */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-gradient-to-b from-blue-600/10 via-violet-600/[0.06] to-transparent blur-3xl" />
+        <div className="absolute top-[900px] -left-40 w-80 h-80 bg-sky-500/[0.06] rounded-full blur-3xl" />
+        <div className="absolute top-[1700px] -right-40 w-80 h-80 bg-violet-500/[0.06] rounded-full blur-3xl" />
+      </div>
+
+      {/* ===== URGENCY BANNER (dynamic) ===== */}
+      <div className="relative z-50 bg-[#16120c] border-b border-amber-400/20">
+        <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center">
+          <Clock className="w-3.5 h-3.5 text-amber-300/90 shrink-0" />
+          {paid ? (
+            <span className="text-[11px] sm:text-xs font-semibold text-amber-100/90 leading-snug">
+              <span className="font-bold text-amber-300">সিজন পাস চালু:</span> রেফারেল কোড থাকলে ৫০% ছাড় — মাত্র ৳৪৯, কোড ছাড়া ৳৯৯।
+            </span>
+          ) : (
+            <span className="text-[11px] sm:text-xs font-semibold text-amber-100/90 leading-snug">
+              <span className="font-bold text-amber-300">লঞ্চ অফার:</span> এখন সম্পূর্ণ বিনামূল্যে — সীমিত সময়ের জন্য। খুব শীঘ্রই প্রিমিয়াম মূল্য চালু হবে।
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* ===== NAVBAR ===== */}
+      <header className="sticky top-0 z-40 bg-[#0a0e16]/85 backdrop-blur-xl border-b border-white/[0.06]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <img src="/icons/icon-512.png" alt="Logo" className="w-9 h-9 rounded-xl bg-[#0d131f] object-cover ring-1 ring-white/15 shadow-lg shadow-black/30 shrink-0" />
+            <div className="leading-tight min-w-0">
+              <div className="font-['Noto_Serif_Bengali',serif] font-semibold text-lg text-white flex items-center gap-1.5 truncate">
+                ভর্তি পোর্টাল
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              </div>
+              <div className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">সেশন ২০২৬-২৭</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <a href="/download/app.apk" download className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold hover:bg-emerald-500/25 transition cursor-pointer">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <a href="/download/app.apk" download className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs font-semibold hover:bg-emerald-500/20 transition cursor-pointer">
               <Download className="w-3.5 h-3.5" /> APK
             </a>
-            <button onClick={onGetStarted} className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 text-white text-[11px] font-black shadow-lg shadow-blue-500/30 cursor-pointer active:scale-95 transition">
-              লগইন
+            <button onClick={onGetStarted} className="px-4 sm:px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-black/30 ring-1 ring-white/10 active:scale-95 transition cursor-pointer">
+              লগইন / শুরু করুন
             </button>
           </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="relative">
-        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-blue-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -left-32 w-[500px] h-[500px] rounded-full bg-violet-500/15 blur-3xl pointer-events-none" />
-        <div className="relative max-w-6xl mx-auto px-5 pt-14 pb-10 grid lg:grid-cols-2 gap-10 items-center">
-          <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold mb-5">
-              <Zap className="w-3 h-3" /> ভর্তি সেশন ২০২৬-২৭ • লাইভ আপডেট
+      {/* ===== HERO ===== */}
+      <section className="relative z-10 pt-14 pb-16 sm:pt-20 sm:pb-24">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-14 items-center">
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/[0.08] border border-blue-400/20 mb-6">
+              <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+              <span className="text-xs font-semibold text-sky-300/90">বাংলাদেশ বিশ্ববিদ্যালয় ভর্তি সেশন ২০২৬-২৭</span>
             </div>
-            <h1 className="font-tiro text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.3]">
-              বিশ্ববিদ্যালয় ভর্তি{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-violet-400">এক অ্যাপে</span>
+
+            <h1 className="font-['Noto_Serif_Bengali',serif] font-semibold text-4xl sm:text-5xl lg:text-[3.6rem] text-white leading-[1.25] tracking-tight">
+              ভর্তির প্রতিটি তথ্য,
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-blue-300 to-violet-300">সঠিক সময়ে এক প্ল্যাটফর্মে।</span>
             </h1>
-            <p className="font-anek font-medium text-slate-300 text-sm sm:text-base mt-5 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তির সময়সূচি, জিপিএ যোগ্যতা চেক ও মাস্টার ক্যালেন্ডার — সব এক জায়গায়। লঞ্চ অফারে সম্পূর্ণ ফ্রি।
+
+            <p className="text-slate-400 text-sm sm:text-base mt-6 max-w-xl leading-relaxed">
+              পাবলিক, কৃষি, বিজ্ঞান ও প্রযুক্তি, প্রকৌশল এবং গুচ্ছভুক্ত সকল বিশ্ববিদ্যালয়ের পরীক্ষার ক্যালেন্ডার, স্বয়ংক্রিয় GPA যোগ্যতা যাচাই ও রুটিন প্রিন্ট করার আধুনিক সমাধান।
             </p>
-            <div className="mt-8 flex items-center justify-center lg:justify-start gap-3 flex-wrap">
-              <button onClick={onGetStarted} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 text-white text-sm font-black shadow-xl shadow-blue-500/30 cursor-pointer active:scale-95 transition">
-                ফ্রি শুরু করো <ArrowRight className="w-4 h-4" />
+
+            <div className="mt-8 flex items-center gap-3 flex-wrap">
+              <button onClick={onGetStarted} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-black/30 ring-1 ring-white/10 active:scale-95 transition cursor-pointer">
+                {paid ? "শুরু করো" : "বিনামূল্যে শুরু করো"} <ArrowRight className="w-4 h-4" />
               </button>
-              <a href="/download/app.apk" download className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm font-bold hover:bg-emerald-500/25 transition cursor-pointer">
-                <Download className="w-4 h-4" /> APK Download
+              <a href="/download/app.apk" download className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-white/[0.04] border border-white/10 hover:border-emerald-500/40 text-emerald-300 text-sm font-semibold hover:bg-emerald-500/10 active:scale-95 transition cursor-pointer">
+                <Download className="w-4 h-4" /> Android APK
               </a>
               {installEvt && (
-                <button onClick={doInstall} className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/5 border border-white/15 text-slate-200 text-sm font-bold hover:bg-white/10 transition cursor-pointer">
-                  <Smartphone className="w-4 h-4" /> Install App
+                <button onClick={doInstall} className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-white/[0.04] border border-white/10 hover:border-sky-500/40 text-slate-200 text-sm font-semibold hover:bg-white/[0.08] active:scale-95 transition cursor-pointer">
+                  <Smartphone className="w-4 h-4 text-sky-400" /> অ্যাপ ইনস্টল
                 </button>
               )}
             </div>
-            <div className="mt-10 grid grid-cols-4 gap-3 max-w-md mx-auto lg:mx-0">
-              {STATS.map((s) => (
-                <div key={s.l} className="rounded-2xl bg-white/5 border border-white/10 px-2 py-3 text-center">
-                  <div className="text-lg font-black text-white font-number">{s.v}</div>
-                  <div className="text-[9px] text-slate-400 font-bold mt-0.5">{s.l}</div>
+
+            <div className="mt-10 pt-7 border-t border-white/[0.07] grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-6">
+              {[
+                { v: "২+", l: "বিশ্ববিদ্যালয় ও প্রতিষ্ঠান" },
+                { v: "১৪টি", l: "২য় বার পরীক্ষার সুযোগ" },
+                paid ? { v: "৳৪৯", l: "রেফারেল কোডে পাস" } : { v: "১০০%", l: "লঞ্চ অফারে ফ্রি" },
+                { v: "২৪/৭", l: "লাইভ আপডেট ও সাপোর্ট" },
+              ].map((s) => (
+                <div key={s.l} className="min-w-0">
+                  <div className="font-['Noto_Serif_Bengali',serif] font-semibold text-2xl sm:text-[1.7rem] text-white">{s.v}</div>
+                  <div className="text-[11px] text-slate-500 font-medium mt-1 leading-snug">{s.l}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative flex justify-center">
-            <div className="absolute inset-0 m-auto w-72 h-72 rounded-full bg-sky-500/20 blur-3xl" />
-            <div className="relative w-[270px] rounded-[2.2rem] border-[6px] border-[#1e2530] bg-[#151a23] shadow-2xl shadow-black/60 overflow-hidden">
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-4 rounded-full bg-[#0d1017] z-10" />
-              <div className="pt-8 px-3 pb-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <img src="/icons/icon-512.png" alt="" className="w-7 h-7 rounded-lg bg-white object-cover" />
-                  <div className="text-[10px] font-black text-white">বিশ্ববিদ্যালয় ভর্তি</div>
-                  <span className="ml-auto text-[8px] px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold">২০২৬-২৭</span>
-                </div>
-                <div className="rounded-xl bg-gradient-to-br from-sky-500/20 to-violet-500/10 border border-white/10 p-3">
-                  <div className="text-[9px] text-sky-300 font-bold">ভর্তি সেশন ২০২৬-২৭ • লাইভ</div>
-                  <div className="text-[13px] font-black text-white mt-1">ভর্তি পোর্টাল</div>
-                </div>
-                {[
-                  { c: 'bg-red-500', n: 'ঢাকা বিশ্ববিদ্যালয় (ঢাবি)', d: '৫১ দিন পর শুরু' },
-                  { c: 'bg-emerald-600', n: 'খুলনা বিশ্ববিদ্যালয় (খুবি)', d: '৪১ দিন পর শুরু' },
-                  { c: 'bg-pink-600', n: 'জাহাঙ্গীরনগর (জাবি)', d: '৬০ দিন পর শুরু' },
-                ].map((u) => (
-                  <div key={u.n} className="rounded-xl bg-[#1e2530] border border-white/5 p-2.5 flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-lg ${u.c} flex items-center justify-center text-white text-[9px] font-black`}>{u.n.charAt(0)}</div>
-                    <div className="min-w-0">
-                      <div className="text-[9px] font-bold text-white truncate">{u.n}</div>
-                      <div className="text-[8px] text-slate-400">{u.d}</div>
-                    </div>
+          {/* Mockup */}
+          <div className="relative flex justify-center lg:justify-end min-w-0">
+            <div className="absolute inset-0 m-auto w-72 h-72 rounded-full bg-blue-500/10 blur-[90px] pointer-events-none" />
+            <div className="relative w-[280px] sm:w-[315px] max-w-full rounded-[2.4rem] p-3 bg-white/[0.06] border border-white/15 shadow-2xl shadow-black/50">
+              <div className="rounded-[1.9rem] bg-[#0c101a] border border-white/[0.08] overflow-hidden p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-white/[0.06]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">ভ</div>
+                    <span className="font-['Noto_Serif_Bengali',serif] text-xs font-semibold text-white truncate">ভর্তি ড্যাশবোর্ড</span>
                   </div>
-                ))}
-                <div className="flex justify-around pt-1 pb-1 border-t border-white/5">
-                  {['হোম', 'যোগ্যতা', 'ক্যালেন্ডার', 'সেটিংস'].map((b, i) => (
-                    <div key={b} className={`text-[8px] font-bold ${i === 0 ? 'text-sky-400' : 'text-slate-500'}`}>{b}</div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/25 shrink-0">লাইভ</span>
+                </div>
+
+                <div className="rounded-2xl bg-blue-600/15 border border-blue-400/20 p-3 space-y-1">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-sky-300/90">
+                    <Flame className="w-3.5 h-3.5 text-amber-400/90 shrink-0" /> আসন্ন পরীক্ষা
+                  </div>
+                  <div className="font-['Noto_Serif_Bengali',serif] text-sm font-semibold text-white leading-snug">ঢাকা বিশ্ববিদ্যালয় (ক ইউনিট)</div>
+                  <div className="text-[11px] text-slate-400 flex items-center justify-between gap-2 pt-0.5">
+                    <span className="truncate">রুটিন প্রকাশিত</span>
+                    <span className="text-amber-300/90 font-bold shrink-0">৫১ দিন পর</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-[10px] font-semibold text-slate-500 tracking-wider uppercase px-1">আপডেট তালিকা</div>
+                  {MOCK_UNIS.map((u) => (
+                    <div key={u.n} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2.5 flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-tr ${u.c} flex items-center justify-center text-white text-xs font-black shrink-0`}>{u.n.charAt(0)}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-white truncate">{u.n}</div>
+                        <div className="text-[10px] text-slate-500 truncate">{u.u}</div>
+                      </div>
+                    </div>
                   ))}
                 </div>
+
+                <button onClick={onGetStarted} className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-black/30 flex items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer">
+                  <Zap className="w-3.5 h-3.5" /> GPA যাচাই করো
+                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="max-w-6xl mx-auto px-5 py-14">
-        <div className="text-center mb-10">
-          <div className="text-[11px] font-black text-sky-400 tracking-widest uppercase">Features</div>
-          <h2 className="font-tiro text-3xl sm:text-4xl text-white mt-2 leading-snug">যা যা পাচ্ছো এক অ্যাপে</h2>
+      {/* ===== FEATURES ===== */}
+      <section className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 py-14 border-t border-white/[0.06]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-9">
+          <div className="min-w-0">
+            <div className="text-sky-400/90 font-semibold text-xs tracking-wider uppercase mb-1">ফিচার পরিচিতি</div>
+            <h2 className="font-['Noto_Serif_Bengali',serif] text-3xl sm:text-4xl text-white">ভর্তি পরীক্ষার পূর্ণাঙ্গ সমাধান</h2>
+          </div>
+          <p className="text-sm text-slate-500 max-w-sm">এক প্ল্যাটফর্মেই ভর্তি সংক্রান্ত সকল তথ্য, যাচাই এবং প্রিন্ট সুবিধা।</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {FEATURES.map((f) => (
-            <div key={f.t} className="group rounded-2xl p-5 bg-[#151a23] border border-white/10 hover:border-sky-400/40 hover:bg-[#1a2130] transition-all">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500/20 to-violet-500/20 border border-sky-400/20 text-sky-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">{f.icon}</div>
-              <div className="text-sm font-black text-white">{f.t}</div>
-              <p className="font-anek text-[11px] text-slate-400 mt-1.5 leading-relaxed">{f.d}</p>
+            <div key={f.n} className="group rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:border-sky-500/30 hover:bg-white/[0.05] p-5 sm:p-6 transition">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-400/20 text-sky-400 flex items-center justify-center shrink-0">{f.icon}</div>
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-md bg-white/[0.05] border border-white/[0.08] text-slate-400 whitespace-nowrap">{f.tag}</span>
+              </div>
+              <h3 className="font-['Noto_Serif_Bengali',serif] text-lg sm:text-xl font-semibold text-white mb-1.5 group-hover:text-sky-200 transition-colors">{f.t}</h3>
+              <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed">{f.d}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* STEPS */}
-      <section className="max-w-5xl mx-auto px-5 pb-14">
-        <div className="rounded-3xl bg-gradient-to-br from-[#151a23] to-[#10141d] border border-white/10 p-8">
-          <h2 className="font-tiro text-2xl sm:text-3xl text-white text-center mb-8">৩ step-এ শুরু করো</h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {STEPS.map((s) => (
-              <div key={s.n} className="text-center">
-                <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-blue-500 to-violet-500 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-blue-500/30">{s.n}</div>
-                <div className="text-sm font-black text-white mt-3">{s.t}</div>
-                <p className="font-anek text-[11px] text-slate-400 mt-1">{s.d}</p>
-              </div>
-            ))}
-          </div>
+      {/* ===== STEPS ===== */}
+      <section className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 py-14 border-t border-white/[0.06]">
+        <div className="text-center max-w-xl mx-auto mb-10">
+          <h2 className="font-['Noto_Serif_Bengali',serif] text-3xl sm:text-4xl text-white">মাত্র ৩ ধাপে শুরু করো</h2>
+          <p className="text-sm text-slate-500 mt-2">অহেতুক রেজিস্ট্রেশনের জটিলতা ছাড়াই তোমার প্রস্তুতি এগিয়ে রাখো।</p>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-5">
+          {STEPS.map((s) => (
+            <div key={s.n} className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+              <div className="font-['Noto_Serif_Bengali',serif] text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-violet-300 mb-2">{s.n}</div>
+              <h3 className="font-['Noto_Serif_Bengali',serif] text-lg font-semibold text-white mb-1.5">{s.t}</h3>
+              <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed">{s.d}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ===== PRICING (MATURE + PROFESSIONAL COPY) ===== */}
-      <section className="relative max-w-5xl mx-auto px-5 pb-20">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
-
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 to-yellow-500/10 border border-amber-400/30 text-amber-300 text-[11px] font-bold mb-4">
-            <Crown className="w-3.5 h-3.5" /> প্রিমিয়াম সদস্যপদ
+      {/* ===== SEASON PASS (DYNAMIC) ===== */}
+      <section className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 py-14">
+        <div className="text-center mb-9">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-amber-400/25 bg-amber-400/[0.08] text-amber-300/90 text-xs font-bold mb-4">
+            <Crown className="w-4 h-4" /> প্রিমিয়াম এক্সেস
           </div>
-          <h2 className="font-tiro text-3xl sm:text-4xl text-white leading-snug">
-            লঞ্চ অফারে এখন{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-200">সম্পূর্ণ বিনামূল্যে</span>
+          <h2 className="font-['Noto_Serif_Bengali',serif] text-3xl sm:text-4xl text-white leading-snug">
+            {paid ? (
+              <>একবার পেমেন্ট, <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-blue-300 to-violet-300">পুরো সেশন নিশ্চিন্ত</span></>
+            ) : (
+              <>লঞ্চ গিফট: এখন <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-sky-200 to-blue-300">সম্পূর্ণ বিনামূল্যে</span></>
+            )}
           </h2>
-          <p className="font-anek text-sm text-slate-400 mt-3 max-w-lg mx-auto leading-relaxed">
-            সীমিত সময়ের জন্য সকল প্রিমিয়াম সুবিধা সম্পূর্ণ বিনামূল্যে উপভোগ করুন। অফার পিরিয়ড শেষে একবার মাত্র পেমেন্ট করে পুরো সেশন জুড়ে সকল সুবিধা পান।
+          <p className="text-sm text-slate-500 mt-3 max-w-md mx-auto leading-relaxed">
+            {paid
+              ? "রেফারেল কোড থাকলে ৫০% ছাড় — মাত্র ৳৪৯। কোড ছাড়া মূল্য ৳৯৯। একবার পেমেন্ট, কোনো মাসিক ফি নেই।"
+              : "লঞ্চ উপলক্ষে সীমিত সময়ের জন্য সকল শিক্ষার্থীর কাছে ফ্রি। অফর শষ মলয   রেফারেল কোড থাকলে সবসময় ৳৪৯।"}
           </p>
         </div>
 
-        {/* BIG VALUE PROPOSITION */}
-        <div className="relative rounded-3xl overflow-hidden border border-amber-400/25 bg-gradient-to-br from-[#1a1610] via-[#151a23] to-[#10141d] p-8 sm:p-12 mb-8 shadow-2xl shadow-amber-500/5">
-          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-16 w-64 h-64 rounded-full bg-yellow-500/5 blur-3xl pointer-events-none" />
-
-          {/* PRICE HEADER */}
-          <div className="relative text-center mb-10">
-            <div className="inline-flex items-baseline gap-3 mb-3">
-              <span className="font-tiro text-6xl sm:text-7xl text-white">৳৯৯</span>
-              <span className="font-anek text-lg text-slate-400 font-semibold">মাত্র</span>
-            </div>
-            <div className="font-anek text-xl sm:text-2xl text-amber-300 font-bold">
-              একবার পেমেন্ট, পুরো সেশন অ্যাক্সেস
-            </div>
-          </div>
-
-          {/* BENEFITS LIST */}
-          <div className="relative space-y-5 max-w-3xl mx-auto">
-            {PREMIUM_BENEFITS.map((benefit, i) => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-amber-400/15 border border-amber-400/40 flex items-center justify-center shrink-0 mt-1">
-                  <Check className="w-4 h-4 text-amber-300" />
-                </div>
-                <div>
-                  <div className="font-tiro text-lg sm:text-xl text-white font-bold mb-1">{benefit.title}</div>
-                  <p className="font-anek text-sm text-slate-300 leading-relaxed">{benefit.desc}</p>
-                </div>
+        {/* PASS TICKET */}
+        <div className="relative rounded-3xl border border-blue-400/20 bg-[#0e1420] overflow-hidden shadow-2xl shadow-black/40">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-sky-400/60 via-blue-500/60 to-violet-500/60" />
+          <div className="p-6 sm:p-9">
+            {/* ticket header */}
+            <div className="flex flex-wrap items-end justify-between gap-4 pb-6 border-b border-dashed border-white/10">
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-blue-400/90">Full Season Pass</span>
+                <div className="font-['Noto_Serif_Bengali',serif] text-2xl sm:text-3xl font-semibold text-white mt-0.5">ভর্তি সেশন পাস ২০২৬-২৭</div>
               </div>
-            ))}
-          </div>
-
-          {/* REFERRAL CTA */}
-          <div className="relative mt-10 pt-8 border-t border-amber-400/20 text-center">
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
-              <Ticket className="w-5 h-5 text-emerald-400" />
-              <div className="text-left">
-                <div className="font-tiro text-xl sm:text-2xl text-emerald-300 font-bold">
-                  রেফারেল কোডে মাত্র ৳৪৯
+              <div className="flex items-center gap-3 shrink-0">
+                <div className="text-right">
+                  <div className="text-xs text-slate-600 line-through">৳৯</div>
+                  <div className="font-['Noto_Serif_Bengali',serif] text-4xl font-semibold text-white leading-none">{paid ? "৳৪৯" : "৳০"}</div>
                 </div>
-                <div className="font-anek text-xs text-slate-400 mt-0.5">
-                  বন্ধুর কোড ব্যবহার করলে ৫০% ছাড় — কোড দাতাও একই সুবিধা পায়
-                </div>
+                <span className={`text-[11px] font-bold px-3 py-1.5 rounded-full border whitespace-nowrap ${paid ? "text-sky-300 bg-sky-500/10 border-sky-500/25" : "text-emerald-300 bg-emerald-500/10 border-emerald-500/25"}`}>
+                  {paid ? "রেফারেল কোডে" : "এখন ফ্রি"}
+                </span>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* PRICING CARDS */}
-        <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
-          <div className="relative rounded-3xl p-6 bg-[#151a23] border border-white/10 hover:border-amber-400/40 hover:-translate-y-1 transition-all shadow-xl">
-            <div className="text-[10px] font-black tracking-[0.25em] text-slate-400 uppercase mb-3">Season Pass</div>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="font-tiro text-5xl text-white">৳৯৯</span>
-              <span className="font-anek text-xs text-slate-400 font-semibold">একবারই</span>
+            {/* benefits */}
+            <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5 py-7">
+              {BENEFITS.map((b) => (
+                <div key={b.t} className="flex items-start gap-3 min-w-0">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400/90 shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <div className="font-['Noto_Serif_Bengali',serif] text-[15px] sm:text-base font-semibold text-white leading-snug">{b.t}</div>
+                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{b.d}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="font-anek text-[11px] text-slate-400 leading-relaxed mb-5">
-              উপরের সকল সুবিধা সহ পুরো সেশন ২০২৬-২৭-এর সম্পূর্ণ অ্যাক্সেস। কোনো মাসিক ফি বা লুকানো খরচ নেই।
-            </p>
-            <button onClick={onGetStarted} className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-sm font-black shadow-lg shadow-amber-500/30 cursor-pointer active:scale-95 transition">
-              এখনই শুরু করুন
-            </button>
-          </div>
 
-          <div className="relative rounded-3xl p-6 bg-gradient-to-br from-emerald-500/10 via-[#12201c] to-[#10141d] border border-emerald-400/40 shadow-2xl shadow-emerald-500/10 hover:-translate-y-1 transition-all">
-            <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[9px] font-black tracking-widest flex items-center gap-1 shadow-lg">
-              <Ticket className="w-3 h-3" /> জনপ্রিয়
-            </div>
-            <div className="text-[10px] font-black tracking-[0.25em] text-emerald-300 uppercase mb-3">রেফারেল অফার</div>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="font-tiro text-5xl text-white">৳৪৯</span>
-              <span className="font-anek text-sm text-slate-500 line-through font-semibold">৳৯৯</span>
-            </div>
-            <p className="font-anek text-[11px] text-slate-300 leading-relaxed mb-5">
-              বন্ধুর রেফারেল কোড ব্যবহার করে একই সুবিধা অর্ধেক দামে পান। কোড দাতাও ডিসকাউন্ট পায় — দুজনের জন্যই একবার পেমেন্ট।
-            </p>
-            <button onClick={onGetStarted} className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-black shadow-lg shadow-emerald-500/30 cursor-pointer active:scale-95 transition">
-              কোড সহ শুরু করুন
-            </button>
-          </div>
-        </div>
+            {/* condition / referral strip */}
+            {paid ? (
+              <div className="rounded-2xl bg-sky-500/[0.07] border border-sky-400/25 p-4 sm:p-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/25 flex items-center justify-center shrink-0">
+                    <Ticket className="w-5 h-5 text-sky-300" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-['Noto_Serif_Bengali',serif] text-lg font-semibold text-sky-200 leading-snug">৳৪৯ দামটি শুধুমাত্র রেফারেল কোডধারীদের জন্য</div>
+                    <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">বন্ধুর কোড ব্যবহার করো — কোড দাতাও একই ছাড় পায়। কোড ছাড়া checkout-এ ৳৯৯ প্রযোজ্য হবে।</div>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">পেমেন্ট:</span>
+                  {PAYMENTS.map((p) => (
+                    <span key={p} className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-white/[0.05] border border-white/[0.08] text-slate-300">{p}</span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-emerald-500/[0.07] border border-emerald-400/20 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/25 flex items-center justify-center shrink-0">
+                    <Ticket className="w-5 h-5 text-emerald-300" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-['Noto_Serif_Bengali',serif] text-lg font-semibold text-emerald-200 leading-snug">বন্ধুর রেফারেল কোডে ভবিষ্যতে মাত্র ৳৪৯</div>
+                    <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">অফার শেষের পর কোড ব্যবহার করলে উভয়েই বিশেষ ছাড় পাবে।</div>
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-2 shrink-0">
+                  <span className="text-xs text-slate-600 line-through">৳৯৯</span>
+                  <span className="font-['Noto_Serif_Bengali',serif] text-2xl font-semibold text-white">৳৪৯</span>
+                </div>
+              </div>
+            )}
 
-        <div className="flex items-center justify-center gap-2 mt-8 font-anek text-xs text-slate-400">
-          <Bot className="w-4 h-4 text-violet-400" />
-          ভালো লাগলে ঐচ্ছিক donation-এ <span className="text-violet-300 font-bold">Donor Card</span> জিতে নিন 🤖
+            {/* CTA */}
+            <div className="mt-7 flex flex-col sm:flex-row gap-3">
+              {paid ? (
+                <>
+                  <button onClick={onGetStarted} className="flex-1 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-black/30 ring-1 ring-white/10 active:scale-95 transition cursor-pointer">
+                    ৳৯৯-এ সিজন পাস কিনুন
+                  </button>
+                  <button onClick={onGetStarted} className="flex-1 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-black/30 active:scale-95 transition cursor-pointer">
+                    রেফারেল কোড দিয়ে ৳৪-এ নিন
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={onGetStarted} className="flex-1 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-black/30 ring-1 ring-white/10 active:scale-95 transition cursor-pointer">
+                    এখনই সম্পূর্ণ ফ্রি শুরু করুন
+                  </button>
+                  <button onClick={onGetStarted} className="flex-1 py-3.5 rounded-xl bg-white/[0.04] border border-white/10 hover:border-emerald-500/40 text-emerald-300 text-sm font-bold hover:bg-emerald-500/10 active:scale-95 transition cursor-pointer">
+                    রেফারেল কোড যোগ করুন
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* guarantee */}
+            <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-slate-500">
+              <BadgeCheck className="w-3.5 h-3.5 text-emerald-400/80 shrink-0" />
+              একবার পেমেন্ট • কোনো লুকানো ফি নেই • সেশন শেষ পর্যন্ত সকল আপডেট সহ
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* INSTALL CTA */}
-      <section className="max-w-5xl mx-auto px-5 pb-16">
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600/20 via-violet-600/20 to-sky-600/20 border border-blue-400/30 p-8 text-center">
-          <Smartphone className="w-8 h-8 text-sky-400 mx-auto mb-3" />
-          <h2 className="font-tiro text-2xl sm:text-3xl text-white">ফোনে অ্যাপের মতো ব্যবহার করুন</h2>
-          <p className="font-anek text-xs text-slate-400 mt-2 max-w-md mx-auto">
-            Chrome menu → "Add to Home screen" অথবা APK install করুন — home screen-এ logo, fullscreen experience, offline-এও খোলে
+      {/* ===== INSTALL CTA ===== */}
+      <section className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 pb-16">
+        <div className="rounded-3xl bg-white/[0.03] border border-white/[0.08] p-8 sm:p-10 text-center">
+          <Smartphone className="w-8 h-8 text-sky-400/90 mx-auto mb-3" />
+          <h2 className="font-['Noto_Serif_Bengali',serif] text-2xl sm:text-3xl text-white">স্মার্টফোনে সরাসরি অ্যাপ হিসেবে ব্যবহার করো</h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto leading-relaxed">
+            Chrome মেনু থেকে <span className="text-slate-300 font-semibold">"Add to Home Screen"</span> চাপুন অথবা Android APK ইনস্টল করে ফুলস্ক্রিনে মসৃণ অভিজ্ঞতা নিন।
           </p>
           <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
-            <a href="/download/app.apk" download className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-white text-sm font-black shadow-xl shadow-emerald-500/30 cursor-pointer active:scale-95 transition">
-              <Download className="w-4 h-4" /> APK Download (Android)
+            <a href="/download/app.apk" download className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-black/30 active:scale-95 transition cursor-pointer">
+              <Download className="w-4 h-4" /> সরাসরি APK ডাউনলোড
             </a>
-            {installEvt && (
-              <button onClick={doInstall} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold hover:bg-white/15 transition cursor-pointer">
-                <Star className="w-4 h-4" /> One-click Install
-              </button>
-            )}
-            <button onClick={onGetStarted} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/15 text-slate-200 text-sm font-bold hover:bg-white/10 transition cursor-pointer">
-              Web-এ চালিয়ে যান
+            <button onClick={onGetStarted} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.09] text-slate-200 text-xs sm:text-sm font-semibold active:scale-95 transition cursor-pointer">
+              ব্রাউজারে চালিয়ে যান
             </button>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/5 py-8">
-        <div className="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <img src="/icons/icon-512.png" alt="logo" className="w-8 h-8 rounded-lg bg-white object-cover" />
-            <div className="font-anek text-[11px] text-slate-400">© ২০২৬ Admission Portal • বাংলাদেশ</div>
+      {/* ===== FOOTER ===== */}
+      <footer className="relative z-10 border-t border-white/[0.06] py-7 bg-[#080b12]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <img src="/icons/icon-512.png" alt="Logo" className="w-7 h-7 rounded-lg bg-[#0e131f] object-cover ring-1 ring-white/10 shrink-0" />
+            <div className="text-xs text-slate-500 truncate">© ২০৬ ভর্তি পোর্টাল • সর্বস্বত্ব সংরক্ষিত</div>
           </div>
-          <div className="flex items-center gap-4 font-anek text-[11px] text-slate-400">
-            <a href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition">WhatsApp</a>
-            <a href="https://t.me/TOMAR_CHANNEL" target="_blank" rel="noreferrer" className="hover:text-sky-400 transition">Telegram</a>
-            <GraduationCap className="w-4 h-4 text-slate-500" />
+          <div className="flex items-center gap-5 text-xs text-slate-500 shrink-0">
+            <a href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition">হোয়াটসঅ্যাপ হেল্পলাইন</a>
+            <a href="https://t.me/TOMAR_CHANNEL" target="_blank" rel="noreferrer" className="hover:text-sky-400 transition">টেলিগ্রাম চ্যানেল</a>
+            <GraduationCap className="w-4 h-4 text-slate-600" />
           </div>
         </div>
       </footer>
