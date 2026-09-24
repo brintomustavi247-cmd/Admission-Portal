@@ -1,28 +1,33 @@
-﻿/* ===== SERVICE WORKER v5 • MANIFEST NETWORK-FIRST FIX ===== */
-const CACHE = 'admission-portal-v5'; // ← v4 → v5 (পুরনো ক্যাশ auto-delete হবে)
+﻿/* ===== SERVICE WORKER v6 • STANDALONE MANIFEST & SHELL FIX ===== */
+const CACHE = 'admission-portal-v6';
 
-/* এই path গুলো কখনো ক্যাশ-ফার্স্ট না — সবসময় network-first */
 const NETWORK_FIRST_PATHS = ['/manifest.webmanifest', '/icons/'];
 
 self.addEventListener('install', (e) => {
-  // core shell প্রিক্যাশ (offline fallback), fail হলেও install আটকাবে না
   e.waitUntil(
     caches.open(CACHE)
-      .then((c) => c.addAll(['/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png']))
+      .then((c) => c.addAll([
+        '/',
+        '/manifest.webmanifest',
+        '/icons/icon-192.png',
+        '/icons/icon-512.png',
+        '/icons/icon-maskable-512.png'
+      ]))
       .catch(() => {})
   );
-  self.skipWaiting(); // নতুন SW সাথে সাথে active
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(
+        keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))
+      ))
       .then(() => self.clients.claim())
   );
 });
 
-/* app চাইলে message পাঠিয়ে force-skip করাতে পারবে */
 self.addEventListener('message', (e) => {
   if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });
@@ -33,23 +38,22 @@ self.addEventListener('fetch', (e) => {
 
   const url = new URL(req.url);
 
-  /* ১) page/navigation = network-first (ফ্রেশ কন্টেন্ট) */
+  // 1. Navigation requests -> Network first with fallback
   if (req.mode === 'navigate') {
     e.respondWith(networkFirst(req));
     return;
   }
 
-  /* ২) manifest + icons = network-first (PWA metadata সবসময় ফ্রেশ) */
+  // 2. Manifest and icons -> Always fresh from network
   if (NETWORK_FIRST_PATHS.some((p) => url.pathname.startsWith(p))) {
     e.respondWith(networkFirst(req));
     return;
   }
 
-  /* ৩) বাকি static (hashed js/css, fonts) = cache-first + background revalidate */
+  // 3. Static assets -> Stale while revalidate
   e.respondWith(staleWhileRevalidate(req));
 });
 
-/* ---- strategies ---- */
 function networkFirst(req) {
   return fetch(req)
     .then((res) => {
