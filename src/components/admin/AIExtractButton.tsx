@@ -11,29 +11,29 @@ export const AIExtractButton: React.FC<Props> = ({ onExtracted }) => {
 
   const handleExtract = async () => {
     if (!inputUrlOrText.trim()) {
-      alert("আগে সার্কুলারের টেক্সট বা লিংক পেস্ট করুন!");
+      alert("Prothome circular-er text ba link paste koro!");
       return;
     }
 
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
-      alert("VITE_GEMINI_API_KEY পাওয়া যায়নি! Vercel বা .env.local চেক করুন।");
+      alert("VITE_GEMINI_API_KEY paoya jayni! Vercel ba .env.local check koro.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const prompt = `You are an expert Bangladeshi University admission circular analyzer. Extract admission details from the following text:
+      const prompt = `You are an expert Bangladeshi University admission circular analyzer. Extract admission details from the following news or circular text/url:
 "${inputUrlOrText}"
 
 Return ONLY a pure valid JSON object in this exact structure without markdown backticks:
 {
-  "university_name": "বিশ্ববিদ্যালয়ের পূর্ণ নাম বাংলায় (যেমন: জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)",
-  "title": "সংক্ষিপ্ত শিরোনাম বাংলায় (যেমন: জাবি ভর্তি পরীক্ষা শুরু ১৭ জানুয়ারি)",
+  "university_name": "University Name in Bangla (e.g. জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)",
+  "title": "Short title in Bangla (e.g. জাবি ভর্তি পরীক্ষা শুরু ১৭ জানুয়ারি)",
   "update_type": "admission_circular",
   "extracted_data": {
-    "exam_date": "পরীক্ষার তারিখ (যেমন: ১৭ জানুয়ারি)",
+    "exam_date": "Exam date in Bangla (e.g. ১৭ জানুয়ারি)",
     "application_start": "",
     "application_end": "",
     "fees": "",
@@ -55,9 +55,9 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
         "x-goog-api-key": apiKey.trim(),
       };
 
-      // গুগল নির্দেশিত লেটেস্ট gemini-3.8-flash মডেল
-      const res = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+      // Try with gemini-2.5-flash
+      let res = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
         {
           method: "POST",
           headers,
@@ -65,22 +65,34 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
         }
       );
 
+      // Fallback to gemini-1.5-flash
+      if (!res.ok) {
+        res = await fetch(
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+          {
+            method: "POST",
+            headers,
+            body: JSON.stringify(requestPayload),
+          }
+        );
+      }
+
       const json = await res.json();
 
       if (!res.ok || json.error) {
-        throw new Error(json.error?.message || "গুগল এপিআই রিকোয়েস্ট ব্যর্থ হয়েছে");
+        throw new Error(json.error?.message || "Google Gemini API error occurred");
       }
 
       let rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!rawText) {
-        throw new Error("এআই কোনো ডেটা তৈরি করতে পারেনি।");
+        throw new Error("AI kono data extract korte pareni.");
       }
 
       rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(rawText);
 
       onExtracted(parsed);
-      alert("✅ এআই সফলভাবে তথ্য সংগ্রহ করেছে! নিচের ফর্মটি চেক করে 'কিউতে যুক্ত করুন'-এ চাপুন।");
+      alert("✅ AI safolbhabe data extract koreche! Nicher form check kore 'Queue for Review'-te chapo.");
     } catch (err: any) {
       console.error("AI Extraction Error:", err);
       alert("AI Extraction Error:\n" + (err.message || err));
@@ -95,7 +107,7 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
         <Sparkles className="w-3.5 h-3.5 text-sky-400" /> ১-ক্লিক AI এক্সট্রাক্টর
       </div>
       <p className="text-[11px] text-slate-400">
-        কোনো সার্কুলারের নিউজ লিংক বা টেক্সট এখানে পেস্ট করুন — AI ফর্ম স্বয়ংক্রিয় পূরণ করবে।
+        কোনো সার্কুলারের নিউজ লিংক বা টেক্সট এখানে পেস্ট করো — AI ফর্ম স্বয়ংক্রিয় পূরণ করবে।
       </p>
       <div className="flex gap-2">
         <input
@@ -109,7 +121,7 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
           type="button"
           onClick={handleExtract}
           disabled={loading || !inputUrlOrText.trim()}
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition cursor-pointer"
+          className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95"
         >
           {loading ? (
             <>

@@ -1,5 +1,5 @@
-﻿/* ===== SERVICE WORKER v7 • STANDALONE MANIFEST & SHELL FIX ===== */
-const CACHE = 'admission-portal-v7';
+﻿/* ===== SERVICE WORKER v8 • INSTANT UPDATE & NETWORK FIRST ===== */
+const CACHE = 'admission-portal-v8';
 
 const NETWORK_FIRST_PATHS = ['/manifest.webmanifest', '/icons/'];
 
@@ -15,6 +15,7 @@ self.addEventListener('install', (e) => {
       ]))
       .catch(() => {})
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
@@ -39,7 +40,7 @@ self.addEventListener('fetch', (e) => {
 
   const url = new URL(req.url);
 
-  // 1. Navigation requests -> Network first with fallback
+  // 1. Navigation requests -> Network first with cache fallback
   if (req.mode === 'navigate') {
     e.respondWith(networkFirst(req));
     return;
