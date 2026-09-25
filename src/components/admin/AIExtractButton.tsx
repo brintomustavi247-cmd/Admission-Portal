@@ -24,13 +24,13 @@ export const AIExtractButton: React.FC<Props> = ({ onExtracted }) => {
     setLoading(true);
 
     try {
-      const prompt = `You are an expert Bangladeshi University admission circular analyzer. Extract admission details from the following news or circular text/url:
+      const prompt = `You are an expert Bangladeshi University admission circular analyzer. Extract admission details from the following text:
 "${inputUrlOrText}"
 
 Return ONLY a pure valid JSON object in this exact structure without markdown backticks:
 {
-  "university_name": "বিশ্ববিদ্যালয়ের নাম (যেমন: জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)",
-  "title": "সংক্ষিপ্ত শিরোনাম (যেমন: জাবি ভর্তি পরীক্ষা শুরু ১৭ জানুয়ারি)",
+  "university_name": "বিশ্ববিদ্যালয়ের পূর্ণ নাম বাংলায় (যেমন: জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)",
+  "title": "সংক্ষিপ্ত শিরোনাম বাংলায় (যেমন: জাবি ভর্তি পরীক্ষা শুরু ১৭ জানুয়ারি)",
   "update_type": "admission_circular",
   "extracted_data": {
     "exam_date": "পরীক্ষার তারিখ (যেমন: ১৭ জানুয়ারি)",
@@ -46,18 +46,17 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: "application/json",
-          temperature: 0.2,
+          temperature: 0.1,
         },
       };
 
-      // Header-based authentication (v1beta)
       const headers = {
         "Content-Type": "application/json",
         "x-goog-api-key": apiKey.trim(),
       };
 
-      // 1st attempt: gemini-2.5-flash
-      let res = await fetch(
+      // গুগল এর রিকমেন্ডেড লেটেস্ট gemini-2.5-flash মডেল
+      const res = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
         {
           method: "POST",
@@ -65,18 +64,6 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
           body: JSON.stringify(requestPayload),
         }
       );
-
-      // 2nd fallback: gemini-2.0-flash
-      if (!res.ok) {
-        res = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-          {
-            method: "POST",
-            headers,
-            body: JSON.stringify(requestPayload),
-          }
-        );
-      }
 
       const json = await res.json();
 
