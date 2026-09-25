@@ -4,8 +4,6 @@ import {
   X,
   ExternalLink,
   Calendar,
-  Clock,
-  FileText,
   GraduationCap,
   MapPin,
   Check,
@@ -15,13 +13,56 @@ import {
   Zap,
 } from "lucide-react";
 import { University } from "../types/admission";
-import { UrgencyBadge } from "./UrgencyBadge";
-import {
-  toBanglaNum,
-  formatBanglaDate,
-  calculateUrgency,
-  formatBanglaGpa,
-} from "../lib/banglaUtils";
+import { formatBanglaDate, formatBanglaGpa } from "../lib/banglaUtils";
+
+/* ========== CLARITY HELPERS (বাংলা সংখ্যা স্পষ্ট করার জন্য) ========== */
+const BN = "০১২৩৪৫৬৭৮৯";
+const bnToEnDigits = (s: string) =>
+  s.replace(/[০-৯]/g, (d) => String(BN.indexOf(d)));
+const digitsOnly = (s: string) => bnToEnDigits(s.replace(/[^\d০-৯]/g, ""));
+
+const EN_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+const englishDateShort = (iso: string) => {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return "";
+  return `${d} ${EN_MONTHS[m - 1]} ${y}`;
+};
+
+const BN_UNIT_EN: Record<string, string> = {
+  এ: "A",
+  বি: "B",
+  সি: "C",
+  ডি: "D",
+  ই: "E",
+  এফ: "F",
+};
+const unitInitial = (name: string) => name.split(" ")[0] || name;
+const unitEnLetter = (name: string) => BN_UNIT_EN[name.split(" ")[0]] || "";
+
+const UNIT_COLORS = [
+  "from-sky-500 to-blue-600",
+  "from-emerald-500 to-teal-600",
+  "from-violet-500 to-purple-600",
+  "from-amber-500 to-orange-600",
+  "from-rose-500 to-pink-600",
+  "from-cyan-500 to-sky-600",
+  "from-indigo-500 to-blue-700",
+  "from-fuchsia-500 to-purple-700",
+];
 
 interface UniversityModalProps {
   university:
@@ -33,6 +74,7 @@ interface UniversityModalProps {
             application_start?: string;
             application_end?: string;
             fees?: string;
+            fee_amount?: string;
           };
           source_urls?: string[];
         };
@@ -66,7 +108,13 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
   if (!university) return null;
 
   const breaking = university.latestBreakingUpdate;
-  const liveExamDate = breaking?.extracted_data?.exam_date;
+  const liveExamDate = breaking?.extracted_data?.exam_date || "";
+
+  const appStart =
+    breaking?.extracted_data?.application_start || university.startDate;
+  const appEnd =
+    breaking?.extracted_data?.application_end || university.endDate;
+  const firstExam = liveExamDate || university.examUnits?.[0]?.examDate || "";
 
   const logoText =
     university.logoLetter || university.shortName || university.name.charAt(0);
@@ -157,19 +205,22 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                     <Zap className="w-4 h-4 fill-current" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-500 text-slate-950">
-                        সরাসরি লাইভ আপডেট
-                      </span>
-                    </div>
+                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-500 text-slate-950">
+                      সরাসরি লাইভ আপডেট
+                    </span>
                     <div className="font-black text-sm text-slate-900 dark:text-white mt-1 leading-snug">
                       {breaking.title}
                     </div>
                     {liveExamDate && (
                       <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-400/20 border border-amber-500/30 text-xs font-bold text-amber-800 dark:text-amber-200">
-                        <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                        <Calendar className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         পরীক্ষার সংশোধিত তারিখ:{" "}
-                        <span className="underline">{liveExamDate}</span>
+                        <span className="underline">
+                          {formatBanglaDate(liveExamDate)}
+                        </span>
+                        <span className="opacity-70 font-semibold">
+                          ({englishDateShort(liveExamDate)})
+                        </span>
                       </div>
                     )}
                   </div>
@@ -183,8 +234,10 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                     আবেদন শুরু
                   </span>
                   <div className="font-bold text-slate-800 dark:text-slate-100 text-[11px] sm:text-sm truncate">
-                    {breaking?.extracted_data?.application_start ||
-                      formatBanglaDate(university.startDate)}
+                    {formatBanglaDate(appStart)}
+                  </div>
+                  <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase truncate">
+                    {englishDateShort(appStart) || "—"}
                   </div>
                 </div>
 
@@ -193,8 +246,10 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                     শেষ তারিখ
                   </span>
                   <div className="font-bold text-amber-950 dark:text-amber-100 text-[11px] sm:text-sm truncate">
-                    {breaking?.extracted_data?.application_end ||
-                      formatBanglaDate(university.endDate)}
+                    {formatBanglaDate(appEnd)}
+                  </div>
+                  <div className="text-[9px] font-bold text-amber-700/70 dark:text-amber-400/70 tracking-wider uppercase truncate">
+                    {englishDateShort(appEnd) || "—"}
                   </div>
                 </div>
 
@@ -202,8 +257,13 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                   <span className="text-[10px] sm:text-xs text-sky-800 dark:text-sky-300 font-semibold block mb-0.5">
                     পরীক্ষার তারিখ
                   </span>
-                  <div className="font-bold text-sky-950 dark:text-sky-100 text-[11px] sm:text-sm truncate font-number">
-                    {liveExamDate || formatBanglaDate(university.admitCardDate)}
+                  <div className="font-bold text-sky-950 dark:text-sky-100 text-[11px] sm:text-sm truncate">
+                    {firstExam
+                      ? formatBanglaDate(firstExam)
+                      : "ঘোষণার অপেক্ষায়"}
+                  </div>
+                  <div className="text-[9px] font-bold text-sky-700/70 dark:text-sky-400/70 tracking-wider uppercase truncate">
+                    {englishDateShort(firstExam) || "—"}
                   </div>
                 </div>
               </div>
@@ -246,7 +306,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                     <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block">
                       এসএসসি
                     </span>
-                    <strong className="text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-bold font-number">
+                    <strong className="text-sm sm:text-base text-slate-800 dark:text-slate-100 font-bold">
                       {formatBanglaGpa(university.minGpa.ssc)}
                     </strong>
                   </div>
@@ -254,7 +314,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                     <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block">
                       এইচএসসি
                     </span>
-                    <strong className="text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-bold font-number">
+                    <strong className="text-sm sm:text-base text-slate-800 dark:text-slate-100 font-bold">
                       {formatBanglaGpa(university.minGpa.hsc)}
                     </strong>
                   </div>
@@ -262,7 +322,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                     <span className="text-[10px] sm:text-[11px] text-emerald-800 dark:text-emerald-300 font-semibold block">
                       মোট জিপিএ
                     </span>
-                    <strong className="text-xs sm:text-sm text-emerald-700 dark:text-emerald-300 font-bold font-number">
+                    <strong className="text-sm sm:text-base text-emerald-700 dark:text-emerald-300 font-bold">
                       {formatBanglaGpa(university.minGpa.combined)}
                     </strong>
                   </div>
@@ -280,34 +340,80 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {university.examUnits && university.examUnits.length > 0 ? (
-                    university.examUnits.map((unit, idx) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 sm:p-3 rounded-xl border border-slate-200/90 dark:border-[#333d4d] bg-white dark:bg-[#232b3a]"
-                      >
-                        <div className="flex items-center justify-between gap-1.5">
-                          <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
-                            {unit.unit}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">
-                            {breaking?.extracted_data?.fees ||
-                              unit.fee ||
-                              "৳১১০০"}
-                          </span>
+                    university.examUnits.map((unit, idx) => {
+                      const fee =
+                        breaking?.extracted_data?.fees ||
+                        breaking?.extracted_data?.fee_amount ||
+                        unit.fee ||
+                        "";
+                      const unitDate = liveExamDate || unit.examDate;
+                      const enLetter = unitEnLetter(unit.unit);
+
+                      return (
+                        <div
+                          key={idx}
+                          className="p-2.5 sm:p-3 rounded-xl border border-slate-200/90 dark:border-[#333d4d] bg-white dark:bg-[#232b3a]"
+                        >
+                          <div className="flex items-start gap-2.5">
+                            {/* রঙিন ইউনিট ব্লক */}
+                            <div
+                              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${
+                                UNIT_COLORS[idx % UNIT_COLORS.length]
+                              } flex items-center justify-center text-white text-sm sm:text-base font-black shrink-0 shadow-sm select-none`}
+                            >
+                              {unitInitial(unit.unit)}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-1.5">
+                                <span className="font-black text-slate-900 dark:text-white text-[13px] sm:text-sm leading-snug">
+                                  {unit.unit}
+                                  {enLetter && (
+                                    <span className="ml-1 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                                      ({enLetter})
+                                    </span>
+                                  )}
+                                </span>
+
+                                {fee ? (
+                                  <span className="shrink-0 text-[10px] sm:text-[11px] px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-black whitespace-nowrap">
+                                    {fee.startsWith("৳") ? fee : `৳ ${fee}`}
+                                    {digitsOnly(fee) && (
+                                      <span className="ml-1 font-semibold opacity-70">
+                                        ({digitsOnly(fee)})
+                                      </span>
+                                    )}
+                                  </span>
+                                ) : (
+                                  <span className="shrink-0 text-[10px] px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold whitespace-nowrap">
+                                    ফি ঘোষণার অপেক্ষায়
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-snug">
+                                {unit.title}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-2 pt-2 border-t border-slate-100 dark:border-[#333d4d] flex items-center justify-between gap-2">
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                              পরীক্ষার তারিখ:
+                            </span>
+                            <div className="text-right">
+                              <strong className="block text-[13px] sm:text-sm font-black text-blue-700 dark:text-blue-300">
+                                {unitDate
+                                  ? formatBanglaDate(unitDate)
+                                  : "ঘোষণার অপেক্ষায়"}
+                              </strong>
+                              <span className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
+                                {englishDateShort(unitDate) || "—"}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                          {unit.title}
-                        </p>
-                        <div className="mt-1.5 pt-1.5 border-t border-slate-100 dark:border-[#333d4d] flex items-center justify-between text-[11px]">
-                          <span className="text-slate-500 dark:text-slate-400">
-                            পরীক্ষার তারিখ:
-                          </span>
-                          <strong className="text-blue-700 dark:text-blue-400 font-semibold font-number">
-                            {liveExamDate || formatBanglaDate(unit.examDate)}
-                          </strong>
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="col-span-2 text-xs text-slate-500 dark:text-slate-400 py-2 text-center">
                       পরীক্ষার বিস্তারিত তারিখ শীঘ্রই প্রকাশিত হবে।
@@ -345,7 +451,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
               >
                 <GraduationCap className="w-4 h-4 text-emerald-100 shrink-0" />
                 <span>আবেদন পোর্টাল (Apply Now)</span>
-                <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-200 shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 sm:w-4 h-4 text-emerald-200 shrink-0" />
               </a>
             </div>
           </motion.div>

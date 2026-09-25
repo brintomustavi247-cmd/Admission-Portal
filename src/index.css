@@ -409,3 +409,17 @@ html.dark .shine-on-hover:hover::after {
     page-break-inside: avoid;
   }
 }
+/* ===== BANGLA DIGIT CLARITY FIX (১/৭/৪ স্পষ্ট করার জন্য) ===== */
+.font-number,
+[class*="tabular-nums"] {
+  font-family:
+    "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif !important;
+  letter-spacing: 0.02em;
+}
+
+/* Modal-এর ছোট টেক্সট এক ধাপ বড় + উজ্জ্বল */
+.fixed [class*="text-[10px]"],
+.fixed [class*="text-[11px]"] {
+  font-size: 12px !important;
+  color: rgb(203 213 225) !important; /* slate-300 */
+}
