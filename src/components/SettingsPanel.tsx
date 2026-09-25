@@ -152,10 +152,10 @@ export const SettingsPanel: React.FC<Props> = ({
 
   const shareText = encodeURIComponent(
     `🎓 বিশ্ববিদ্যালয় ভর্তি পোর্টাল ২০২৬-২৭\n` +
-    `সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তির সময়সূচি, জিপিএ যোগ্যতা যাচাই, মাস্টার ক্যালেন্ডার ও লাইভ আপডেট — সব এক অ্যাপে।\n` +
-    `📌 ফিচার: প্রিন্ট/PDF • ২য় বার ফিল্টার • যোগ্যতা চেক\n` +
-    `🔗 অ্যাপ: ${APP_URL}/?ref=${profile?.referral_code}\n` +
-    `🆔 আমার User ID (${profile?.referral_code}) দিয়ে register করলে subscription-এ ছাড় পাবেন।`,
+      `সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তির সময়সূচি, জিপিএ যোগ্যতা যাচাই, মাস্টার ক্যালেন্ডার ও লাইভ আপডেট — সব এক অ্যাপে।\n` +
+      `📌 ফিচার: প্রিন্ট/PDF • ২য় বার ফিল্টার • যোগ্যতা চেক\n` +
+      `🔗 অ্যাপ: ${APP_URL}/?ref=${profile?.referral_code}\n` +
+      `🆔 আমার User ID (${profile?.referral_code}) দিয়ে register করলে subscription-এ ছাড় পাবেন।`,
   );
 
   const sendTip = async () => {
@@ -165,15 +165,13 @@ export const SettingsPanel: React.FC<Props> = ({
     }
     setTipBusy(true);
     setTipMsg("");
-    const { error } = await supabase
-      .from("payment_requests")
-      .insert({
-        user_id: profile.id,
-        trx_id: tipTrx.trim(),
-        plan: "donation",
-        amount: tip,
-        status: "pending",
-      });
+    const { error } = await supabase.from("payment_requests").insert({
+      user_id: profile.id,
+      trx_id: tipTrx.trim(),
+      plan: "donation",
+      amount: tip,
+      status: "pending",
+    });
     setTipBusy(false);
     setTipMsg(
       error
@@ -325,7 +323,9 @@ export const SettingsPanel: React.FC<Props> = ({
               <span className="text-xs sm:text-sm font-gaming font-black tracking-wider text-slate-100 uppercase block truncate max-w-[200px]">
                 {name}
               </span>
-              <span className="text-[8px] font-mono-num text-cyan-300/70 block mt-0.5">ID: {profile?.referral_code}</span>
+              <span className="text-[8px] font-mono-num text-cyan-300/70 block mt-0.5">
+                ID: {profile?.referral_code}
+              </span>
             </div>
             <div className="text-right shrink-0">
               <span className="text-[7px] font-gaming tracking-[0.22em] text-slate-500 uppercase block">
@@ -495,7 +495,9 @@ export const SettingsPanel: React.FC<Props> = ({
               <span className="text-xs sm:text-sm font-gaming font-black tracking-wider text-white uppercase block truncate max-w-[200px]">
                 {name}
               </span>
-              <span className="text-[8px] font-mono-num text-white/60 block mt-0.5">ID: {profile?.referral_code}</span>
+              <span className="text-[8px] font-mono-num text-white/60 block mt-0.5">
+                ID: {profile?.referral_code}
+              </span>
             </div>
             <div className="flex -space-x-3 items-center shrink-0">
               <div className="w-7 h-7 rounded-full bg-[#eb001b] shadow-md" />
@@ -566,7 +568,6 @@ export const SettingsPanel: React.FC<Props> = ({
     if (!x) return;
     const r = 48;
 
-    /* Clip */
     x.beginPath();
     x.moveTo(r, 0);
     x.lineTo(W - r, 0);
@@ -580,7 +581,6 @@ export const SettingsPanel: React.FC<Props> = ({
     x.closePath();
     x.clip();
 
-    /* Background */
     const bg = x.createLinearGradient(0, 0, W, H);
     if (isP) {
       bg.addColorStop(0, "#0c2438");
@@ -594,7 +594,6 @@ export const SettingsPanel: React.FC<Props> = ({
     x.fillStyle = bg;
     x.fillRect(0, 0, W, H);
 
-    /* Satin micro-grain */
     x.strokeStyle = "rgba(255,255,255,0.015)";
     x.lineWidth = 1;
     for (let i = -H; i < W; i += 8) {
@@ -604,7 +603,6 @@ export const SettingsPanel: React.FC<Props> = ({
       x.stroke();
     }
 
-    /* Radial glow */
     const glow = x.createRadialGradient(
       isP ? W - 120 : 100,
       H - 60,
@@ -618,12 +616,10 @@ export const SettingsPanel: React.FC<Props> = ({
     x.fillStyle = glow;
     x.fillRect(0, 0, W, H);
 
-    /* Outer border */
     x.strokeStyle = isP ? CYAN.accentSoft : "rgba(255,255,255,0.12)";
     x.lineWidth = 3;
     x.stroke();
 
-    /* Subtle horizontal divider (cyan only) */
     if (isP) {
       x.strokeStyle = "rgba(103,232,249,0.18)";
       x.lineWidth = 1.5;
@@ -633,7 +629,6 @@ export const SettingsPanel: React.FC<Props> = ({
       x.stroke();
     }
 
-    /* Top header */
     x.fillStyle = isP ? "#f8fafc" : "#ffffff";
     x.font = '900 30px "Orbitron", sans-serif';
     x.fillText(isP ? "✦  ADMISSION PORTAL" : "✦  ADMISSION", 70, 95);
@@ -642,7 +637,6 @@ export const SettingsPanel: React.FC<Props> = ({
     x.font = '700 16px "Orbitron", sans-serif';
     x.fillText(isP ? "POLISHED CYAN SKY PASS" : t.name, 125, 128);
 
-    /* UNLIMITED pill (premium) or sparkles (donor) */
     if (isP) {
       x.fillStyle = "rgba(6,182,212,0.12)";
       x.beginPath();
@@ -657,7 +651,6 @@ export const SettingsPanel: React.FC<Props> = ({
       x.fillText("UNLIMITED", W - 155, 98);
       x.textAlign = "left";
     } else {
-      /* sparkles */
       const spark = (cx: number, cy: number, s: number, o: number) => {
         x.save();
         x.globalAlpha = o;
@@ -677,7 +670,6 @@ export const SettingsPanel: React.FC<Props> = ({
       spark(600, 640, 24, 0.75);
     }
 
-    /* Middle row */
     x.fillStyle = isP ? "#64748b" : "rgba(255,255,255,0.5)";
     x.font = '700 18px "Orbitron", sans-serif';
     x.fillText(isP ? "PASS ID" : "CARD NUMBER", 70, 310);
@@ -702,7 +694,6 @@ export const SettingsPanel: React.FC<Props> = ({
     x.fillText(isP ? "ALL PRIVILEGES" : `BDT ${total}`, W - 70, 370);
     x.textAlign = "left";
 
-    /* Separator */
     x.strokeStyle = isP ? "rgba(103,232,249,0.15)" : "rgba(255,255,255,0.15)";
     x.lineWidth = 2;
     x.beginPath();
@@ -710,7 +701,6 @@ export const SettingsPanel: React.FC<Props> = ({
     x.lineTo(W - 70, 560);
     x.stroke();
 
-    /* Member name */
     x.fillStyle = isP ? "#64748b" : "rgba(255,255,255,0.5)";
     x.font = '700 18px "Orbitron", sans-serif';
     x.fillText("MEMBER NAME", 70, 615);
@@ -721,7 +711,6 @@ export const SettingsPanel: React.FC<Props> = ({
     x.font = '500 20px "Share Tech Mono", monospace';
     x.fillText(`ID: ${profile.referral_code || ""}`, 70, 700);
 
-    /* Session (premium) or Mastercard circles (donor) */
     if (isP) {
       x.textAlign = "right";
       x.fillStyle = "#64748b";
@@ -741,7 +730,6 @@ export const SettingsPanel: React.FC<Props> = ({
       x.fill();
     }
 
-    /* Footer */
     x.fillStyle = "rgba(255,255,255,0.5)";
     x.font = '400 22px "Orbitron", sans-serif';
     x.fillText(
@@ -762,46 +750,60 @@ export const SettingsPanel: React.FC<Props> = ({
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white dark:bg-[#151b27] shadow-2xl overflow-y-auto p-5 text-slate-900 dark:text-slate-100">
+      <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-slate-50 dark:bg-[#151b27] shadow-2xl overflow-y-auto p-5 text-slate-900 dark:text-slate-100">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-black">সেটিংস</h2>
+          <h2 className="text-lg font-black text-slate-900 dark:text-white">
+            সেটিংস
+          </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 cursor-pointer"
+            className="p-2 rounded-xl bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 cursor-pointer text-slate-700 dark:text-slate-200"
+            aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Account */}
-        <div className="rounded-2xl bg-slate-100 dark:bg-[#0f141d] border border-slate-200 dark:border-white/10 p-4 mb-3">
+        <div className="rounded-2xl bg-white dark:bg-[#0f141d] border-2 border-slate-200 dark:border-white/10 p-4 mb-3 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-500 to-violet-500 flex items-center justify-center text-white font-black shrink-0">
               {(session?.user.email || "U").charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold truncate flex items-center gap-1.5">
-                <Mail className="w-3 h-3 text-slate-400 shrink-0" />{" "}
+              <div className="text-xs font-bold truncate flex items-center gap-1.5 text-slate-700 dark:text-slate-200">
+                <Mail className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />{" "}
                 {session?.user.email}
               </div>
               <div className="flex gap-1.5 mt-1.5">
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[9px] font-black ${profile?.role === "admin" ? "bg-blue-600 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300"}`}
+                  className={`px-2 py-0.5 rounded-full text-[9px] font-black ${profile?.role === "admin" ? "bg-blue-600 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300"}`}
                 >
                   {profile?.role === "admin" ? "ADMIN" : "USER"}
                 </span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[9px] font-black flex items-center gap-1 ${isPremium ? "bg-amber-500 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300"}`}
+                  className={`px-2 py-0.5 rounded-full text-[9px] font-black flex items-center gap-1 ${isPremium ? "bg-amber-500 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300"}`}
                 >
                   {isPremium && <Crown className="w-2.5 h-2.5" />}
                   {isPremium ? "প্রিমিয়াম" : "ফ্রি"}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400">
-                <span className="font-bold uppercase tracking-wider">User ID:</span>
-                <code className="text-sky-300 font-black tracking-widest">{profile?.referral_code}</code>
-                <button onClick={copyCode} className="p-1 rounded bg-white/5 hover:bg-white/10 cursor-pointer">
-                  {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+              <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-600 dark:text-slate-400">
+                <span className="font-bold uppercase tracking-wider">
+                  User ID:
+                </span>
+                <code className="text-sky-600 dark:text-sky-300 font-black tracking-widest">
+                  {profile?.referral_code}
+                </code>
+                <button
+                  onClick={copyCode}
+                  className="p-1 rounded bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 cursor-pointer"
+                >
+                  {copied ? (
+                    <Check className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                  )}
                 </button>
               </div>
             </div>
@@ -810,17 +812,17 @@ export const SettingsPanel: React.FC<Props> = ({
 
         {/* Referral */}
         {profile?.referral_code && (
-          <div className="rounded-2xl bg-slate-100 dark:bg-[#0f141d] border border-slate-200 dark:border-white/10 p-4 mb-3">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+          <div className="rounded-2xl bg-white dark:bg-[#0f141d] border-2 border-slate-200 dark:border-white/10 p-4 mb-3 shadow-sm">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-2">
               <Ticket className="w-3 h-3" /> তোমার রেফারেল কোড
             </div>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-center py-2.5 rounded-xl bg-blue-500/10 border border-blue-400/30 text-blue-600 dark:text-blue-300 font-black tracking-widest text-sm font-gaming">
+              <code className="flex-1 text-center py-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 border-2 border-blue-200 dark:border-blue-400/30 text-blue-700 dark:text-blue-300 font-black tracking-widest text-sm font-gaming">
                 {profile.referral_code}
               </code>
               <button
                 onClick={copyCode}
-                className="p-2.5 rounded-xl bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 cursor-pointer"
+                className="p-2.5 rounded-xl bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 cursor-pointer text-slate-700 dark:text-slate-200"
               >
                 {copied ? (
                   <Check className="w-4 h-4 text-emerald-500" />
@@ -832,9 +834,9 @@ export const SettingsPanel: React.FC<Props> = ({
                 href={`https://wa.me/?text=${shareText}`}
                 target="_blank"
                 rel="noreferrer"
-                className="p-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 cursor-pointer"
+                className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 cursor-pointer border-2 border-emerald-200 dark:border-emerald-500/30"
               >
-                <MessageCircle className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                <MessageCircle className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
               </a>
             </div>
           </div>
@@ -842,16 +844,13 @@ export const SettingsPanel: React.FC<Props> = ({
 
         {/* ===== 🌊 PREMIUM PASS (ON TOP) ===== */}
         <div className="mb-3">
-          <div
-            className="flex items-center gap-1.5 text-[10px] font-bold uppercase mb-2"
-            style={{ color: CYAN.accent }}
-          >
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase mb-2 text-sky-700 dark:text-cyan-300">
             <Crown className="w-3 h-3" /> Premium Pass
           </div>
           {isPremium ? (
             <>
               <PremiumCard />
-              <p className="text-center text-[10px] text-slate-400 font-bold mt-2 font-gaming tracking-wider">
+              <p className="text-center text-[10px] text-slate-600 dark:text-slate-400 font-bold mt-2 font-gaming tracking-wider">
                 👆 CLICK CARD TO FLIP
               </p>
               <button
@@ -867,7 +866,7 @@ export const SettingsPanel: React.FC<Props> = ({
             </>
           ) : (
             <div
-              className="rounded-2xl border border-dashed p-4"
+              className="rounded-2xl border-2 border-dashed p-4"
               style={{
                 borderColor: CYAN.accentSoft,
                 background: "rgba(6,182,212,0.05)",
@@ -885,13 +884,10 @@ export const SettingsPanel: React.FC<Props> = ({
                 </div>
               </div>
               <div className="text-center mt-3">
-                <div
-                  className="text-[11px] font-black font-gaming tracking-wider"
-                  style={{ color: CYAN.accent }}
-                >
+                <div className="text-[11px] font-black font-gaming tracking-wider text-sky-700 dark:text-cyan-300">
                   CYAN SKY PASS 🔒
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
                   Subscription নিলে এই polished matte pass তোমার হবে — ALL
                   PRIVILEGES 👑
                 </p>
@@ -903,14 +899,11 @@ export const SettingsPanel: React.FC<Props> = ({
         {/* ===== 🌌 COSMIC DONOR CARD ===== */}
         {donationOn && (
           <div className="mb-3">
-            <div
-              className="flex items-center gap-1.5 text-[10px] font-bold uppercase mb-2"
-              style={{ color: t.accent }}
-            >
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase mb-2 text-slate-700 dark:text-slate-300">
               <Bot className="w-3 h-3" /> Cosmic Donor Card
             </div>
             {!hasDonation ? (
-              <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-4">
+              <div className="rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/15 bg-slate-100 dark:bg-white/5 p-4">
                 <div className="relative">
                   <DonorCard dim />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -920,10 +913,10 @@ export const SettingsPanel: React.FC<Props> = ({
                   </div>
                 </div>
                 <div className="text-center mt-3">
-                  <div className="text-[11px] font-black text-white font-gaming tracking-wider">
+                  <div className="text-[11px] font-black text-slate-900 dark:text-white font-gaming tracking-wider">
                     COSMIC DONOR CARD 🔒
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                  <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
                     BDT 20+ donate করো → admin approve → claim → তারপর download।
                     Click = flip!
                   </p>
@@ -952,7 +945,7 @@ export const SettingsPanel: React.FC<Props> = ({
             ) : (
               <>
                 <DonorCard />
-                <p className="text-center text-[10px] text-slate-400 font-bold mt-2 font-gaming tracking-wider">
+                <p className="text-center text-[10px] text-slate-600 dark:text-slate-400 font-bold mt-2 font-gaming tracking-wider">
                   👆 CLICK CARD TO FLIP
                 </p>
                 <button
@@ -967,9 +960,9 @@ export const SettingsPanel: React.FC<Props> = ({
           </div>
         )}
 
-        {/* Donation box */}
+        {/* Donation box — dark themed for contrast in both modes */}
         {donationOn && (
-          <div className="rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 p-4 mb-3">
+          <div className="rounded-2xl bg-slate-900 dark:bg-[#0f141d] border-2 border-slate-800 dark:border-white/10 p-4 mb-3 text-white shadow-inner">
             <div className="flex items-center gap-2.5 mb-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-500 to-slate-700 flex items-center justify-center shadow-lg">
                 <Bot className="w-5 h-5 text-white" />
@@ -978,7 +971,7 @@ export const SettingsPanel: React.FC<Props> = ({
                 <div className="text-xs font-black text-white">
                   ডেভেলপার রোবট 🤖
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-300">
                   ঐচ্ছিক tip — রোবটকে energy দাও ⚡
                 </div>
               </div>
@@ -1003,7 +996,7 @@ export const SettingsPanel: React.FC<Props> = ({
               })}
             </div>
             <div className="flex items-center justify-between gap-2 mb-2 rounded-xl bg-[#0f141d] border border-white/10 px-3 py-2">
-              <span className="text-[10px] text-slate-400 font-bold">
+              <span className="text-[10px] text-slate-300 font-bold">
                 bKash:
               </span>
               <button
@@ -1048,7 +1041,7 @@ export const SettingsPanel: React.FC<Props> = ({
               onClose();
               onOpenAdmin();
             }}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600/10 border border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-black hover:bg-blue-600/20 cursor-pointer mb-3"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-50 dark:bg-blue-600/10 border-2 border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400 text-xs font-black hover:bg-blue-100 dark:hover:bg-blue-600/20 cursor-pointer mb-3"
           >
             <ShieldCheck className="w-4 h-4" /> অ্যাডমিন প্যানেল
           </button>
@@ -1060,7 +1053,7 @@ export const SettingsPanel: React.FC<Props> = ({
             href={WHATSAPP}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-[11px] font-bold hover:bg-emerald-500/25 transition"
+            className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border-2 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold hover:bg-emerald-100 dark:hover:bg-emerald-500/25 transition"
           >
             <MessageCircle className="w-3.5 h-3.5" /> WhatsApp Help
           </a>
@@ -1068,7 +1061,7 @@ export const SettingsPanel: React.FC<Props> = ({
             href={TELEGRAM}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-600 dark:text-sky-300 text-[11px] font-bold hover:bg-sky-500/25 transition"
+            className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-sky-50 dark:bg-sky-500/15 border-2 border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-[11px] font-bold hover:bg-sky-100 dark:hover:bg-sky-500/25 transition"
           >
             <Send className="w-3.5 h-3.5" /> Telegram
           </a>
@@ -1079,11 +1072,11 @@ export const SettingsPanel: React.FC<Props> = ({
             await signOut();
             onClose();
           }}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-black hover:bg-red-500/20 cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 border-2 border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-xs font-black hover:bg-red-100 dark:hover:bg-red-500/20 cursor-pointer"
         >
           <LogOut className="w-4 h-4" /> লগআউট
         </button>
-        <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 mt-4 font-gaming tracking-widest">
+        <p className="text-center text-[10px] text-slate-500 dark:text-slate-500 mt-4 font-gaming tracking-widest">
           CYAN SKY + COSMIC SERIES • ২০২৬-২৭
         </p>
       </div>

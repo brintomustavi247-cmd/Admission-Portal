@@ -407,7 +407,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Urgent Notice */}
         {ongoingCount > 0 && (
-          <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 dark:from-amber-950/40 dark:via-amber-900/20 dark:to-amber-950/40 border-t border-amber-200/50 dark:border-amber-900/50 px-4 sm:px-6 py-2 text-xs text-amber-900 dark:text-amber-200">
+          <div className="... text-xs text-amber-900 dark:text-amber-200 font-semibold">
             <div className="max-w-7xl mx-auto w-full flex items-center gap-2 min-w-0">
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />

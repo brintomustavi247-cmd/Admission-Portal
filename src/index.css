@@ -409,17 +409,55 @@ html.dark .shine-on-hover:hover::after {
     page-break-inside: avoid;
   }
 }
-/* ===== BANGLA DIGIT CLARITY FIX (১/৭/৪ স্পষ্ট করার জন্য) ===== */
-.font-number,
-[class*="tabular-nums"] {
-  font-family:
-    "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif !important;
-  letter-spacing: 0.02em;
-}
 
 /* Modal-এর ছোট টেক্সট এক ধাপ বড় + উজ্জ্বল */
 .fixed [class*="text-[10px]"],
 .fixed [class*="text-[11px]"] {
   font-size: 12px !important;
   color: rgb(203 213 225) !important; /* slate-300 */
+}
+/* ===== LIGHT MODE CONTRAST ENHANCEMENTS ===== */
+
+/* Premium/Donor cards need dark text fallback in light bg context */
+@media (prefers-color-scheme: light) {
+  :root:not(.dark) .dark-card-caption {
+    color: #0f172a;
+  }
+}
+
+/* Make sure all slate-400/500 text is readable in light mode */
+:root:not(.dark) .text-slate-400 {
+  color: #475569 !important;
+}
+:root:not(.dark) .text-slate-500 {
+  color: #334155 !important;
+}
+
+/* Ensure badges have solid backgrounds in light mode */
+:root:not(.dark) .bg-slate-100 {
+  background-color: #e2e8f0 !important;
+}
+:root:not(.dark) .border-slate-200 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Make emerald/sky/emerald accents stronger in light */
+:root:not(.dark) .text-emerald-700 {
+  color: #047857 !important;
+}
+:root:not(.dark) .text-sky-700 {
+  color: #0369a1 !important;
+}
+:root:not(.dark) .text-amber-700 {
+  color: #b45309 !important;
+}
+
+/* Font number: already fixed, just ensure legibility */
+.font-number,
+[class*="tabular-nums"] {
+  font-family:
+    "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif !important;
+  letter-spacing: 0.02em;
+  font-feature-settings: "tnum" !important;
+  font-variant-numeric: tabular-nums !important;
 }
