@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    Tailwind + Global Setup
    ============================================================ */
 @import "tailwindcss";
@@ -24,7 +24,7 @@ html {
 }
 
 /* ============================================================
-   🎨 ULTRA-PREMIUM BANGLA TYPOGRAPHY SYSTEM
+   ðŸŽ¨ ULTRA-PREMIUM BANGLA TYPOGRAPHY SYSTEM
    Primary UI = Hind Siliguri (Clean, modern, crisp rendering)
    Secondary = Anek Bangla
    ============================================================ */
@@ -343,7 +343,7 @@ html.dark .shine-on-hover:hover::after {
 }
 
 /* ============================================================
-   🖨️ PRINT / PDF
+   ðŸ–¨ï¸ PRINT / PDF
    ============================================================ */
 @media print {
   *,
@@ -410,7 +410,7 @@ html.dark .shine-on-hover:hover::after {
   }
 }
 
-/* Modal-এর ছোট টেক্সট এক ধাপ বড় + উজ্জ্বল */
+/* Modal-à¦à¦° à¦›à§‹à¦Ÿ à¦Ÿà§‡à¦•à§à¦¸à¦Ÿ à¦à¦• à¦§à¦¾à¦ª à¦¬à¦¡à¦¼ + à¦‰à¦œà§à¦œà§à¦¬à¦² */
 .fixed [class*="text-[10px]"],
 .fixed [class*="text-[11px]"] {
   font-size: 12px !important;
