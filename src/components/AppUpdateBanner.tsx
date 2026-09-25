@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { RefreshCw, Sparkles, X } from "lucide-react";
+import { DownloadCloud, RefreshCw, X, ArrowUpRight } from "lucide-react";
 
 export const AppUpdateBanner: React.FC = () => {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
@@ -49,46 +49,73 @@ export const AppUpdateBanner: React.FC = () => {
   if (!showReload) return null;
 
   return (
-    <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 z-[100] sm:max-w-sm animate-in fade-in slide-in-from-top-4 duration-300">
-      <div className="rounded-2xl bg-gradient-to-r from-blue-950/95 via-indigo-950/95 to-slate-900/95 backdrop-blur-xl border border-sky-400/40 p-3.5 shadow-2xl shadow-sky-950/70 text-white">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300 shrink-0">
-              <Sparkles className="w-4 h-4 animate-spin text-amber-300" />
+    <aside
+      aria-label="App update notification"
+      className="fixed bottom-24 sm:bottom-8 left-4 right-4 sm:left-auto sm:right-8 z-[110] sm:max-w-md animate-in fade-in slide-in-from-bottom-6 duration-300 pointer-events-auto"
+    >
+      <div className="relative overflow-hidden rounded-2xl bg-[#090d16]/90 backdrop-blur-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-slate-100 p-4">
+        {/* Top Active Ambient Glow Line */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500" />
+        
+        {/* Ambient Radial Spotlight */}
+        <div className="absolute -top-12 -left-12 w-28 h-28 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="flex items-start justify-between gap-3 relative z-10">
+          <div className="flex items-center gap-3">
+            {/* Status Indicator Icon */}
+            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/10 to-sky-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+              <DownloadCloud className="w-5 h-5 animate-pulse" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
             </div>
-            <div>
-              <div className="text-xs font-bold text-white leading-tight">
-                নতুন অ্যাপ আপডেট এসেছে!
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+                  v-latest
+                </span>
+                <span className="text-xs font-bold text-white tracking-tight">
+                  নতুন সিস্টেম আপডেট প্রস্তুত
+                </span>
               </div>
-              <p className="text-[10px] text-slate-300 mt-0.5">
-                নতুন ফিচার ও তথ্য লোড করতে আপডেট করুন।
+              <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                সর্বশেষ ভর্তি রুটিন ও পারফরম্যান্স ফিক্স লোড করতে অ্যাপটি রিফ্রেশ করুন।
               </p>
             </div>
           </div>
+
           <button
             onClick={() => setShowReload(false)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white transition"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+            title="বন্ধ করুন"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="mt-2.5 flex justify-end gap-2">
-          <button
-            onClick={() => setShowReload(false)}
-            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 font-semibold cursor-pointer"
-          >
-            পরে
-          </button>
-          <button
-            onClick={handleUpdate}
-            className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/30 active:scale-95 transition cursor-pointer"
-          >
-            <RefreshCw className="w-3 h-3 animate-spin" />
-            এখনই আপডেট করুন
-          </button>
+        {/* Action Controls */}
+        <div className="mt-3.5 pt-3 border-t border-white/5 flex items-center justify-between gap-2 relative z-10">
+          <span className="text-[10px] text-slate-500 font-medium">
+            ১ সেকেন্ডে ইনস্ট্যান্ট লোড হবে
+          </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowReload(false)}
+              className="px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors cursor-pointer"
+            >
+              পরে
+            </button>
+            <button
+              onClick={handleUpdate}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-[0_4px_16px_rgba(16,185,129,0.35)] active:scale-95 transition-all cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>আপডেট নিন</span>
+              <ArrowUpRight className="w-3 h-3 opacity-60" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
