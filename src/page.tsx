@@ -28,6 +28,8 @@ import { CalendarTimeline } from "./components/CalendarTimeline";
 import { MobileBottomNav } from "./components/MobileBottomNav";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { SkeletonCard } from "./components/SkeletonCard";
+import { UpdateNotifier } from "./components/UpdateNotifier";
+import { AppUpdateBanner } from "./components/AppUpdateBanner";
 import {
   GraduationCap,
   BookOpen,
@@ -140,8 +142,7 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
 
   useEffect(() => {
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadData]);
 
   const universities = sheetData?.universities || [];
 
@@ -245,7 +246,10 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
         isDarkMode ? "dark text-slate-100" : "text-slate-900"
       }`}
     >
-      {/* ================= HEADER (Tabs এখানেই আছে, remove করিনি) ================= */}
+      {/* 🚀 APP VERSION UPDATE BANNER */}
+      <AppUpdateBanner />
+
+      {/* ================= HEADER ================= */}
       <Header
         universities={universities}
         onSelectUniversity={handleOpenModal}
@@ -276,7 +280,6 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
               transition={{ duration: 0.25 }}
               className="space-y-5 sm:space-y-6"
             >
-              {/* ✅ HERO BANNER — এখন শুধুই HOME tab-এ */}
               <HeroMetricsBanner
                 totalCount={universities.length}
                 secondTimerCount={metrics.secondTimerCount}
@@ -361,7 +364,7 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
             </motion.div>
           )}
 
-          {/* ==================== ELIGIBILITY TAB (কোনো hero banner নেই) ==================== */}
+          {/* ==================== ELIGIBILITY TAB ==================== */}
           {activeTab === "eligibility" && (
             <motion.div
               key="eligibility"
@@ -380,7 +383,7 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
             </motion.div>
           )}
 
-          {/* ==================== CALENDAR TAB (কোনো hero banner নেই) ==================== */}
+          {/* ==================== CALENDAR TAB ==================== */}
           {activeTab === "calendar" && (
             <motion.div
               key="calendar"
@@ -429,6 +432,9 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
+
+      {/* 🔔 LIVE ADMISSION UPDATE POPUP */}
+      <UpdateNotifier />
     </div>
   );
 }
@@ -456,7 +462,6 @@ const HeroMetricsBanner: React.FC<{
     aria-label="Dashboard Overview"
     className="hero-panel relative overflow-hidden rounded-3xl text-white"
   >
-    {/* Glows */}
     <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-sky-500/20 blur-3xl pointer-events-none" />
     <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
 

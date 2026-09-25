@@ -1,5 +1,5 @@
-﻿/* ===== SERVICE WORKER v6 • STANDALONE MANIFEST & SHELL FIX ===== */
-const CACHE = 'admission-portal-v6';
+﻿/* ===== SERVICE WORKER v7 • STANDALONE MANIFEST & SHELL FIX ===== */
+const CACHE = 'admission-portal-v7';
 
 const NETWORK_FIRST_PATHS = ['/manifest.webmanifest', '/icons/'];
 
@@ -15,7 +15,6 @@ self.addEventListener('install', (e) => {
       ]))
       .catch(() => {})
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
@@ -29,7 +28,9 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('message', (e) => {
-  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+  if (e.data === 'SKIP_WAITING' || (e.data && e.data.type === 'SKIP_WAITING')) {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (e) => {
