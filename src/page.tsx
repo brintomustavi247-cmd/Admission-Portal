@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { supabase } from "./lib/supabase";
 import {
   University,
   TimeFilterOption,
@@ -47,7 +48,9 @@ type FontKey = "noto" | "anek" | "hind";
 const FONT_STORAGE_KEY = "admission_font_pref";
 const THEME_STORAGE_KEY = "varsity_theme";
 
-export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () => void } = {}) {
+export default function AdmissionDashboard({
+  onOpenAdmin,
+}: { onOpenAdmin?: () => void } = {}) {
   /* ---------- 1. Data Source ---------- */
   const [sheetData, setSheetData] = useState<SheetFetchResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -55,10 +58,49 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
     useState<string>(DEFAULT_SHEET_ID);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
 
-  /* ---------- 2. Navigation ---------- */
+  /* ---------- 2. Live Supabase Realtime Updates ---------- */
+  const [liveUpdates, setLiveUpdates] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchLiveUpdates = async () => {
+      const { data, error } = await supabase
+        .from("university_updates")
+        .select("*")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+
+      if (!error && data) {
+        setLiveUpdates(data);
+      }
+    };
+
+    fetchLiveUpdates();
+
+    // Instant Realtime sync when admin publishes an update
+    const channel = supabase
+      .channel("page_live_sync_channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "university_updates",
+        },
+        () => {
+          fetchLiveUpdates();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  /* ---------- 3. Navigation ---------- */
   const [activeTab, setActiveTab] = useState<TabKey>("home");
 
-  /* ---------- 3. Preferences ---------- */
+  /* ---------- 4. Preferences ---------- */
   const [isSecondTimer, setIsSecondTimer] = useState<boolean>(false);
   const [fontPreference, setFontPreference] = useState<FontKey>(() => {
     try {
@@ -79,20 +121,20 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
     }
   });
 
-  /* ---------- 4. Filters ---------- */
+  /* ---------- 5. Filters ---------- */
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [timeFilter, setTimeFilter] = useState<TimeFilterOption>("all");
   const [categoryFilter, setCategoryFilter] =
     useState<CategoryFilterOption>("all");
 
-  /* ---------- 5. Eligibility ---------- */
+  /* ---------- 6. Eligibility ---------- */
   const [eligibilityResults, setEligibilityResults] = useState<Record<
     string,
     EligibilityEvaluation
   > | null>(null);
   const [onlyShowEligible, setOnlyShowEligible] = useState<boolean>(false);
 
-  /* ---------- 6. Modals ---------- */
+  /* ---------- 7. Modals ---------- */
   const [selectedUniversity, setSelectedUniversity] =
     useState<University | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -144,7 +186,45 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
     loadData();
   }, [loadData]);
 
-  const universities = sheetData?.universities || [];
+  /* ---------- Merge Sheet Data with Live Supabase Updates ---------- */
+  const rawUniversities = sheetData?.universities || [];
+
+  const universities = useMemo(() => {
+    if (!rawUniversities.length) return [];
+    if (!liveUpdates.length) return rawUniversities;
+
+    return rawUniversities.map((uni) => {
+      const match = liveUpdates.find((u) => {
+        if (!u.university_name) return false;
+        const dbName = u.university_name.trim().toLowerCase();
+        const uniName = uni.name.trim().toLowerCase();
+        const short = (uni.shortName || "").trim().toLowerCase();
+        return (
+          uniName.includes(dbName) ||
+          dbName.includes(uniName) ||
+          (short && (dbName.includes(short) || short.includes(dbName)))
+        );
+      });
+
+      if (match) {
+        return {
+          ...uni,
+          circularStatus: "confirmed" as const,
+          latestBreakingUpdate: match,
+        };
+      }
+      return uni;
+    });
+  }, [rawUniversities, liveUpdates]);
+
+  // Keep modal in sync with realtime updates
+  const currentSelectedUniversity = useMemo(() => {
+    if (!selectedUniversity) return null;
+    return (
+      universities.find((u) => u.id === selectedUniversity.id) ||
+      selectedUniversity
+    );
+  }, [selectedUniversity, universities]);
 
   /* ---------- Metrics ---------- */
   const metrics = useMemo(() => {
@@ -206,10 +286,12 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
     setSelectedUniversity(uni);
     setIsModalOpen(true);
   }, []);
+
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedUniversity(null);
   }, []);
+
   const handleEligibilityEvaluations = useCallback(
     (
       results: Record<string, EligibilityEvaluation> | null,
@@ -220,6 +302,7 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
     },
     [],
   );
+
   const handleResetFilters = useCallback(() => {
     setSearchQuery("");
     setTimeFilter("all");
@@ -405,7 +488,7 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
         onOpenAdmin={onOpenAdmin}
       />
       <UniversityModal
-        university={selectedUniversity}
+        university={currentSelectedUniversity}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
@@ -433,7 +516,7 @@ export default function AdmissionDashboard({ onOpenAdmin }: { onOpenAdmin?: () =
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* 🔔 LIVE ADMISSION UPDATE POPUP */}
+      {/* 🔔 LIVE ADMISSION NOTIFICATION BANNER */}
       <UpdateNotifier />
     </div>
   );
