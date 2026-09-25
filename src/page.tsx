@@ -221,15 +221,23 @@ export default function AdmissionDashboard({
       });
 
       if (match) {
-        // Exam units override with the new live date
+        const d = match.extracted_data || {};
+        const hasConcrete = Boolean(
+          d.exam_date ||
+          d.application_start ||
+          d.application_deadline ||
+          d.fee_amount,
+        );
         const updatedExamUnits = uni.examUnits?.map((unit) => ({
           ...unit,
-          fee: match.extracted_data?.fees || unit.fee,
+          fee: d.fee_amount || unit.fee,
         }));
 
         return {
           ...uni,
-          circularStatus: "confirmed" as const,
+          circularStatus: hasConcrete
+            ? ("confirmed" as const)
+            : uni.circularStatus,
           latestBreakingUpdate: match,
           examUnits: updatedExamUnits || uni.examUnits,
         };
