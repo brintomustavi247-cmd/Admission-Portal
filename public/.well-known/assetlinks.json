@@ -1,12 +1,1 @@
-﻿[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "app.vercel.varsity_admission_bd.twa",
-      "sha256_cert_fingerprints": [
-        "49:3E:4E:11:BD:23:14:43:21:DB:C8:15:43:C0:07:02:64:A3:D0:5D:D1:E2:39:7B:7F:FD:2B:A1:C4:C7:0D:C9"
-      ]
-    }
-  }
-]
+﻿[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"app.vercel.varsity_admission_bd.twa","sha256_cert_fingerprints":["49:3E:4E:11:BD:23:14:43:21:DB:C8:15:43:C0:07:02:64:A3:D0:5D:D1:E2:39:7B:7F:FD:2B:A1:C4:C7:0D:C9"]}}]
