@@ -70,3 +70,28 @@ export interface EligibilityEvaluation {
 
 export type TimeFilterOption = 'all' | 'ongoing' | 'upcoming' | 'ended';
 export type CategoryFilterOption = 'all' | 'general' | 'engineering' | 'medical' | 'agricultural' | 'cluster';
+// Existing code thakbe, shudhu niche ei part-ta add koro:
+
+export interface UniversityUpdate {
+  id: string;
+  university_id: string | null;
+  university_name: string;
+  update_type: 'admission_circular' | 'routine_change' | 'result' | 'fee' | 'admit_card';
+  title: string;
+  raw_content?: string | null;
+  extracted_data: {
+    exam_date?: string;
+    application_start?: string;
+    application_end?: string;
+    fees?: string;
+    units?: { unit: string; date?: string; fee?: string }[];
+    min_gpa?: { ssc?: number; hsc?: number; combined?: number };
+    highlights?: string[];
+  };
+  source_urls?: string[];
+  status: 'pending' | 'published' | 'rejected';
+  severity: 'normal' | 'important' | 'urgent';
+  approved_at?: string | null;
+  published_at?: string | null;
+  created_at: string;
+}
