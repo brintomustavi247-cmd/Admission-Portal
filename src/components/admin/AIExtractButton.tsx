@@ -11,13 +11,13 @@ export const AIExtractButton: React.FC<Props> = ({ onExtracted }) => {
 
   const handleExtract = async () => {
     if (!inputUrlOrText.trim()) {
-      alert("Prothom e circular er text ba link paste koro!");
+      alert("আগে সার্কুলারের টেক্সট বা লিংক পেস্ট করুন!");
       return;
     }
 
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
-      alert("VITE_GEMINI_API_KEY env variable paoya jayni! Vercel ba .env.local check koro.");
+      alert("VITE_GEMINI_API_KEY পাওয়া যায়নি! Vercel বা .env.local চেক করুন।");
       return;
     }
 
@@ -29,11 +29,11 @@ export const AIExtractButton: React.FC<Props> = ({ onExtracted }) => {
 
 Return ONLY a pure valid JSON object in this exact structure without markdown backticks:
 {
-  "university_name": "University Name in Bangla (e.g. জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)",
-  "title": "Short title in Bangla (e.g. ভর্তি পরীক্ষা শুরু ১৭ জানুয়ারি)",
+  "university_name": "বিশ্ববিদ্যালয়ের নাম (যেমন: জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)",
+  "title": "সংক্ষিপ্ত শিরোনাম (যেমন: জাবি ভর্তি পরীক্ষা শুরু ১৭ জানুয়ারি)",
   "update_type": "admission_circular",
   "extracted_data": {
-    "exam_date": "Exam date in Bangla (e.g. ১৭ জানুয়ারি)",
+    "exam_date": "পরীক্ষার তারিখ (যেমন: ১৭ জানুয়ারি)",
     "application_start": "",
     "application_end": "",
     "fees": "",
@@ -42,29 +42,38 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
   "source_urls": ["${inputUrlOrText.startsWith("http") ? inputUrlOrText : ""}"]
 }`;
 
-      // Gemini 2.5 Flash API Call
+      const requestPayload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+        },
+      };
+
+      // Header-based authentication (v1beta)
+      const headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey.trim(),
+      };
+
+      // 1st attempt: gemini-2.5-flash
       let res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: "application/json" },
-          }),
+          headers,
+          body: JSON.stringify(requestPayload),
         }
       );
 
-      // Fallback request
+      // 2nd fallback: gemini-2.0-flash
       if (!res.ok) {
         res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-            }),
+            headers,
+            body: JSON.stringify(requestPayload),
           }
         );
       }
@@ -72,19 +81,19 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
       const json = await res.json();
 
       if (!res.ok || json.error) {
-        throw new Error(json.error?.message || "Google API request fail hoyeche");
+        throw new Error(json.error?.message || "গুগল এপিআই রিকোয়েস্ট ব্যর্থ হয়েছে");
       }
 
       let rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!rawText) {
-        throw new Error("AI kono data extract korte pareni.");
+        throw new Error("এআই কোনো ডেটা তৈরি করতে পারেনি।");
       }
 
       rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(rawText);
 
       onExtracted(parsed);
-      alert("AI safolbhabe data extract koreche! Nicher form check kore 'Queue for Review' button-e chapo.");
+      alert("✅ এআই সফলভাবে তথ্য সংগ্রহ করেছে! নিচের ফর্মটি চেক করে 'কিউতে যুক্ত করুন'-এ চাপুন।");
     } catch (err: any) {
       console.error("AI Extraction Error:", err);
       alert("AI Extraction Error:\n" + (err.message || err));
@@ -96,17 +105,17 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
   return (
     <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-900/20 via-violet-900/20 to-sky-900/20 border border-sky-500/20 space-y-2">
       <div className="text-xs font-bold text-sky-300 flex items-center gap-1.5">
-        <Sparkles className="w-3.5 h-3.5 text-sky-400" /> 1-Click AI Extractor
+        <Sparkles className="w-3.5 h-3.5 text-sky-400" /> ১-ক্লিক AI এক্সট্রাক্টর
       </div>
       <p className="text-[11px] text-slate-400">
-        Circular er link ba news text ekhane paste koro — AI form auto fill korbe.
+        কোনো সার্কুলারের নিউজ লিংক বা টেক্সট এখানে পেস্ট করুন — AI ফর্ম স্বয়ংক্রিয় পূরণ করবে।
       </p>
       <div className="flex gap-2">
         <input
           type="text"
           value={inputUrlOrText}
           onChange={(e) => setInputUrlOrText(e.target.value)}
-          placeholder="Circular text ba URL paste koro..."
+          placeholder="সার্কুলার লিংক বা নিউজের অংশ পেস্ট করুন..."
           className="flex-1 bg-[#0b101b] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-500/50"
         />
         <button
@@ -118,12 +127,12 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
           {loading ? (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Processing...
+              আনছে...
             </>
           ) : (
             <>
               <Sparkles className="w-3.5 h-3.5" />
-              AI diye anoun
+              AI দিয়ে আনুন
             </>
           )}
         </button>
