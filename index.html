@@ -3,33 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>বিশ্ববিদ্যালয় ভর্তি ২০২৫-২৬</title>
-    <meta name="description" content="বাংলাদেশের সকল পাবলিক বিশ্ববিদ্যালয়ের ২০২৬–২৭ ও ২০২৫–২৬ সেশনের ভর্তি তথ্য, খুলনা বিশ্ববিদ্যালয়সহ ১ম ও ২য় বার পরীক্ষার্থীদের সুযোগ এবং জিপিএ যোগ্যতা যাচাই প্ল্যাটফর্ম।" />
-    <meta property="og:title" content="বিশ্ববিদ্যালয় ভর্তি ২০২৫-২৬" />
-    <meta property="og:description" content="বাংলাদেশের সকল পাবলিক বিশ্ববিদ্যালয়ের ২০২৬–২৭ ও ২০২৫–২৬ সেশনের ভর্তি তথ্য, খুলনা বিশ্ববিদ্যালয়সহ ১ম ও ২য় বার পরীক্ষার্থীদের সুযোগ এবং জিপিএ যোগ্যতা যাচাই প্ল্যাটফর্ম।" />
+    <title>বিশ্ববিদ্যালয় ভর্তি ২০২৬–২৭</title>
+    <meta
+      name="description"
+      content="বাংলাদেশের সকল পাবলিক বিশ্ববিদ্যালয়ের ২০২৬–২৭ সেশনের ভর্তি তথ্য, ইউনিটভিত্তিক রুটিন ও যোগ্যতা যাচাই প্ল্যাটফর্ম।"
+    />
+    <meta property="og:title" content="বিশ্ববিদ্যালয় ভর্তি ২০২৬–২৭" />
+    <meta
+      property="og:description"
+      content="বাংলাদেশের সকল পাবলিক বিশ্ববিদ্যালয়ের ভর্তি তথ্য ও লাইভ আপডেট প্ল্যাটফর্ম।"
+    />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#0d1017" />
+    <meta name="theme-color" content="#090d16" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/icons/icon-192.png"
+    />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="ভর্তি পোর্টাল" />
+
+    <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Anek+Bangla:wght@400..800&family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400..900&family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Orbitron:wght@400;500;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+    <!-- Premium Bengali Typography (Hind Siliguri + Anek Bangla + Plus Jakarta Sans) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Anek+Bangla:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-screen">
+  <body
+    class="bg-[#f8fafc] dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 antialiased min-h-screen"
+  >
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => {});
         });
       }
     </script>
   </body>
 </html>
-
