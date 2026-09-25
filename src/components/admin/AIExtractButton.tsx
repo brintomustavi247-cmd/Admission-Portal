@@ -55,9 +55,9 @@ Return ONLY a pure valid JSON object in this exact structure without markdown ba
         "x-goog-api-key": apiKey.trim(),
       };
 
-      // গুগল এর রিকমেন্ডেড লেটেস্ট gemini-2.5-flash মডেল
+      // গুগল নির্দেশিত লেটেস্ট gemini-3.8-flash মডেল
       const res = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
         {
           method: "POST",
           headers,
