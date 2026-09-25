@@ -1,12 +1,12 @@
 // -----------------------------------------------------------------------------
-// Admission Portal dataset refresh — verified up to 25 Sep 2026 (BD).
-// Source: Multi-source research (Prothom Alo, Daily Star, Sangbad, official portals)
+// Admission Portal dataset — Updated 25 Sep 2026 (BD)
+// Source: Multi-source research (Prothom Alo, Kaler Kantho, Daily Star, official portals)
 // -----------------------------------------------------------------------------
 
 import { University } from "../types/admission";
 
 export const initialUniversitiesData: University[] = [
-  // 1. ঢাকা বিশ্ববিদ্যালয় (ঢাবি) - DU [UPDATED 25 Sep 2026]
+  // 1. ঢাকা বিশ্ববিদ্যালয় (ঢাবি) - DU [No new update in last 14 days]
   {
     id: "du",
     name: "ঢাকা বিশ্ববিদ্যালয় (ঢাবি)",
@@ -23,10 +23,10 @@ export const initialUniversitiesData: University[] = [
     admitCardDate: "",
     secondTimerAllowed: false,
     secondTimerDeduction: "সুযোগ নেই (শুধুমাত্র HSC 2026 ব্যাচ)",
-    eligibleHscBatches: "HSC 2024, 2025 ও 2026",
+    eligibleHscBatches: "শুধুমাত্র HSC 2026",
     circularStatus: "confirmed",
     statusNote:
-      "২০২৬–২৭ আবেদন ১১–২৫ নভেম্বর। ভর্তি পরীক্ষা: IBA ৫ ডিসেম্বর, এ ইউনিট ১২ ডিসেম্বর, বি ইউনিট ১৯ ডিসেম্বর, চারুকলা ২২ ডিসেম্বর, সি ইউনিট ২৬ ডিসেম্বর। (সূত্র: Ajker Patrika, PNN24, ২৫ সেপ্টেম্বর ২০২৬)",
+      "আগস্টে ঘোষিত সূচি: IBA ৫ ডিসেম্বর, ক ইউনিট ১২ ডিসেম্বর, খ ইউনিট ১৯ ডিসেম্বর, চারুকলা ২২ ডিসেম্বর, গ ইউনিট ২৬ ডিসেম্বর। আবেদন ১১-২৫ নভেম্বর। গত ১৪ দিনে নতুন কোনো পরিবর্তন নেই।",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -53,14 +53,14 @@ export const initialUniversitiesData: University[] = [
         fee: "১৫০০ টাকা",
       },
       {
-        unit: "এ ইউনিট",
+        unit: "ক ইউনিট",
         title: "বিজ্ঞান অনুষদভুক্ত বিষয়সমূহ",
         examDate: "2026-12-12",
         time: "সকাল ১১:০০ - ১২:৩০",
         fee: "১০৫০ টাকা",
       },
       {
-        unit: "বি ইউনিট",
+        unit: "খ ইউনিট",
         title: "কলা, আইন ও সামাজিক বিজ্ঞান",
         examDate: "2026-12-19",
         time: "সকাল ১১:০০ - ১২:৩০",
@@ -74,8 +74,8 @@ export const initialUniversitiesData: University[] = [
         fee: "১০৫০ টাকা",
       },
       {
-        unit: "সি ইউনিট",
-        title: "ব্যবসায় শিক্ষা ইউনিট",
+        unit: "গ ইউনিট",
+        title: "ব্যবসায় প্রশাসন",
         examDate: "2026-12-26",
         time: "সকাল ১১:০০ - ১২:৩০",
         fee: "১০৫০ টাকা",
@@ -83,7 +83,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 2. খুলনা বিশ্ববিদ্যালয় (খুবি) - KU [UPDATED 25 Sep 2026]
+  // 2. খুলনা বিশ্ববিদ্যালয় (খুবি) - KU [No new update in last 14 days]
   {
     id: "ku",
     name: "খুলনা বিশ্ববিদ্যালয় (খুবি)",
@@ -95,15 +95,15 @@ export const initialUniversitiesData: University[] = [
     applicationLink: "https://ku.ac.bd/admission",
     applicationProcess:
       "অনলাইনে নির্ধারিত ফরম পূরণ করে মোবাইল ব্যাংকিংয়ের মাধ্যমে ফি প্রদান করুন। ২য় বারের শিক্ষার্থীরাও আবেদন করতে পারবেন।",
-    startDate: "2026-11-15",
-    endDate: "2026-12-10",
+    startDate: "",
+    endDate: "",
     admitCardDate: "",
     secondTimerAllowed: true,
     secondTimerDeduction: "কোন নম্বর কর্তন নেই (সম্পূর্ণ সমসুযোগ)",
-    eligibleHscBatches: "HSC 2024, 2025 ও 2026",
+    eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "confirmed",
     statusNote:
-      "২০২৬–২৭ আবেদন ১৫ নভেম্বর–১০ ডিসেম্বর ২০২৬। পরীক্ষা: ১৭ ডিসেম্বর সি ও ডি ইউনিট, ১৮ ডিসেম্বর এ ও বি ইউনিট। (সূত্র: Prothom Alo, Daily Nayadiganta, ২৫ সেপ্টেম্বর ২০২৬)",
+      "আগস্টের শেষে ঘোষিত: ১৭ ডিসেম্বর সি ও ডি ইউনিট, ১৮ ডিসেম্বর এ ও বি ইউনিট। গত ১৪ দিনে নতুন কোনো আপডেট নেই।",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -120,29 +120,15 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "KU",
     examUnits: [
       {
-        unit: "সি ইউনিট",
+        unit: "সি ও ডি ইউনিট",
         title: "কলা, মানবিক, সামাজিক বিজ্ঞান ও ব্যবস্থাপনা",
         examDate: "2026-12-17",
         time: "সকাল ও বিকাল সেশন",
         fee: "১২০০ টাকা",
       },
       {
-        unit: "ডি ইউনিট",
-        title: "সমাজবিজ্ঞান ও মানবিক",
-        examDate: "2026-12-17",
-        time: "সকাল ও বিকাল সেশন",
-        fee: "১২০০ টাকা",
-      },
-      {
-        unit: "এ ইউনিট",
+        unit: "এ ও বি ইউনিট",
         title: "বিজ্ঞান, প্রকৌশল, প্রযুক্তি ও জীববিজ্ঞান",
-        examDate: "2026-12-18",
-        time: "সকাল ও বিকাল সেশন",
-        fee: "১২০০ টাকা",
-      },
-      {
-        unit: "বি ইউনিট",
-        title: "ব্যবসায় শিক্ষা",
         examDate: "2026-12-18",
         time: "সকাল ও বিকাল সেশন",
         fee: "১২০০ টাকা",
@@ -150,7 +136,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 3. জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি) - JU [NO UPDATE 25 Sep 2026]
+  // 3. জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি) - JU [UPDATED 22 Sep 2026]
   {
     id: "ju",
     name: "জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি)",
@@ -166,12 +152,11 @@ export const initialUniversitiesData: University[] = [
     endDate: "",
     admitCardDate: "",
     secondTimerAllowed: true,
-    secondTimerDeduction:
-      "২০২৬–২৭ circular অনুযায়ী যাচাইযোগ্য; বর্তমান তথ্য final ধরা যাবে না",
+    secondTimerDeduction: "কোন নম্বর কর্তন নেই (সম্পূর্ণ সমসুযোগ)",
     eligibleHscBatches: "HSC 2025 ও 2026",
-    circularStatus: "awaiting_circular",
+    circularStatus: "reported",
     statusNote:
-      "২৫ সেপ্টেম্বর ২০২৬ পর্যন্ত কোনো নতুন অফিসিয়াল সার্কুলার পাওয়া যায়নি। জানুয়ারি ২০২৭-এ সম্ভাব্য শুরুর কথা রিপোর্ট আছে।",
+      "📅 NEW: ২২ সেপ্টেম্বর ভর্তি কমিটির সভায় ১৭ জানুয়ারি ২০২৭ থেকে পরীক্ষা শুরুর প্রস্তাব। ওই সপ্তাহজুড়ে পরীক্ষা চলতে পারে। বিভাগীয় শহরে কেন্দ্র বাদ (আর্থিক/লজিস্টিক কারণে)। চূড়ান্ত সিদ্ধান্ত একাডেমিক কাউন্সিলের সভায়। (সূত্র: Shiksha Sangbad, Barta 24)",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -189,10 +174,17 @@ export const initialUniversitiesData: University[] = [
     featured: true,
     logoBg: "bg-rose-800",
     logoLetter: "JU",
-    examUnits: [],
+    examUnits: [
+      {
+        unit: "স্নাতক ভর্তি পরীক্ষা",
+        title: "সম্ভাব্য শুরু ১৭ জানুয়ারি ২০২৭",
+        examDate: "2027-01-17",
+        fee: "১১০০ টাকা",
+      },
+    ],
   },
 
-  // 4. রাজশাহী বিশ্ববিদ্যালয় (রাবি) - RU [UPDATED 25 Sep 2026]
+  // 4. রাজশাহী বিশ্ববিদ্যালয় (রাবি) - RU [No new update in last 14 days]
   {
     id: "ru",
     name: "রাজশাহী বিশ্ববিদ্যালয় (রাবি)",
@@ -212,7 +204,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "confirmed",
     statusNote:
-      "ভর্তি পরীক্ষা ২০২৭: বি ইউনিট ৮ জানুয়ারি, সি ইউনিট ৯ জানুয়ারি, এ ইউনিট ১৬ জানুয়ারি। সাত বিভাগীয় শহরে পরীক্ষা অনুষ্ঠিত হবে। (সূত্র: Sangbad, The Daily Star, ২৫ সেপ্টেম্বর ২০২৬)",
+      "সেপ্টেম্বরের শুরুতে ঘোষিত: ৮ জানুয়ারি খ ইউনিট (বাণিজ্য), ৯ জানুয়ারি গ ইউনিট (বিজ্ঞান), ১৬ জানুয়ারি ক ইউনিট (মানবিক)। প্রথমবার সব বিভাগীয় শহরে কেন্দ্র। গত ১৪ দিনে নতুন আপডেট নেই।",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -226,27 +218,27 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "RU",
     examUnits: [
       {
-        unit: "বি ইউনিট",
-        title: "ব্যবসায় শিক্ষা অনুষদ ও ব্যবসায় প্রশাসন ইনস্টিটিউট",
+        unit: "খ ইউনিট (বাণিজ্য)",
+        title: "ব্যবসায় শিক্ষা অনুষদ",
         examDate: "2027-01-08",
         fee: "১১০০ টাকা",
       },
       {
-        unit: "সি ইউনিট",
-        title: "বিজ্ঞান, কৃষি, প্রকৌশল ও জীব ও ভূ-বিজ্ঞান অনুষদ",
+        unit: "গ ইউনিট (বিজ্ঞান)",
+        title: "বিজ্ঞান, কৃষি, প্রকৌশল অনুষদ",
         examDate: "2027-01-09",
         fee: "১৩২০ টাকা",
       },
       {
-        unit: "এ ইউনিট",
-        title: "কলা, আইন, সামাজিক বিজ্ঞান ও চারুকলা অনুষদ",
+        unit: "ক ইউনিট (মানবিক)",
+        title: "কলা, আইন, সামাজিক বিজ্ঞান",
         examDate: "2027-01-16",
         fee: "১৩২০ টাকা",
       },
     ],
   },
 
-  // 5. জগন্নাথ বিশ্ববিদ্যালয় (জবি) - JnU [UPDATED 25 Sep 2026]
+  // 5. জগন্নাথ বিশ্ববিদ্যালয় (জবি) - JnU [No new update in last 14 days]
   {
     id: "jnu",
     name: "জগন্নাথ বিশ্ববিদ্যালয় (জবি)",
@@ -263,10 +255,10 @@ export const initialUniversitiesData: University[] = [
     admitCardDate: "",
     secondTimerAllowed: false,
     secondTimerDeduction: "সুযোগ নেই (শুধুমাত্র HSC 2026 ব্যাচ)",
-    eligibleHscBatches: "HSC 2024, 2025 ও 2026",
+    eligibleHscBatches: "শুধুমাত্র HSC 2026",
     circularStatus: "confirmed",
     statusNote:
-      "আবেদন ১৫ নভেম্বর–১০ ডিসেম্বর ২০২৬। পরীক্ষা: এ ইউনিট ১ জানুয়ারি, ই ইউনিট ৮ জানুয়ারি, বি ইউনিট ১৫ জানুয়ারি, সি ইউনিট ২২ জানুয়ারি, ডি ইউনিট ২৩ জানুয়ারি ২০২৭। (সূত্র: Sangbad, BV News, ২৫ সেপ্টেম্বর ২০২৬)",
+      "সেপ্টেম্বরের শুরুতে ঘোষিত: আবেদন ১৫ নভেম্বর দুপুর ১২টা থেকে ১০ ডিসেম্বর রাত ১১:৫৯। পরীক্ষা: এ ইউনিট ১ জানুয়ারি, ই ইউনিট ৮ জানুয়ারি, বি ইউনিট ১৫ জানুয়ারি, সি ইউনিট ২২ জানুয়ারি, ডি ইউনিট ২৩ জানুয়ারি ২০২৭। একাডেমিক কার্যক্রম ৪ এপ্রিল ২০২৭ থেকে।",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -312,7 +304,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 6. চট্টগ্রাম বিশ্ববিদ্যালয় (চবি) - CU [NO UPDATE 25 Sep 2026]
+  // 6. চট্টগ্রাম বিশ্ববিদ্যালয় (চবি) - CU [No new update, date clash noted]
   {
     id: "cu",
     name: "চট্টগ্রাম বিশ্ববিদ্যালয় (চবি)",
@@ -329,11 +321,11 @@ export const initialUniversitiesData: University[] = [
     admitCardDate: "",
     secondTimerAllowed: true,
     secondTimerDeduction:
-      "২০২৬–২৭ ২য়-বার নম্বর কর্তন final circular অনুযায়ী যাচাই করতে হবে",
+      "২য় বার পরীক্ষার্থীদের মোট স্কোর থেকে ৩.০ নম্বর কর্তন",
     eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "reported",
     statusNote:
-      "আবেদন ১৫ নভেম্বর–১০ ডিসেম্বর ২০২৬। পরীক্ষা ২৯ জানুয়ারি C, ৩০ জানুয়ারি A, ৩ ফেব্রুয়ারি B1, ৪ ফেব্রুয়ারি B2, ৫ ফেব্রুয়ারি B, ৬ ফেব্রুয়ারি D ও ৮ ফেব্রুয়ারি ২০২৭ D1।",
+      "সেপ্টেম্বরের শুরুতে ঘোষিত: পরীক্ষা ২৯ জানুয়ারি থেকে ৮ ফেব্রুয়ারি ২০২৭। সি ইউনিট ২৯ জানুয়ারি, ক ইউনিট ৩০ জানুয়ারি। ⚠️ কুবির বি ইউনিটের (৬ ফেব্রুয়ারি) সঙ্গে তারিখ সংঘর্ষ রিপোর্টেড; সময়/কেন্দ্র পরিবর্তন হতে পারে।",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -355,8 +347,8 @@ export const initialUniversitiesData: University[] = [
         fee: "১০০০ টাকা",
       },
       {
-        unit: "এ ইউনিট",
-        title: "বিজ্ঞান, জীববিজ্ঞান, প্রকৌশল ও সমুদ্রবিজ্ঞান অনুষদ",
+        unit: "ক ইউনিট",
+        title: "বিজ্ঞান, জীববিজ্ঞান, প্রকৌশল",
         examDate: "2027-01-30",
         fee: "১০০০ টাকা",
       },
@@ -380,20 +372,20 @@ export const initialUniversitiesData: University[] = [
       },
       {
         unit: "ডি ইউনিট",
-        title: "সমাজবিজ্ঞান, আইন ও সমন্বিত অনুষদ",
+        title: "সমাজবিজ্ঞান, আইন",
         examDate: "2027-02-06",
         fee: "১০০০ টাকা",
       },
       {
         unit: "ডি১ উপ-ইউনিট",
-        title: "শারীরিক শিক্ষা ও ক্রীড়া বিজ্ঞান",
+        title: "শারীরিক শিক্ষা",
         examDate: "2027-02-08",
         fee: "১০০০ টাকা",
       },
     ],
   },
 
-  // 7. বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয় (বুয়েট) - BUET [UPDATED 25 Sep 2026]
+  // 7. বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয় (বুয়েট) - BUET [No new update in last 14 days]
   {
     id: "buet",
     name: "বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয় (বুয়েট)",
@@ -413,7 +405,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "শুধুমাত্র HSC 2026",
     circularStatus: "confirmed",
     statusNote:
-      "২০২৬–২৭ স্নাতক ভর্তি পরীক্ষা ১৬ জানুয়ারি ২০২৭। এবারও কেবল লিখিত পরীক্ষার মাধ্যমে চূড়ান্ত নির্বাচন, প্রিলিমিনারি বাছাই নেই। আবেদন ও ফি অক্টোবর-নভেম্বরে প্রকাশিত হবে। (সূত্র: Ekhon TV, The Dhaka Diary, ২৫ সেপ্টেম্বর ২০২৬)",
+      "৭ সেপ্টেম্বর সংবাদ বিজ্ঞপ্তি: ভর্তি পরীক্ষা ১৬ জানুয়ারি ২০২৭ (শুক্রবার)। আবেদন শুরুর তারিখ, পরীক্ষা পদ্ধতি ও আসন সংখ্যা এখনো নির্ধারিত হয়নি। গত ১৪ দিনে নতুন আপডেট নেই।",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -428,8 +420,8 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "BUET",
     examUnits: [
       {
-        unit: "প্রকৌশল ও স্থাপত্য মূল পরীক্ষা",
-        title: "লিখিত পরীক্ষা (প্রকৌশল ও স্থাপত্য বিভাগসমূহ)",
+        unit: "স্নাতক ভর্তি পরীক্ষা",
+        title: "লিখিত পরীক্ষা",
         examDate: "2027-01-16",
         time: "সকাল ১০:০০ - ১:০০",
         fee: "১৫০০ টাকা",
@@ -437,7 +429,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 8. খুলনা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (কুয়েট) - KUET [UPDATED 25 Sep 2026]
+  // 8. খুলনা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (কুয়েট) - KUET [No new update in last 14 days]
   {
     id: "kuet",
     name: "খুলনা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (কুয়েট)",
@@ -457,7 +449,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "শুধুমাত্র HSC 2026",
     circularStatus: "confirmed",
     statusNote:
-      "ভর্তি পরীক্ষা ৮ জানুয়ারি ২০২৭; কেন্দ্র KUET, DU ও RUET-এ একযোগে। আবেদন ও ফি শিগগিরই প্রকাশিত হবে। (সূত্র: BV News, Sonali News, The Daily Star, ২৫ সেপ্টেম্বর ২০২৬)",
+      "আগস্টের শেষে ঘোষিত: বিএসসি ইঞ্জিনিয়ারিং, বিইউআরপি ও বি আর্ক ভর্তি পরীক্ষা ৮ জানুয়ারি ২০২৭। গত ১৪ দিনে আবেদন সময়সূচি বা ফি আপডেট নেই।",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -473,15 +465,15 @@ export const initialUniversitiesData: University[] = [
     examUnits: [
       {
         unit: "ভর্তি পরীক্ষা",
-        title: "UG Admission Test (MCQ)",
+        title: "বিএসসি ইঞ্জিনিয়ারিং, বিইউআরপি ও বি আর্ক",
         examDate: "2027-01-08",
-        time: "তারিখ নিশ্চিত; সময় official circular অনুযায়ী",
+        time: "সময় TBD",
         fee: "",
       },
     ],
   },
 
-  // 9. রাজশাহী প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (রুয়েট) - RUET [NO UPDATE 25 Sep 2026]
+  // 9. রাজশাহী প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (রুয়েট) - RUET [No new UG update]
   {
     id: "ruet",
     name: "রাজশাহী প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (রুয়েট)",
@@ -501,7 +493,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "শুধুমাত্র HSC 2026",
     circularStatus: "reported",
     statusNote:
-      "২০২৬–২৭ ভর্তি পরীক্ষার ১৪ জানুয়ারি ২০২৭ তারিখ রিপোর্টেড; চূড়ান্ত অফিসিয়াল সার্কুলার সাপেক্ষে।",
+      "স্নাতক ভর্তির সম্ভাব্য তারিখ ১৪ জানুয়ারি ২০২৭। দ্রষ্টব্য: ২১ সেপ্টেম্বরের বিজ্ঞপ্তি স্নাতকোত্তর (MSc/MEng/PhD) কোর্সের, স্নাতক ভর্তির নয়। গত ১৪ দিনে নতুন UG আপডেট নেই।",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -516,7 +508,7 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "RUET",
     examUnits: [
       {
-        unit: "সম্ভাব্য ভর্তি পরীক্ষা",
+        unit: "স্নাতক ভর্তি পরীক্ষা (সম্ভাব্য)",
         title: "ইঞ্জিনিয়ারিং ও URP",
         examDate: "2027-01-14",
         fee: "১২৫০ টাকা",
@@ -524,7 +516,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 10. চট্টগ্রাম প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (চুয়েট) - CUET [NO UPDATE 25 Sep 2026]
+  // 10. চট্টগ্রাম প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (চুয়েট) - CUET [UPDATED 19 Sep 2026]
   {
     id: "cuet",
     name: "চট্টগ্রাম প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (চুয়েট)",
@@ -542,9 +534,9 @@ export const initialUniversitiesData: University[] = [
     secondTimerAllowed: false,
     secondTimerDeduction: "সুযোগ নেই (শুধুমাত্র ১ম বার)",
     eligibleHscBatches: "শুধুমাত্র HSC 2026",
-    circularStatus: "awaiting_circular",
+    circularStatus: "reported",
     statusNote:
-      "২৫ সেপ্টেম্বর ২০২৬ পর্যন্ত কোনো অফিসিয়াল ২০২৬–২৭ সার্কুলার পাওয়া যায়নি।",
+      "📅 NEW: ১৯ সেপ্টেম্বর স্নাতক ভর্তি কমিটির সভায় ২৩ জানুয়ারি ২০২৭ (শনিবার) সম্ভাব্য তারিখ নির্ধারণ। ক ও খ—দুই গ্রুপে পরীক্ষা; খ গ্রুপে স্থাপত্যসহ নগর ও অঞ্চল পরিকল্পনা। আবেদন যোগ্যতা, ফি ও সময়সূচি একাডেমিক কাউন্সিলের অনুমোদনের পর বিজ্ঞপ্তিতে। (সূত্র: Prothom Alo, Kaler Kantho, Samakal)",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -557,10 +549,23 @@ export const initialUniversitiesData: University[] = [
     featured: false,
     logoBg: "bg-cyan-900",
     logoLetter: "CUET",
-    examUnits: [],
+    examUnits: [
+      {
+        unit: "ক গ্রুপ",
+        title: "ইঞ্জিনিয়ারিং ও নগর পরিকল্পনা",
+        examDate: "2027-01-23",
+        fee: "",
+      },
+      {
+        unit: "খ গ্রুপ",
+        title: "ইঞ্জিনিয়ারিং, নগর পরিকল্পনা ও স্থাপত্য",
+        examDate: "2027-01-23",
+        fee: "",
+      },
+    ],
   },
 
-  // 11. মিলিটারি ইনস্টিটিউট অব সায়েন্স অ্যান্ড টেকনোলজি (MIST) [UPDATED 25 Sep 2026]
+  // 11. মিলিটারি ইনস্টিটিউট অব সায়েন্স অ্যান্ড টেকনোলজি (MIST) [No new update in last 14 days]
   {
     id: "mist",
     name: "মিলিটারি ইনস্টিটিউট অব সায়েন্স অ্যান্ড টেকনোলজি (এমআইএসটি)",
@@ -580,7 +585,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "confirmed",
     statusNote:
-      "ভর্তি পরীক্ষা ১৮ ডিসেম্বর সি ইউনিট (বিজ্ঞান), ১৯ ডিসেম্বর এ ও বি ইউনিট (ইঞ্জিনিয়ারিং ও স্থাপত্য)। Official notice: mist.ac.bd/notice/322 (সূত্র: MIST Official, The Daily Star, ২৫ সেপ্টেম্বর ২০২৬)",
+      "আগস্টের শেষে ঘোষিত: ১৮ ডিসেম্বর সি ইউনিট (বিজ্ঞান) সকালে, ১৯ ডিসেম্বর এ ও বি ইউনিট (প্রকৌশল ও স্থাপত্য)। গত ১৪ দিনে নতুন আপডেট নেই।",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -601,21 +606,15 @@ export const initialUniversitiesData: University[] = [
         fee: "১৫০০ টাকা",
       },
       {
-        unit: "এ ইউনিট (ইঞ্জিনিয়ারিং)",
-        title: "ইঞ্জিনিয়ারিং বিভাগসমূহ",
-        examDate: "2026-12-19",
-        fee: "১২০০ টাকা",
-      },
-      {
-        unit: "বি ইউনিট (স্থাপত্য)",
-        title: "আর্কিটেকচার ড্রয়িং ও অ্যাপটিচিউড",
+        unit: "এ ও বি ইউনিট",
+        title: "প্রকৌশল ও স্থাপত্য",
         examDate: "2026-12-19",
         fee: "১২০০ টাকা",
       },
     ],
   },
 
-  // 12. এভিয়েশন অ্যান্ড অ্যারোস্পেস বিশ্ববিদ্যালয়, বাংলাদেশ (AAUB) [UPDATED 25 Sep 2026]
+  // 12. এভিয়েশন অ্যান্ড অ্যারোস্পেস বিশ্ববিদ্যালয়, বাংলাদেশ (AAUB) [No update]
   {
     id: "aaub",
     name: "এভিয়েশন অ্যান্ড অ্যারোস্পেস বিশ্ববিদ্যালয়, বাংলাদেশ (এএইউবি)",
@@ -633,9 +632,9 @@ export const initialUniversitiesData: University[] = [
     secondTimerAllowed: true,
     secondTimerDeduction: "কোন নম্বর কর্তন নেই",
     eligibleHscBatches: "HSC 2025 ও 2026",
-    circularStatus: "confirmed",
+    circularStatus: "awaiting_circular",
     statusNote:
-      "স্নাতক ভর্তি পরীক্ষা ৫ ডিসেম্বর ২০২৬; স্নাতকোত্তর ৪ ডিসেম্বর। পরীক্ষা লালমনিরহাট ক্যাম্পাস ও BAF Shaheen College Dhaka-এ। বিজ্ঞপ্তি ১৭ সেপ্টেম্বর ২০২৬ প্রকাশিত। (সূত্র: The Sun BD, ২৫ সেপ্টেম্বর ২০২৬)",
+      "গত ১৪ দিনে ২০২৬–২৭ ভর্তি বিজ্ঞপ্তি প্রকাশ হয়নি। নতুন তথ্য ঘোষণা হলে অফিসিয়াল পোর্টালে জানানো হবে।",
     minGpa: {
       ssc: 4.5,
       hsc: 4.5,
@@ -648,18 +647,10 @@ export const initialUniversitiesData: University[] = [
     featured: false,
     logoBg: "bg-sky-900",
     logoLetter: "AAUB",
-    examUnits: [
-      {
-        unit: "স্নাতক ভর্তি পরীক্ষা",
-        title: "এয়ারোস্পেস, এভিয়েশন অপারেশনস ও ইঞ্জিনিয়ারিং",
-        examDate: "2026-12-05",
-        time: "সকাল ১০:০০ - ১২:০০",
-        fee: "১২০০ টাকা",
-      },
-    ],
+    examUnits: [],
   },
 
-  // 13. কৃষি গুচ্ছ বিশ্ববিদ্যালয় (৯টি কৃষি বিশ্ববিদ্যালয়) [NO UPDATE 25 Sep 2026]
+  // 13. কৃষি গুচ্ছ বিশ্ববিদ্যালয় (৯টি কৃষি বিশ্ববিদ্যালয়) [No new update]
   {
     id: "agri-cluster",
     name: "কৃষি গুচ্ছ বিশ্ববিদ্যালয় (৯টি পাবলিক কৃষি বিশ্ববিদ্যালয়)",
@@ -677,11 +668,11 @@ export const initialUniversitiesData: University[] = [
     endDate: "",
     admitCardDate: "",
     secondTimerAllowed: true,
-    secondTimerDeduction: "২০২৬–২৭ circular অনুযায়ী যাচাইযোগ্য",
+    secondTimerDeduction: "কোন নম্বর কর্তন নেই (সম্পূর্ণ সমসুযোগ)",
     eligibleHscBatches: "HSC 2025 ও 2026",
-    circularStatus: "reported",
+    circularStatus: "confirmed",
     statusNote:
-      "২০২৬–২৭ কৃষি গুচ্ছ ভর্তি পরীক্ষা ২ জানুয়ারি ২০২৭ রিপোর্টেড; official circular সাপেক্ষে।",
+      "৮ সেপ্টেম্বর কৃষি গুচ্ছ কমিটি নিশ্চিত: ভর্তি পরীক্ষা ২ জানুয়ারি ২০২৭। আয়োজন ও সমন্বয়ে শেকৃবি। গত ১৪ দিনে আবেদন সময়সূচি, ফি বা যোগ্যতা আপডেট নেই।",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -704,16 +695,15 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "AGRI",
     examUnits: [
       {
-        unit: "একক ভর্তি পরীক্ষা",
-        title: "কৃষি গুচ্ছের সমন্বিত ভর্তি পরীক্ষা (৯ বিশ্ববিদ্যালয়)",
+        unit: "কৃষি গুচ্ছ ভর্তি পরীক্ষা",
+        title: "সমন্বিত পরীক্ষা (৯ বিশ্ববিদ্যালয়)",
         examDate: "2027-01-02",
-        time: "সময় official notice অনুযায়ী",
         fee: "১২০০ টাকা",
       },
     ],
   },
 
-  // 14. বাংলাদেশ ইউনিভার্সিটি অব প্রফেশনালস (বিইউপি) - BUP [UPDATED 25 Sep 2026]
+  // 14. বাংলাদেশ ইউনিভার্সিটি অব প্রফেশনালস (বিইউপি) - BUP [No new update]
   {
     id: "bup",
     name: "বাংলাদেশ ইউনিভার্সিটি অব প্রফেশনালস (বিইউপি)",
@@ -725,7 +715,7 @@ export const initialUniversitiesData: University[] = [
     applicationLink: "https://admission.bup.edu.bd/",
     applicationProcess:
       "অনলাইনে রেজিস্ট্রেশন করে প্রবেশপত্র সংগ্রহ করুন। ২য় বার পরীক্ষার্থীরা সমানভাবে যোগ্য।",
-    startDate: "2026-09-01",
+    startDate: "",
     endDate: "",
     admitCardDate: "",
     secondTimerAllowed: true,
@@ -733,7 +723,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "confirmed",
     statusNote:
-      "২০২৬–২৭ ভর্তি বিজ্ঞপ্তি ১ সেপ্টেম্বর প্রকাশিত। পরীক্ষার নির্দিষ্ট তারিখ (FBS ১ ও ৯ জানুয়ারি, FASS ২ জানুয়ারি, FET/FMS/FSSS ৮ জানুয়ারি) রিপোর্টেড। (সূত্র: BUP Admission Portal, ২৫ সেপ্টেম্বর ২০২৬)",
+      "সেপ্টেম্বরের শুরুতে ঘোষিত: ছয় অনুষদের পরীক্ষা ২০২৭ জানুয়ারির শুরুতে চার দিনে। ১ ও ৯ জানুয়ারি বিজনেস স্টাডিজ, ২ জানুয়ারি আর্টস ও সোশ্যাল সায়েন্স, ৮ জানুয়ারি সায়েন্স/ইঞ্জিনিয়ারিং/মেডিকেল/সিকিউরিটি। গত ১৪ দিনে নতুন আপডেট নেই।",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -749,37 +739,25 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "BUP",
     examUnits: [
       {
-        unit: "FBS",
+        unit: "বিজনেস স্টাডিজ",
         title: "Faculty of Business Studies",
         examDate: "2027-01-01",
         fee: "১১০০ টাকা",
       },
       {
-        unit: "FASS",
+        unit: "আর্টস ও সোশ্যাল সায়েন্স",
         title: "Faculty of Arts & Social Sciences",
         examDate: "2027-01-02",
         fee: "১১০০ টাকা",
       },
       {
-        unit: "FET",
-        title: "Faculty of Engineering & Technology",
+        unit: "সায়েন্স, ইঞ্জিনিয়ারিং, মেডিকেল ও সিকিউরিটি",
+        title: "FET, FMS, FSSS",
         examDate: "2027-01-08",
         fee: "১১০০ টাকা",
       },
       {
-        unit: "FMS",
-        title: "Faculty of Medical Studies",
-        examDate: "2027-01-08",
-        fee: "১১০০ টাকা",
-      },
-      {
-        unit: "FSSS",
-        title: "Faculty of Security & Strategic Studies",
-        examDate: "2027-01-08",
-        fee: "১১০০ টাকা",
-      },
-      {
-        unit: "FBS (২য় সেশন)",
+        unit: "বিজনেস স্টাডিজ (দ্বিতীয় দিন)",
         title: "Faculty of Business Studies",
         examDate: "2027-01-09",
         fee: "১১০০ টাকা",
@@ -787,7 +765,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 15. হাজী মোহাম্মদ দানেশ বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (হাবিপ্রবি) - HSTU [NO UPDATE 25 Sep 2026]
+  // 15. হাজী মোহাম্মদ দানেশ বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (হাবিপ্রবি) - HSTU [No update]
   {
     id: "hstu",
     name: "হাজী মোহাম্মদ দানেশ বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (হাবিপ্রবি)",
@@ -804,11 +782,11 @@ export const initialUniversitiesData: University[] = [
     endDate: "",
     admitCardDate: "",
     secondTimerAllowed: true,
-    secondTimerDeduction: "২০২৬–২৭ circular অনুযায়ী যাচাইযোগ্য",
+    secondTimerDeduction: "কোন নম্বর কর্তন নেই",
     eligibleHscBatches: "HSC 2025 ও 2026",
-    circularStatus: "confirmed",
+    circularStatus: "awaiting_circular",
     statusNote:
-      "২০২৭ শিক্ষাবর্ষের ভর্তি পরীক্ষা ২৪–২৮ জানুয়ারি ২০২৭ window-এ।",
+      "গত ১৪ দিনে ভর্তি বিজ্ঞপ্তি প্রকাশ হয়নি। নতুন ঘোষণা অপেক্ষার প্রস্তাব।",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -825,7 +803,7 @@ export const initialUniversitiesData: University[] = [
     examUnits: [],
   },
 
-  // 16. শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (শাবিপ্রবি) - SUST [UPDATED 25 Sep 2026]
+  // 16. শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (শাবিপ্রবি) - SUST [No new update]
   {
     id: "sust",
     name: "শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (শাবিপ্রবি)",
@@ -846,7 +824,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "confirmed",
     statusNote:
-      "ভর্তি পরীক্ষা ২৬ ও ২৭ জানুয়ারি ২০২৭ নিশ্চিত। বিস্তারিত আবেদন ও ফি শিগগিরই প্রকাশিত হবে। (সূত্র: HT Syndication, Views Bangladesh, ২৫ সেপ্টেম্বর ২০২৬)",
+      "সেপ্টেম্বরের শুরুতে ঘোষিত: প্রথম বর্ষ ভর্তি পরীক্ষা ২৬ ও ২৭ জানুয়ারি ২০২৭ (দুই দিনে)। গত ১৪ দিনে আবেদন সময়সূচি বা ফি আপডেট নেই।",
     minGpa: {
       ssc: 3.0,
       hsc: 3.0,
@@ -860,21 +838,21 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "SUST",
     examUnits: [
       {
-        unit: "এ ইউনিট (বিজ্ঞান)",
-        title: "ফলিত বিজ্ঞান, প্রকৌশল ও জীববিজ্ঞান",
+        unit: "প্রথম দিন",
+        title: "ভর্তি পরীক্ষা দিন ১",
         examDate: "2027-01-26",
         fee: "১২০০ টাকা",
       },
       {
-        unit: "বি ইউনিট (মানবিক ও বাণিজ্য)",
-        title: "সামাজিক বিজ্ঞান ও ব্যবসায় প্রশাসন",
+        unit: "দ্বিতীয় দিন",
+        title: "ভর্তি পরীক্ষা দিন ২",
         examDate: "2027-01-27",
         fee: "১২০০ টাকা",
       },
     ],
   },
 
-  // 17. বাংলাদেশ টেক্সটাইল বিশ্ববিদ্যালয় (বুটেক্স) - BUTEX [UPDATED 25 Sep 2026]
+  // 17. বাংলাদেশ টেক্সটাইল বিশ্ববিদ্যালয় (বুটেক্স) - BUTEX [No new update]
   {
     id: "butex",
     name: "বাংলাদেশ টেক্সটাইল বিশ্ববিদ্যালয় (বুটেক্স)",
@@ -894,7 +872,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "শুধুমাত্র HSC 2026",
     circularStatus: "confirmed",
     statusNote:
-      "BSc in Textile Engineering Level-1 Term-1 admission test ২৯ জানুয়ারি ২০২৭ নিশ্চিত। আবেদন ও ফি শিগগিরই। (সূত্র: RTV Online, Varsity Admission BD, ২৫ সেপ্টেম্বর ২০২৬)",
+      "৭ সেপ্টেম্বর ডিন ও বিভাগীয় প্রধানদের সভায় চূড়ান্ত, ৮ সেপ্টেম্বর বিজ্ঞপ্তি: BSc in Textile Engineering ভর্তি পরীক্ষা ২৯ জানুয়ারি ২০২৭। যোগ্যতা, জিপিএ শর্ত ও আবেদন HSC ফলের পর নির্ধারিত হবে। গত ১৪ দিনে নতুন আপডেট নেই।",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -909,8 +887,8 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "BUTEX",
     examUnits: [
       {
-        unit: "লিখিত পরীক্ষা",
-        title: "BSc in Textile Engineering Level-1 Term-1 admission test",
+        unit: "BSc টেক্সটাইল ইঞ্জিনিয়ারিং",
+        title: "Level-1 Term-1 admission test",
         examDate: "2027-01-29",
         time: "সকাল ১০:০০ - ১২:০০",
         fee: "১২০০ টাকা",
@@ -918,7 +896,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 18. কুমিল্লা বিশ্ববিদ্যালয় (কুবি) - CoU [NO UPDATE 25 Sep 2026]
+  // 18. কুমিল্লা বিশ্ববিদ্যালয় (কুবি) - CoU [UPDATED 24 Sep 2026]
   {
     id: "cou",
     name: "কুমিল্লা বিশ্ববিদ্যালয় (কুবি)",
@@ -936,9 +914,9 @@ export const initialUniversitiesData: University[] = [
     secondTimerAllowed: true,
     secondTimerDeduction: "কোন নম্বর কর্তন নেই (সম্পূর্ণ সমসুযোগ)",
     eligibleHscBatches: "HSC 2025 ও 2026",
-    circularStatus: "reported",
+    circularStatus: "confirmed",
     statusNote:
-      "আবেদন ১৫ নভেম্বর–১০ ডিসেম্বর ২০২৬; ভর্তি পরীক্ষা ৫, ৬ ও ৭ ফেব্রুয়ারি ২০২৭। পরীক্ষাকেন্দ্র কুমিল্লা, চট্টগ্রাম ও রাজশাহী।",
+      "✅ CONFIRMED ২৪ সেপ্টেম্বর: কেন্দ্রীয় ভর্তি কমিটির সভায় চূড়ান্ত। পরীক্ষা ৫, ৬ ও ৭ ফেব্রুয়ারি ২০২৭। এ ইউনিট (বিজ্ঞান) ৫ ফেব্রুয়ারি সকাল ১১টা, বি ইউনিট (কলা/সামাজিক/আইন) ৬ ফেব্রুয়ারি বিকেল ৩টা, সি ইউনিট (বিজনেস) ৭ ফেব্রুয়ারি সকাল ১১টা। আবেদন ১৫ নভেম্বর–১০ ডিসেম্বর। কেন্দ্র: কুমিল্লা, চট্টগ্রাম, রাজশাহী। (সূত্র: Bangladesh Pratidin, RTV News)",
     minGpa: {
       ssc: 3.0,
       hsc: 3.0,
@@ -957,18 +935,19 @@ export const initialUniversitiesData: University[] = [
         unit: "এ ইউনিট",
         title: "বিজ্ঞান ও প্রকৌশল অনুষদ",
         examDate: "2027-02-05",
+        time: "সকাল ১১:০০",
         fee: "১০০০ টাকা",
       },
       {
         unit: "বি ইউনিট",
-        title: "কলা ও সামাজিক বিজ্ঞান",
+        title: "কলা, সামাজিক বিজ্ঞান ও আইন",
         examDate: "2027-02-06",
         time: "বিকাল ৩:০০",
         fee: "১০০০ টাকা",
       },
       {
         unit: "সি ইউনিট",
-        title: "ব্যবসায় শিক্ষা",
+        title: "বিজনেস স্টাডিজ",
         examDate: "2027-02-07",
         time: "সকাল ১১:০০",
         fee: "১০০০ টাকা",
@@ -976,7 +955,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 19. বাংলাদেশ মেরিটাইম বিশ্ববিদ্যালয় (বিএমইউ) - BMU [NO UPDATE 25 Sep 2026]
+  // 19. বাংলাদেশ মেরিটাইম বিশ্ববিদ্যালয় (বিএমইউ) - BMU [UPDATED 22 Sep 2026 - Campus Relocation]
   {
     id: "bmu",
     name: "বাংলাদেশ মেরিটাইম বিশ্ববিদ্যালয় (বিএমইউ)",
@@ -984,7 +963,7 @@ export const initialUniversitiesData: University[] = [
     englishName: "Bangladesh Maritime University (BMU)",
     category: "specialized",
     categoryLabel: "বিশেষায়িত বিশ্ববিদ্যালয়",
-    location: "পল্লবী, মিরপুর, ঢাকা ও চট্টগ্রাম স্থায়ী ক্যাম্পাস",
+    location: "চট্টগ্রাম স্থায়ী ক্যাম্পাস (২০২৭ মে থেকে)",
     applicationLink: "https://applyonline.bmu.edu.bd/",
     applicationProcess:
       "অনলাইনে আবেদন ফরম পূরণ। ২য় বার পরীক্ষার্থীদের সুযোগ রয়েছে (নেগেটিভ মার্কিং ০.২৫)।",
@@ -995,9 +974,9 @@ export const initialUniversitiesData: University[] = [
     secondTimerDeduction:
       "২য়-বার eligibility/marking current circular অনুযায়ী যাচাই করতে হবে",
     eligibleHscBatches: "HSC 2025 ও 2026",
-    circularStatus: "awaiting_circular",
+    circularStatus: "reported",
     statusNote:
-      "২৫ সেপ্টেম্বর ২০২৬ পর্যন্ত কোনো নতুন অফিসিয়াল ২০২৬–২৭ সার্কুলার পাওয়া যায়নি।",
+      "🏢 NEW (২২ সেপ্টেম্বর): একাডেমিক ও প্রশাসনিক কার্যক্রম ঢাকার অস্থায়ী ক্যাম্পাস থেকে চট্টগ্রামের স্থায়ী ক্যাম্পাসে স্থানান্তরের সিদ্ধান্ত। ২০২৭ সালের মে থেকে স্নাতক পাঠদান ও নবভর্তি ক্লাস স্থায়ী ক্যাম্পাসে শুরু হবে। ২০২৬–২৭ ভর্তি পরীক্ষার নতুন তারিখ এখনো ঘোষণা হয়নি। (সূত্র: The Daily Campus)",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -1014,7 +993,7 @@ export const initialUniversitiesData: University[] = [
     examUnits: [],
   },
 
-  // 20. গুচ্ছ সাধারণ ও বিজ্ঞান প্রযুক্তি (GST Cluster - ২০ বিশ্ববিদ্যালয়) [UPDATED 25 Sep 2026]
+  // 20. গুচ্ছ সাধারণ ও বিজ্ঞান প্রযুক্তি (GST Cluster) [UPDATED 17 Sep 2026]
   {
     id: "gst",
     name: "গুচ্ছ সাধারণ ও বিজ্ঞান প্রযুক্তি (GST Cluster - ২০টি পাবলিক বিশ্ববিদ্যালয়)",
@@ -1035,7 +1014,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "confirmed",
     statusNote:
-      "২০২৬–২৭ ভর্তি পরীক্ষা: বি ইউনিট ১৯ মার্চ, সি ও ডি ইউনিট ২০ মার্চ, এ ইউনিট ২৭ মার্চ ২০২৭। PSTU এ বছর গুচ্ছ পরিচালনা করবে। (সূত্র: New Age, Observer BD, Business Times, ২৫ সেপ্টেম্বর ২০২৬)",
+      "✅ CONFIRMED ১৭ সেপ্টেম্বর: উপাচার্যদের অনলাইন সভায় চূড়ান্ত। প্রথমবার চার ইউনিটে পরীক্ষা: বি ইউনিট (মানবিক) ১৯ মার্চ ১১টা-১২টা, সি ইউনিট (বাণিজ্য) ২০ মার্চ ১১টা-১২টা, ডি ইউনিট (আর্কিটেকচার) ২০ মার্চ ৩টা-৪টা, এ ইউনিট (বিজ্ঞান) ২৭ মার্চ ১১টা-১২টা ২০২৭। আয়োজনে পবিপ্রবি। আবেদন সময়সূচি, ফি ও যোগ্যতা পরবর্তী বিজ্ঞপ্তিতে। (সূত্র: Prothom Alo, Ajker Patrika, Observer BD)",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -1052,30 +1031,34 @@ export const initialUniversitiesData: University[] = [
         unit: "বি ইউনিট (মানবিক)",
         title: "মানবিক ও সামাজিক বিজ্ঞান শাখা",
         examDate: "2027-03-19",
+        time: "সকাল ১১:০০ - ১২:০০",
         fee: "১৫০০ টাকা",
       },
       {
         unit: "সি ইউনিট (বাণিজ্য)",
         title: "ব্যবসায় শিক্ষা শাখা",
         examDate: "2027-03-20",
+        time: "সকাল ১১:০০ - ১২:০০",
         fee: "১৫০০ টাকা",
       },
       {
-        unit: "ডি ইউনিট (স্থাপত্য)",
-        title: "স্থাপত্য ও সমন্বিত শাখা",
+        unit: "ডি ইউনিট (আর্কিটেকচার)",
+        title: "স্থাপত্য শাখা (নতুন)",
         examDate: "2027-03-20",
+        time: "বিকাল ৩:০০ - ৪:০০",
         fee: "১৫০০ টাকা",
       },
       {
         unit: "এ ইউনিট (বিজ্ঞান)",
         title: "বিজ্ঞান ও প্রকৌশল শাখা",
         examDate: "2027-03-27",
+        time: "সকাল ১১:০০ - ১২:০০",
         fee: "১৫০০ টাকা",
       },
     ],
   },
 
-  // 21. সরকারি মেডিকেল কলেজ (এমবিবিএস ও বিডিএস) [UPDATED 25 Sep 2026 - URGENT]
+  // 21. সরকারি মেডিকেল কলেজ (এমবিবিএস ও বিডিএস) [URGENT UPDATE 16 Sep 2026]
   {
     id: "medical",
     name: "সরকারি মেডিকেল কলেজ (এমবিবিএস ও বিডিএস)",
@@ -1096,7 +1079,7 @@ export const initialUniversitiesData: University[] = [
     eligibleHscBatches: "HSC 2025 ও 2026",
     circularStatus: "reported",
     statusNote:
-      "🚨 URGENT: ২০২৬–২৭ MBBS/BDS ভর্তি পরীক্ষা ৪ ডিসেম্বর ২০২৬ প্রাথমিকভাবে নির্ধারিত (HSC result-এর ওপর নির্ভরশীল)। চূড়ান্ত বিজ্ঞপ্তি DGME/Teletalk থেকে শিগগিরই। (সূত্র: The Sun BD, Observer BD, ২৫ সেপ্টেম্বর ২০২৬)",
+      "🚨 URGENT (১৬ সেপ্টেম্বর): স্বাস্থ্য শিক্ষা অধিদপ্তর (DGME) মহাপরিচালক জানান, ২০২৬–২৭ MBBS/BDS ভর্তি পরীক্ষা প্রাথমিকভাবে ৪ ডিসেম্বর ২০২৬ নির্ধারিত। MBBS ও BDS একযোগে হবে। HSC ফল অক্টোবরের তৃতীয় সপ্তাহে প্রকাশিত হলে তারিখ বহাল; অন্যথায় পিছিয়ে যেতে পারে। বিস্তারিত বিজ্ঞপ্তি এখনো প্রকাশ হয়নি। (সূত্র: Kaler Kantho, Shikshabarta)",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -1115,8 +1098,15 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "MED",
     examUnits: [
       {
-        unit: "MBBS/BDS সম্মিলিত পরীক্ষা",
-        title: "সরকারি মেডিকেল ও ডেন্টাল কলেজ ভর্তি পরীক্ষা (অস্থায়ী)",
+        unit: "MBBS",
+        title: "মেডিকেল কলেজ ভর্তি পরীক্ষা",
+        examDate: "2026-12-04",
+        time: "সকাল ১০:০০ - ১১:০০",
+        fee: "১০০০ টাকা",
+      },
+      {
+        unit: "BDS",
+        title: "ডেন্টাল কলেজ ভর্তি পরীক্ষা",
         examDate: "2026-12-04",
         time: "সকাল ১০:০০ - ১১:০০",
         fee: "১০০০ টাকা",
