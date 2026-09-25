@@ -75,11 +75,11 @@ const CYAN = {
   name: "CYAN SKY ELITE",
   bgGrad: "linear-gradient(135deg,#0c2438 0%,#071724 55%,#030910 100%)",
   glow: "rgba(6,182,212,0.22)",
-  accent: "#38bdf8",
-  accentSoft: "rgba(103,232,249,0.35)",
+  accent: "#06b6d4",
+  accentSoft: "rgba(6,182,212,0.4)",
   canvas: ["#0c2438", "#071724", "#030910"],
   cGlow: "rgba(6,182,212,0.25)",
-  btn: "linear-gradient(to right,#0891b2,#0369a1)",
+  btn: "linear-gradient(to right,#0891b2,#0e7490)",
 };
 
 interface Props {
@@ -588,9 +588,9 @@ export const SettingsPanel: React.FC<Props> = ({
         className="absolute inset-0 bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-slate-100 dark:bg-[#151b27] shadow-2xl overflow-y-auto text-slate-900 dark:text-slate-100">
+      <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white dark:bg-[#151b27] shadow-2xl overflow-y-auto text-slate-900 dark:text-slate-100">
         {/* ===== HEADER ===== */}
-        <div className="sticky top-0 z-10 bg-white/95 dark:bg-[#151b27]/95 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 px-5 py-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-white dark:bg-[#151b27] border-b-2 border-slate-200 dark:border-white/5 px-5 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-black">সেটিংস</h2>
             <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">
@@ -608,43 +608,43 @@ export const SettingsPanel: React.FC<Props> = ({
 
         <div className="p-4 sm:p-5 space-y-4">
           {/* ===== ACCOUNT ===== */}
-          <section className="rounded-2xl bg-white dark:bg-[#0f141d] border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
-            <div className="h-1.5 bg-gradient-to-r from-blue-500 via-violet-500 to-sky-400" />
+          <section className="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-[#0f141d] dark:to-[#0f141d] border-2 border-blue-200 dark:border-white/10 shadow-lg overflow-hidden">
+            <div className="h-2 bg-gradient-to-r from-blue-600 via-violet-600 to-indigo-600" />
             <div className="p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-violet-500 flex items-center justify-center text-white font-black text-lg shrink-0 shadow-md">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 to-violet-600 flex items-center justify-center text-white font-black text-xl shrink-0 shadow-xl border-4 border-white dark:border-[#151b27]">
                 {(session?.user.email || "U").charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold truncate flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
-                  <Mail className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />{" "}
+                <div className="text-sm font-black truncate flex items-center gap-1.5 text-slate-900 dark:text-white">
+                  <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />{" "}
                   {session?.user.email}
                 </div>
-                <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                <div className="flex gap-1.5 mt-2 flex-wrap">
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[9px] font-black ${profile?.role === "admin" ? "bg-blue-600 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300"}`}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-black ${profile?.role === "admin" ? "bg-blue-600 text-white shadow-md" : "bg-slate-300 dark:bg-white/10 text-slate-800 dark:text-slate-200"}`}
                   >
                     {profile?.role === "admin" ? "ADMIN" : "USER"}
                   </span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[9px] font-black flex items-center gap-1 ${isPremium ? "bg-amber-500 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300"}`}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-black flex items-center gap-1 ${isPremium ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" : "bg-slate-300 dark:bg-white/10 text-slate-800 dark:text-slate-200"}`}
                   >
-                    {isPremium && <Crown className="w-2.5 h-2.5" />}{" "}
+                    {isPremium && <Crown className="w-3 h-3" />}{" "}
                     {isPremium ? "প্রিমিয়াম" : "ফ্রি"}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-600 dark:text-slate-400 font-bold">
+                <div className="flex items-center gap-1.5 mt-2 text-[11px] text-slate-700 dark:text-slate-300 font-bold">
                   <span className="uppercase tracking-wider">User ID:</span>
-                  <code className="text-sky-700 dark:text-sky-300 font-black tracking-widest">
+                  <code className="text-blue-700 dark:text-blue-300 font-black tracking-widest text-sm">
                     {profile?.referral_code}
                   </code>
                   <button
                     onClick={copyCode}
-                    className="p-1 rounded bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 cursor-pointer"
+                    className="p-1.5 rounded-lg bg-blue-100 dark:bg-white/5 hover:bg-blue-200 dark:hover:bg-white/10 cursor-pointer border border-blue-300 dark:border-white/10"
                   >
                     {copied ? (
-                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     ) : (
-                      <Copy className="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                      <Copy className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     )}
                   </button>
                 </div>
@@ -654,17 +654,17 @@ export const SettingsPanel: React.FC<Props> = ({
 
           {/* ===== REFERRAL ===== */}
           {profile?.referral_code && (
-            <section className="rounded-2xl bg-gradient-to-br from-blue-50 to-sky-50 dark:from-[#0f141d] dark:to-[#0f141d] border border-blue-200 dark:border-white/10 p-4">
-              <div className="flex items-center gap-1.5 text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-2">
-                <Ticket className="w-3 h-3" /> তোমার রেফারেল কোড
+            <section className="rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-[#0f141d] dark:to-[#0f141d] border-2 border-indigo-300 dark:border-white/10 p-4 shadow-lg">
+              <div className="flex items-center gap-1.5 text-[11px] font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-3">
+                <Ticket className="w-4 h-4" /> তোমার রেফারেল কোড
               </div>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-center py-3 rounded-xl bg-white dark:bg-[#151b27] border-2 border-blue-300 dark:border-blue-500/40 text-blue-700 dark:text-blue-300 font-black tracking-[0.2em] text-base font-gaming shadow-sm">
+                <code className="flex-1 text-center py-3.5 rounded-xl bg-white dark:bg-[#151b27] border-2 border-indigo-400 dark:border-indigo-500/40 text-indigo-700 dark:text-indigo-300 font-black tracking-[0.2em] text-lg font-gaming shadow-inner">
                   {profile.referral_code}
                 </code>
                 <button
                   onClick={copyCode}
-                  className="p-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer active:scale-95"
+                  className="p-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg cursor-pointer active:scale-95"
                 >
                   {copied ? (
                     <Check className="w-4 h-4" />
@@ -676,12 +676,12 @@ export const SettingsPanel: React.FC<Props> = ({
                   href={`https://wa.me/?text=${shareText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md cursor-pointer active:scale-95"
+                  className="p-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg cursor-pointer active:scale-95"
                 >
                   <MessageCircle className="w-4 h-4" />
                 </a>
               </div>
-              <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-2 font-semibold">
+              <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-3 font-semibold leading-relaxed">
                 বন্ধুকে এই কোড দাও — সে ছাড় পাবে, তুমিও!
               </p>
             </section>
@@ -689,22 +689,22 @@ export const SettingsPanel: React.FC<Props> = ({
 
           {/* ===== PREMIUM PASS (dark showcase) ===== */}
           <section>
-            <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider mb-2 text-sky-700 dark:text-cyan-300">
-              <Crown className="w-3 h-3" /> Premium Pass
+            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider mb-2 text-cyan-700 dark:text-cyan-300">
+              <Crown className="w-4 h-4" /> Premium Pass
             </div>
-            <div className="rounded-2xl bg-slate-900 dark:bg-[#0b101a] border border-slate-700 dark:border-white/10 p-4 shadow-inner">
+            <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 dark:from-[#0b101a] dark:to-[#0b101a] border-2 border-slate-700 dark:border-white/10 p-4 shadow-xl">
               {isPremium ? (
                 <>
                   <PremiumCard />
-                  <p className="text-center text-[10px] text-slate-300 font-bold mt-2 font-gaming tracking-wider">
+                  <p className="text-center text-[11px] text-slate-300 font-bold mt-3 font-gaming tracking-wider">
                     👆 CLICK CARD TO FLIP
                   </p>
                   <button
                     onClick={() => downloadCard("premium")}
-                    className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-xs font-black shadow-lg cursor-pointer active:scale-95 font-gaming tracking-wider uppercase"
+                    className="w-full mt-3 flex items-center justify-center gap-2 py-3 rounded-xl text-white text-xs font-black shadow-xl cursor-pointer active:scale-95 font-gaming tracking-wider uppercase"
                     style={{
                       background: CYAN.btn,
-                      border: `1px solid ${CYAN.accentSoft}`,
+                      border: `2px solid ${CYAN.accentSoft}`,
                     }}
                   >
                     <Download className="w-4 h-4" /> Download Cyan Sky Pass
@@ -716,19 +716,16 @@ export const SettingsPanel: React.FC<Props> = ({
                   <div className="relative">
                     <PremiumCard dim />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div
-                        className="w-10 h-10 rounded-full bg-black/70 flex items-center justify-center"
-                        style={{ border: `1px solid ${CYAN.accentSoft}` }}
-                      >
-                        <Lock className="w-4 h-4 text-cyan-300" />
+                      <div className="w-12 h-12 rounded-full bg-black/70 flex items-center justify-center border-2 border-cyan-400/40 shadow-xl">
+                        <Lock className="w-5 h-5 text-cyan-300" />
                       </div>
                     </div>
                   </div>
                   <div className="text-center mt-3">
-                    <div className="text-[11px] font-black font-gaming tracking-wider text-cyan-300">
+                    <div className="text-[12px] font-black font-gaming tracking-wider text-cyan-300">
                       CYAN SKY PASS 🔒
                     </div>
-                    <p className="text-[10px] text-slate-300 mt-1 leading-relaxed">
+                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed font-semibold">
                       Subscription নিলে এই polished matte pass তোমার হবে — ALL
                       PRIVILEGES 👑
                     </p>
@@ -741,25 +738,25 @@ export const SettingsPanel: React.FC<Props> = ({
           {/* ===== DONOR CARD (dark showcase) ===== */}
           {donationOn && (
             <section>
-              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider mb-2 text-slate-700 dark:text-slate-300">
-                <Bot className="w-3 h-3" /> Cosmic Donor Card
+              <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider mb-2 text-slate-800 dark:text-slate-200">
+                <Bot className="w-4 h-4" /> Cosmic Donor Card
               </div>
-              <div className="rounded-2xl bg-slate-900 dark:bg-[#0b101a] border border-slate-700 dark:border-white/10 p-4 shadow-inner">
+              <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 dark:from-[#0b101a] dark:to-[#0b101a] border-2 border-slate-700 dark:border-white/10 p-4 shadow-xl">
                 {!hasDonation ? (
                   <>
                     <div className="relative">
                       <DonorCard dim />
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-10 h-10 rounded-full bg-black/70 border border-white/20 flex items-center justify-center">
-                          <Lock className="w-4 h-4 text-white" />
+                        <div className="w-12 h-12 rounded-full bg-black/70 border-2 border-white/30 flex items-center justify-center shadow-xl">
+                          <Lock className="w-5 h-5 text-white" />
                         </div>
                       </div>
                     </div>
                     <div className="text-center mt-3">
-                      <div className="text-[11px] font-black text-white font-gaming tracking-wider">
+                      <div className="text-[12px] font-black text-white font-gaming tracking-wider">
                         COSMIC DONOR CARD 🔒
                       </div>
-                      <p className="text-[10px] text-slate-300 mt-1 leading-relaxed">
+                      <p className="text-[11px] text-slate-300 mt-1 leading-relaxed font-semibold">
                         BDT 20+ donate করো → admin approve → claim → তারপর
                         download। Click = flip!
                       </p>
@@ -768,19 +765,19 @@ export const SettingsPanel: React.FC<Props> = ({
                 ) : !claimed ? (
                   <div className="relative">
                     <DonorCard dim />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-[2px] rounded-2xl">
-                      <Gift className="w-7 h-7 text-amber-300 mb-2 animate-bounce" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px] rounded-2xl">
+                      <Gift className="w-8 h-8 text-amber-300 mb-2 animate-bounce" />
                       <button
                         onClick={claim}
-                        className="px-6 py-2.5 rounded-xl text-white text-xs font-black shadow-lg cursor-pointer active:scale-95 font-gaming tracking-wider"
+                        className="px-6 py-3 rounded-xl text-white text-xs font-black shadow-xl cursor-pointer active:scale-95 font-gaming tracking-wider"
                         style={{
                           background: t.btn,
-                          border: `1px solid ${t.accent}`,
+                          border: `2px solid ${t.accent}`,
                         }}
                       >
                         🎁 CLAIM YOUR CARD
                       </button>
-                      <p className="text-[9px] text-slate-300 mt-2 font-bold">
+                      <p className="text-[10px] text-slate-300 mt-2 font-bold">
                         {t.icon} {t.name} unlocked — claim koro!
                       </p>
                     </div>
@@ -788,15 +785,15 @@ export const SettingsPanel: React.FC<Props> = ({
                 ) : (
                   <>
                     <DonorCard />
-                    <p className="text-center text-[10px] text-slate-300 font-bold mt-2 font-gaming tracking-wider">
+                    <p className="text-center text-[11px] text-slate-300 font-bold mt-3 font-gaming tracking-wider">
                       👆 CLICK CARD TO FLIP
                     </p>
                     <button
                       onClick={() => downloadCard("donor")}
-                      className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-xs font-black shadow-lg cursor-pointer active:scale-95 font-gaming tracking-wider uppercase"
+                      className="w-full mt-3 flex items-center justify-center gap-2 py-3 rounded-xl text-white text-xs font-black shadow-xl cursor-pointer active:scale-95 font-gaming tracking-wider uppercase"
                       style={{
                         background: t.btn,
-                        border: `1px solid ${t.accent}`,
+                        border: `2px solid ${t.accent}`,
                       }}
                     >
                       <Download className="w-4 h-4" /> Download Cosmic Card
@@ -810,28 +807,28 @@ export const SettingsPanel: React.FC<Props> = ({
 
           {/* ===== DONATION BOX (always dark) ===== */}
           {donationOn && (
-            <section className="rounded-2xl bg-slate-900 dark:bg-[#0f141d] border border-slate-700 dark:border-white/10 p-4 text-white shadow-inner">
+            <section className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 dark:from-[#0f141d] dark:to-[#0f141d] border-2 border-slate-700 dark:border-white/10 p-4 text-white shadow-xl">
               <div className="flex items-center gap-2.5 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-500 to-slate-700 flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-slate-500 to-slate-700 flex items-center justify-center shadow-lg">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xs font-black text-white">
+                  <div className="text-sm font-black text-white">
                     ডেভেলপার রোবট 🤖
                   </div>
-                  <div className="text-[10px] text-slate-300 font-semibold">
+                  <div className="text-[11px] text-slate-300 font-semibold">
                     ঐচ্ছিক tip — রোবটকে energy দাও ⚡
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-1.5 mb-3">
+              <div className="grid grid-cols-4 gap-2 mb-3">
                 {[20, 50, 100, 500].map((v) => {
                   const vt = tierOf(v);
                   return (
                     <button
                       key={v}
                       onClick={() => setTip(v)}
-                      className={`py-2 rounded-xl text-[11px] font-black cursor-pointer transition border font-gaming tracking-wider ${tip === v ? "text-white shadow-lg" : "bg-white/5 text-slate-300 hover:bg-white/10 border-transparent"}`}
+                      className={`py-2.5 rounded-xl text-[11px] font-black cursor-pointer transition border-2 font-gaming tracking-wider ${tip === v ? "text-white shadow-lg scale-105" : "bg-white/5 text-slate-300 hover:bg-white/10 border-transparent"}`}
                       style={
                         tip === v
                           ? { background: vt.bgGrad, borderColor: vt.accent }
@@ -843,18 +840,18 @@ export const SettingsPanel: React.FC<Props> = ({
                   );
                 })}
               </div>
-              <div className="flex items-center justify-between gap-2 mb-2 rounded-xl bg-[#0f141d] border border-white/10 px-3 py-2">
-                <span className="text-[10px] text-slate-300 font-bold">
+              <div className="flex items-center justify-between gap-2 mb-2 rounded-xl bg-[#0f141d] border-2 border-white/10 px-3 py-2.5">
+                <span className="text-[11px] text-slate-300 font-bold">
                   bKash:
                 </span>
                 <button
                   onClick={copyNum}
-                  className="flex items-center gap-1 text-[10px] font-black text-pink-300 cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] font-black text-pink-300 cursor-pointer"
                 >
                   {numCopied ? (
-                    <Check className="w-3 h-3" />
+                    <Check className="w-3.5 h-3.5" />
                   ) : (
-                    <Copy className="w-3 h-3" />
+                    <Copy className="w-3.5 h-3.5" />
                   )}{" "}
                   {BKASH_NUMBER}
                 </button>
@@ -864,18 +861,18 @@ export const SettingsPanel: React.FC<Props> = ({
                   value={tipTrx}
                   onChange={(e) => setTipTrx(e.target.value)}
                   placeholder="Donation TrxID"
-                  className="flex-1 bg-[#0f141d] border border-white/10 rounded-xl px-3 py-2.5 text-[11px] text-white placeholder:text-slate-500 focus:outline-none"
+                  className="flex-1 bg-[#0f141d] border-2 border-white/10 rounded-xl px-3 py-2.5 text-[11px] text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
                 />
                 <button
                   onClick={sendTip}
                   disabled={tipBusy}
-                  className="px-4 rounded-xl bg-gradient-to-r from-slate-500 to-slate-700 text-white text-[11px] font-black cursor-pointer disabled:opacity-50 shadow-lg"
+                  className="px-5 rounded-xl bg-gradient-to-r from-slate-500 to-slate-700 hover:from-slate-600 hover:to-slate-800 text-white text-[11px] font-black cursor-pointer disabled:opacity-50 shadow-lg"
                 >
                   পাঠাও
                 </button>
               </div>
               {tipMsg && (
-                <p className="text-[10px] text-cyan-300 mt-2 text-center font-bold">
+                <p className="text-[11px] text-cyan-300 mt-2 text-center font-bold">
                   {tipMsg}
                 </p>
               )}
@@ -889,7 +886,7 @@ export const SettingsPanel: React.FC<Props> = ({
                 onClose();
                 onOpenAdmin();
               }}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black shadow-lg shadow-blue-500/30 cursor-pointer active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black shadow-xl shadow-blue-500/30 cursor-pointer active:scale-95 border-2 border-blue-400/50"
             >
               <ShieldCheck className="w-4 h-4" /> অ্যাডমিন প্যানেল
             </button>
@@ -901,17 +898,17 @@ export const SettingsPanel: React.FC<Props> = ({
               href={WHATSAPP}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-[11px] font-black shadow-md shadow-emerald-500/25 cursor-pointer active:scale-95"
+              className="flex items-center justify-center gap-1.5 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-[11px] font-black shadow-lg shadow-emerald-500/25 cursor-pointer active:scale-95 border-2 border-emerald-400/50"
             >
-              <MessageCircle className="w-3.5 h-3.5" /> WhatsApp Help
+              <MessageCircle className="w-4 h-4" /> WhatsApp Help
             </a>
             <a
               href={TELEGRAM}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white text-[11px] font-black shadow-md shadow-sky-500/25 cursor-pointer active:scale-95"
+              className="flex items-center justify-center gap-1.5 py-3.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white text-[11px] font-black shadow-lg shadow-sky-500/25 cursor-pointer active:scale-95 border-2 border-sky-400/50"
             >
-              <Send className="w-3.5 h-3.5" /> Telegram
+              <Send className="w-4 h-4" /> Telegram
             </a>
           </div>
 
@@ -921,12 +918,12 @@ export const SettingsPanel: React.FC<Props> = ({
               await signOut();
               onClose();
             }}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 border-2 border-red-200 dark:border-red-500/40 text-red-600 dark:text-red-400 text-xs font-black hover:bg-red-100 dark:hover:bg-red-500/20 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 border-2 border-red-400/50 text-white text-xs font-black shadow-lg shadow-red-500/25 cursor-pointer active:scale-95"
           >
             <LogOut className="w-4 h-4" /> লগআউট
           </button>
 
-          <p className="text-center text-[10px] text-slate-500 dark:text-slate-500 pt-1 pb-3 font-gaming tracking-widest">
+          <p className="text-center text-[11px] text-slate-600 dark:text-slate-400 pt-2 pb-4 font-gaming tracking-widest font-semibold">
             CYAN SKY + COSMIC SERIES • ২০২৬-২৭
           </p>
         </div>
