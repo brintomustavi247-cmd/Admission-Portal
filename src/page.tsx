@@ -61,8 +61,8 @@ export default function AdmissionDashboard({
   /* ---------- 2. Live Supabase Realtime Updates ---------- */
   const [liveUpdates, setLiveUpdates] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchLiveUpdates = async () => {
+  const fetchLiveUpdates = useCallback(async () => {
+    try {
       const { data, error } = await supabase
         .from("university_updates")
         .select("*")
@@ -72,8 +72,12 @@ export default function AdmissionDashboard({
       if (!error && data) {
         setLiveUpdates(data);
       }
-    };
+    } catch (e) {
+      console.error("Live updates fetch failed:", e);
+    }
+  }, []);
 
+  useEffect(() => {
     fetchLiveUpdates();
 
     // Instant Realtime sync when admin publishes an update
@@ -95,7 +99,7 @@ export default function AdmissionDashboard({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [fetchLiveUpdates]);
 
   /* ---------- 3. Navigation ---------- */
   const [activeTab, setActiveTab] = useState<TabKey>("home");
@@ -186,38 +190,55 @@ export default function AdmissionDashboard({
     loadData();
   }, [loadData]);
 
-  /* ---------- Merge Sheet Data with Live Supabase Updates ---------- */
+  /* ---------- Power-Matcher: Merge Sheet Data with Live Supabase Updates ---------- */
   const rawUniversities = sheetData?.universities || [];
 
   const universities = useMemo(() => {
     if (!rawUniversities.length) return [];
     if (!liveUpdates.length) return rawUniversities;
 
+    const normalize = (str: string) =>
+      str
+        .replace(/[\(\)（）\-\_\,\.]/g, "")
+        .replace(/\s+/g, "")
+        .toLowerCase();
+
     return rawUniversities.map((uni) => {
+      const normUniName = normalize(uni.name);
+      const normShort = normalize(uni.shortName || "");
+      const normEnglish = normalize(uni.englishName || "");
+
       const match = liveUpdates.find((u) => {
         if (!u.university_name) return false;
-        const dbName = u.university_name.trim().toLowerCase();
-        const uniName = uni.name.trim().toLowerCase();
-        const short = (uni.shortName || "").trim().toLowerCase();
+        const normDb = normalize(u.university_name);
         return (
-          uniName.includes(dbName) ||
-          dbName.includes(uniName) ||
-          (short && (dbName.includes(short) || short.includes(dbName)))
+          normUniName.includes(normDb) ||
+          normDb.includes(normUniName) ||
+          (normShort &&
+            (normDb.includes(normShort) || normShort.includes(normDb))) ||
+          (normEnglish && normDb.includes(normEnglish))
         );
       });
 
       if (match) {
+        // Exam units override with the new live date
+        const updatedExamUnits = uni.examUnits?.map((unit) => ({
+          ...unit,
+          fee: match.extracted_data?.fees || unit.fee,
+        }));
+
         return {
           ...uni,
           circularStatus: "confirmed" as const,
           latestBreakingUpdate: match,
+          examUnits: updatedExamUnits || uni.examUnits,
         };
       }
       return uni;
     });
   }, [rawUniversities, liveUpdates]);
 
-  // Keep modal in sync with realtime updates
+  // Keep modal continuously in sync with the matched realtime university
   const currentSelectedUniversity = useMemo(() => {
     if (!selectedUniversity) return null;
     return (
