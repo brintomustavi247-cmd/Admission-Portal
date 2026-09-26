@@ -190,7 +190,12 @@ export default function AdmissionDashboard({
     loadData();
   }, [loadData]);
 
-  /* ---------- Power-Matcher: Merge Sheet Data with Live Supabase Updates ---------- */
+  /* ============================================================
+     POWER-MATCHER v2
+     Approved update = card + details AUTO-UPDATE
+     (application window, unit dates/fees, exam date, admit card,
+      circularStatus confirmed, breaking banner)
+     ============================================================ */
   const rawUniversities = sheetData?.universities || [];
 
   const universities = useMemo(() => {
@@ -208,41 +213,94 @@ export default function AdmissionDashboard({
       const normShort = normalize(uni.shortName || "");
       const normEnglish = normalize(uni.englishName || "");
 
-      const match = liveUpdates.find((u) => {
-        if (!u.university_name) return false;
-        const normDb = normalize(u.university_name);
-        return (
-          normUniName.includes(normDb) ||
-          normDb.includes(normUniName) ||
-          (normShort &&
-            (normDb.includes(normShort) || normShort.includes(normDb))) ||
-          (normEnglish && normDb.includes(normEnglish))
-        );
-      });
+      /* latest published update: 1) exact id match, 2) name match
+         (liveUpdates already newest-first, so .find = latest) */
+      const match =
+        liveUpdates.find(
+          (u) => u.university_id && u.university_id === uni.id,
+        ) ||
+        liveUpdates.find((u) => {
+          if (!u.university_name) return false;
+          const normDb = normalize(u.university_name);
+          return (
+            normUniName.includes(normDb) ||
+            normDb.includes(normUniName) ||
+            (normShort &&
+              (normDb.includes(normShort) || normShort.includes(normDb))) ||
+            (normEnglish && normDb.includes(normEnglish))
+          );
+        });
 
-      if (match) {
-        const d = match.extracted_data || {};
-        const hasConcrete = Boolean(
-          d.exam_date ||
-          d.application_start ||
-          d.application_deadline ||
-          d.fee_amount,
-        );
-        const updatedExamUnits = uni.examUnits?.map((unit) => ({
-          ...unit,
-          fee: d.fee_amount || unit.fee,
-        }));
+      if (!match) return uni;
 
-        return {
-          ...uni,
-          circularStatus: hasConcrete
-            ? ("confirmed" as const)
-            : uni.circularStatus,
-          latestBreakingUpdate: match,
-          examUnits: updatedExamUnits || uni.examUnits,
-        };
+      const d = match.extracted_data || {};
+      const hasConcrete = Boolean(
+        d.exam_date ||
+        d.application_start ||
+        d.application_deadline ||
+        d.fee_amount,
+      );
+
+      /* ১) application window overwrite */
+      const startDate = d.application_start || uni.startDate;
+      const endDate = d.application_deadline || uni.endDate;
+
+      /* ২) examUnits merge — unit নাম মিলিয়ে তারিখ/ফি update */
+      let examUnits = (uni.examUnits || []).map((u) => ({ ...u }));
+      if (Array.isArray(d.units) && d.units.length) {
+        d.units.forEach((nu: any) => {
+          if (!nu || !nu.name) return;
+          const nn = normalize(String(nu.name));
+          const target = examUnits.find(
+            (eu) =>
+              normalize(eu.unit).includes(nn) ||
+              nn.includes(normalize(eu.unit)),
+          );
+          if (target) {
+            if (nu.date) target.examDate = nu.date;
+            if (nu.fee) target.fee = nu.fee;
+          }
+        });
       }
-      return uni;
+
+      /* ৩) global exam_date — units list না থাকলে first unit / নতুন unit */
+      if (d.exam_date && (!Array.isArray(d.units) || !d.units.length)) {
+        if (examUnits.length) {
+          examUnits = examUnits.map((u, i) =>
+            i === 0 ? { ...u, examDate: d.exam_date } : u,
+          );
+        } else {
+          examUnits = [
+            {
+              unit: "ভর্তি পরীক্ষা",
+              title: match.title || "সর্বশেষ আপডেট",
+              examDate: d.exam_date,
+              fee: d.fee_amount || "",
+            },
+          ];
+        }
+      }
+
+      /* ৪) fee merge — যেসব unit-এ ফি নেই সেগুলোতে বসাও */
+      if (d.fee_amount && examUnits.length) {
+        examUnits = examUnits.map((u) => ({
+          ...u,
+          fee: u.fee || d.fee_amount,
+        }));
+      }
+
+      /* ৫) merged object (conditional spread = type-safe) */
+      return {
+        ...uni,
+        startDate,
+        endDate,
+        examUnits,
+        circularStatus: hasConcrete
+          ? ("confirmed" as const)
+          : uni.circularStatus,
+        latestBreakingUpdate: match,
+        ...(d.admit_card_date ? { admitCardDate: d.admit_card_date } : {}),
+      };
     });
   }, [rawUniversities, liveUpdates]);
 
