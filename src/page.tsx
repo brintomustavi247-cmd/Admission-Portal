@@ -629,7 +629,10 @@ export default function AdmissionDashboard({
       <SettingsPanel
         open={isSettingsOpen}
         onClose={goBack}
-        onOpenAdmin={() => go("/admin")}
+        onOpenAdmin={() => {
+          window.history.replaceState(null, "", "#/admin");
+          setRoute(readRoute());
+        }}
       />
       <UniversityModal
         university={currentSelectedUniversity}

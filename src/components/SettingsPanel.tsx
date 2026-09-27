@@ -882,10 +882,7 @@ export const SettingsPanel: React.FC<Props> = ({
           {/* ===== ADMIN ===== */}
           {profile?.role === "admin" && onOpenAdmin && (
             <button
-              onClick={() => {
-                onClose();
-                onOpenAdmin();
-              }}
+              onClick={() => onOpenAdmin?.()}
               className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black shadow-xl shadow-blue-500/30 cursor-pointer active:scale-95 border-2 border-blue-400/50"
             >
               <ShieldCheck className="w-4 h-4" /> অ্যাডমিন প্যানেল

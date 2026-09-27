@@ -207,7 +207,9 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
                           <span className="text-[9px] text-slate-400 ml-auto">{new Date(c.published_at || c.created_at).toLocaleDateString("bn-BD")}</span>
                         </div>
                         <h3 className="text-[13px] font-black text-slate-900 dark:text-white leading-snug">{c.title}</h3>
-                        <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">{c.raw_content}</p>
+                        {c.raw_content && c.raw_content !== c.title && (
+                          <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">{c.raw_content}</p>
+                        )}
                         {href && (
                           <span onClick={(e) => { e.stopPropagation(); window.open(href, "_blank"); }}
                             className="inline-flex items-center gap-1 text-[10px] text-sky-600 dark:text-sky-400 underline mt-1.5 cursor-pointer">
@@ -221,7 +223,7 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
               )}
 
               {/* ===== CONTRIB BOX ===== */}
-              {contribEnabled && (
+              {tab === "community" && contribEnabled && (
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-[#1e2530] dark:to-[#1a2030] border-2 border-indigo-200 dark:border-indigo-800">
                   <h3 className="text-xs font-black text-indigo-800 dark:text-indigo-300 mb-2 flex items-center gap-1.5">
                     <Send className="w-3.5 h-3.5" /> তুমি কিছু জানো? তথ্য পাঠাও!
