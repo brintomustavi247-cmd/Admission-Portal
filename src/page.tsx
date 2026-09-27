@@ -135,8 +135,47 @@ export default function AdmissionDashboard({
     };
   }, [fetchLiveUpdates, fetchOverrides]);
 
-  /* ---------- 3. Navigation ---------- */
-  const [activeTab, setActiveTab] = useState<TabKey>("home");
+  /* ---------- 3. Navigation (URL hash + localStorage persist) ---------- */
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    // 1) URL hash-এ থাকলে সেটা (যেমন: #/eligibility)
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.replace("#/", "").replace("#", "");
+      if (hash === "home" || hash === "eligibility" || hash === "calendar") {
+        return hash;
+      }
+    }
+    // 2) localStorage-এ থাকলে সেটা
+    try {
+      const saved = localStorage.getItem("active_tab");
+      if (saved === "home" || saved === "eligibility" || saved === "calendar") {
+        return saved;
+      }
+    } catch {}
+    return "home";
+  });
+
+  // Tab change হলে hash + localStorage update করো
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.location.hash = `/${activeTab}`;
+      try {
+        localStorage.setItem("active_tab", activeTab);
+      } catch {}
+    }
+  }, [activeTab]);
+
+  // Browser navigation (back/forward) handle
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#/", "").replace("#", "");
+      if (hash === "home" || hash === "eligibility" || hash === "calendar") {
+        setActiveTab(hash);
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   /* ---------- 4. Preferences ---------- */
   const [isSecondTimer, setIsSecondTimer] = useState<boolean>(false);
