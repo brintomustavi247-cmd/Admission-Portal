@@ -19,11 +19,17 @@ import {
   RotateCcw,
   Sparkles,
   Search,
-  Filter,
-  TrendingUp,
   ShieldCheck,
   Zap,
 } from "lucide-react";
+
+/* ============================================================
+   ⚙️ CONFIG — এখানে তোমার আসল Apps Script Web App URL বসাও
+   (Apps Script → Deploy → Manage deployments → Web app URL)
+   ============================================================ */
+const RESEARCH_WEBHOOK_URL =
+  "https://script.google.com/macros/s/AKfycbw8NbPPn8C8P-SbqFTmi-HDkjYayaXsptbz3jKoJbGGpTqq59hzJayF2jpw0l8PH4aWmw/exec";
+const WEBHOOK_KEY = "ami123badlo";
 
 const norm = (s: string) =>
   String(s || "")
@@ -31,10 +37,6 @@ const norm = (s: string) =>
     .toLowerCase();
 const digits = (s: string) => String(s || "").replace(/[^\d০-৯]/g, "");
 
-/**
- * Checks if the extracted data contains concrete fields that should trigger card updates.
- * If not, the update will only appear in News, not update the university card.
- */
 function hasConcreteCardData(d: any): boolean {
   return Boolean(
     d?.exam_date ||
@@ -54,12 +56,10 @@ function existsInApp(item: any): { exists: boolean; reason: string } {
         norm(item.university_name).includes(norm(b.name)),
     );
   if (!base) return { exists: false, reason: "" };
-
   const d = item.extracted_data || {};
   const dates = (base.examUnits || []).map((u) => u.examDate);
   const fees = (base.examUnits || []).map((u) => u.fee || "");
   const reasons: string[] = [];
-
   if (d.exam_date && dates.includes(d.exam_date))
     reasons.push("পরীক্ষার তারিখ");
   if (d.application_start && base.startDate === d.application_start)
@@ -71,24 +71,18 @@ function existsInApp(item: any): { exists: boolean; reason: string } {
     fees.some((f) => digits(f) && digits(f) === digits(d.fee_amount))
   )
     reasons.push("ফি");
-  if (Array.isArray(d.units)) {
+  if (Array.isArray(d.units))
     d.units.forEach((u: any) => {
       if (u?.date && dates.includes(u.date)) reasons.push(u.name);
     });
-  }
-
   return { exists: reasons.length > 0, reason: reasons.join(", ") };
 }
 
-/**
- * Updates source reliability weight based on admin action (approve/reject)
- */
 async function updateSourceWeight(
   sourceUrls: string[],
   action: "approve" | "reject",
 ) {
   if (!sourceUrls || !sourceUrls.length) return;
-
   try {
     const src = new URL(sourceUrls[0]).hostname.replace("www.", "");
     await supabase.rpc("update_source_weight", {
@@ -104,7 +98,6 @@ async function updateSourceWeight(
 export const UpdateQueueTab: React.FC = () => {
   const { profile } = useAuth();
   const uid = profile?.id || "guest";
-
   const [updates, setUpdates] = useState<any[]>([]);
   const [contribs, setContribs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -114,6 +107,7 @@ export const UpdateQueueTab: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "pending" | "published" | "rejected"
   >("all");
+  const [researching, setResearching] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error" | "warning";
@@ -124,7 +118,7 @@ export const UpdateQueueTab: React.FC = () => {
     type: "success" | "error" | "warning" = "success",
   ) => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
+    setTimeout(() => setToast(null), 5000);
   };
 
   const load = useCallback(async () => {
@@ -140,7 +134,6 @@ export const UpdateQueueTab: React.FC = () => {
         .eq("status", "pending")
         .order("created_at", { ascending: false }),
     ]);
-
     const items = u.data || [];
     setUpdates(items);
     markSeen(
@@ -156,49 +149,95 @@ export const UpdateQueueTab: React.FC = () => {
     load();
   }, [load]);
 
-  /**
-   * Publish update with concrete data check
-   * ⚠️ Rule: Only updates card if concrete fields exist (dates, fees, etc.)
-   * Otherwise, only appears in News panel
-   */
+  /* ========== 🔬 DEEP RESEARCH — FIXED ========== */
+  const deepResearch = async () => {
+    if (RESEARCH_WEBHOOK_URL.includes("PASTE_YOUR_REAL_DEPLOYMENT_ID")) {
+      showToast(
+        "❌ আগে ফাইলের উপরে RESEARCH_WEBHOOK_URL-এ আসল Apps Script Web App URL বসাও!",
+        "error",
+      );
+      return;
+    }
+    const uniId = prompt(
+      "কোন ভার্সিটির জন্য deep research? (id: du, gst, buet, medical, ju...)",
+    );
+    if (!uniId) return;
+
+    setResearching(true);
+    showToast("🔬 Deep research চলছে... ৩০-৯০ সেকেন্ড লাগতে পারে", "success");
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 120000);
+      const res = await fetch(
+        `${RESEARCH_WEBHOOK_URL}?key=${WEBHOOK_KEY}&uni=${encodeURIComponent(uniId.trim())}`,
+        { redirect: "follow", signal: controller.signal },
+      );
+      clearTimeout(timer);
+      const text = await res.text();
+      let json: any = null;
+      try {
+        json = JSON.parse(text);
+      } catch {}
+
+      if (!res.ok || !json) {
+        showToast(
+          `❌ HTTP ${res.status} — Apps Script-এ New version deploy করেছো কিনা দেখো`,
+          "error",
+        );
+        return;
+      }
+      if (json.ok) {
+        if (json.inserted)
+          showToast(
+            `✅ Queue-তে এসেছে: ${json.data?.title || uniId}`,
+            "success",
+          );
+        else if (json.duplicate)
+          showToast("⚠️ Duplicate — আগেই queue-তে আছে", "warning");
+        else if (!json.found)
+          showToast("ℹ️ গত ১৪ দিনে নতুন কিছু পাওয়া যায়নি", "warning");
+        else showToast("⚠️ Quality filter-এ আটকেছে (confidence কম)", "warning");
+        load();
+      } else {
+        showToast(`❌ ${json.error || "Unknown error"}`, "error");
+      }
+    } catch (e: any) {
+      showToast(
+        "❌ Network error — deployment access 'Anyone' আছে কিনা দেখো",
+        "error",
+      );
+    } finally {
+      setResearching(false);
+    }
+  };
+
   const publish = async (id: string) => {
     const item = updates.find((u) => u.id === id);
     if (!item) return;
-
     const hasConcrete = hasConcreteCardData(item.extracted_data);
-
     const { error } = await supabase
       .from("university_updates")
       .update({ status: "published", published_at: new Date().toISOString() })
       .eq("id", id);
-
     if (error) {
       showToast("❌ Publish failed: " + error.message, "error");
       return;
     }
-
-    // Update source reliability weight
     await updateSourceWeight(item.source_urls, "approve");
-
-    if (hasConcrete) {
-      showToast("✅ Published! Card updated with new dates/fees", "success");
-    } else {
-      showToast("✅ Published to News (no concrete card data)", "warning");
-    }
-
+    showToast(
+      hasConcrete
+        ? "✅ Published! Card-এ তারিখ/ফি update হবে"
+        : "✅ Published — শুধু News-এ দেখাবে (card data নেই)",
+      hasConcrete ? "success" : "warning",
+    );
     load();
   };
 
   const remove = async (id: string) => {
     if (!confirm("মুছে ফেলবে?")) return;
     const item = updates.find((u) => u.id === id);
-
     await supabase.from("university_updates").delete().eq("id", id);
-
-    if (item?.source_urls) {
-      await updateSourceWeight(item.source_urls, "reject");
-    }
-
+    if (item?.source_urls) await updateSourceWeight(item.source_urls, "reject");
     showToast("🗑️ Update deleted", "success");
     load();
   };
@@ -210,13 +249,11 @@ export const UpdateQueueTab: React.FC = () => {
       )
     )
       return;
-
     await supabase
       .from("university_updates")
       .update({ status: "rejected", published_at: null })
       .eq("id", id);
-
-    showToast("↩️ Rolled back successfully", "success");
+    showToast("↩️ Rolled back — card আগের অবস্থায়", "success");
     load();
   };
 
@@ -236,7 +273,7 @@ export const UpdateQueueTab: React.FC = () => {
     if (!ids.length || !confirm(`${ids.length}টা "আগেই আছে" entry মুছবে?`))
       return;
     await supabase.from("university_updates").delete().in("id", ids);
-    showToast(`🗑️ ${ids.length} duplicate entries removed`, "success");
+    showToast(`🗑️ ${ids.length} duplicate removed`, "success");
     load();
   };
 
@@ -261,19 +298,13 @@ export const UpdateQueueTab: React.FC = () => {
       status: "published",
       published_at: new Date().toISOString(),
     });
-
     if (!error) {
       await supabase
         .from("user_contributions")
         .update({ status: "approved" })
         .eq("id", c.id);
-      showToast(
-        `✅ Approved! ${c.contributor_name}-এর তথ্য News-এ যোগ হয়েছে`,
-        "success",
-      );
-    } else {
-      showToast("❌ Approval failed: " + error.message, "error");
-    }
+      showToast(`✅ Approved! ${c.contributor_name}-এর তথ্য News-এ`, "success");
+    } else showToast("❌ " + error.message, "error");
     load();
   };
 
@@ -286,85 +317,49 @@ export const UpdateQueueTab: React.FC = () => {
     load();
   };
 
-  /**
-   * Deep Research — triggers manual webhook scan for a specific university
-   */
-  const deepResearch = async () => {
-    const uniId = prompt(
-      "কোন ভার্সিটির জন্য deep research? (id দাও: du, gst, buet, medical...)",
-    );
-    if (!uniId) return;
-
-    try {
-      const webhookUrl = `https://script.google.com/macros/s/AKfycbzQXZbXvYQZbXvYQZbXvYQZbXvYQZbXvYQZbXv/exec?key=ami123badlo&uni=${uniId}`;
-      showToast("🔬 Deep research started...", "success");
-
-      const res = await fetch(webhookUrl);
-      const json = await res.json();
-
-      if (json.ok) {
-        showToast(
-          `✅ Research complete! ${json.data?.title || "Check queue"}`,
-          "success",
-        );
-        load();
-      } else {
-        showToast(`❌ Research failed: ${json.error}`, "error");
-      }
-    } catch (e) {
-      showToast("❌ Webhook error — check deployment", "error");
-    }
-  };
-
-  // ========== FILTERING & STATS ==========
   const filteredUpdates = useMemo(() => {
     return updates.filter((item) => {
-      // Status filter
       if (statusFilter !== "all" && item.status !== statusFilter) return false;
-
-      // Search filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchesUni =
+        return (
           item.university_name?.toLowerCase().includes(q) ||
-          item.university_id?.toLowerCase().includes(q);
-        const matchesTitle = item.title?.toLowerCase().includes(q);
-        const matchesContent = item.raw_content?.toLowerCase().includes(q);
-
-        if (!matchesUni && !matchesTitle && !matchesContent) return false;
+          item.university_id?.toLowerCase().includes(q) ||
+          item.title?.toLowerCase().includes(q) ||
+          item.raw_content?.toLowerCase().includes(q)
+        );
       }
-
       return true;
     });
   }, [updates, statusFilter, searchQuery]);
 
-  const stats = useMemo(() => {
-    const total = updates.length;
-    const pending = updates.filter((u) => u.status === "pending").length;
-    const published = updates.filter((u) => u.status === "published").length;
-    const rejected = updates.filter((u) => u.status === "rejected").length;
-    const verified = updates.filter((u) => u.extracted_data?._verified).length;
-    const community = updates.filter(
-      (u) => u.extracted_data?._source === "community",
-    ).length;
-
-    return { total, pending, published, rejected, verified, community };
-  }, [updates]);
+  const stats = useMemo(
+    () => ({
+      total: updates.length,
+      pending: updates.filter((u) => u.status === "pending").length,
+      published: updates.filter((u) => u.status === "published").length,
+      rejected: updates.filter((u) => u.status === "rejected").length,
+      verified: updates.filter((u) => u.extracted_data?._verified).length,
+      community: updates.filter(
+        (u) => u.extracted_data?._source === "community",
+      ).length,
+    }),
+    [updates],
+  );
 
   const pending = updates.filter((u) => u.status === "pending");
   const existedCount = pending.filter((u) => existsInApp(u).exists).length;
 
   return (
     <div className="space-y-5">
-      {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed top-20 right-4 z-50 px-4 py-3 rounded-xl shadow-2xl border-2 ${
+          className={`fixed top-20 right-4 z-[95] px-4 py-3 rounded-xl shadow-2xl border-2 max-w-sm ${
             toast.type === "success"
-              ? "bg-emerald-500/90 border-emerald-400 text-white"
+              ? "bg-emerald-500/95 border-emerald-400 text-white"
               : toast.type === "error"
-                ? "bg-red-500/90 border-red-400 text-white"
-                : "bg-amber-500/90 border-amber-400 text-white"
+                ? "bg-red-500/95 border-red-400 text-white"
+                : "bg-amber-500/95 border-amber-400 text-white"
           }`}
         >
           <p className="text-xs font-bold">{toast.message}</p>
@@ -373,74 +368,73 @@ export const UpdateQueueTab: React.FC = () => {
 
       <ManualUpdateForm onSuccess={load} />
 
-      {/* ========== STATISTICS DASHBOARD ========== */}
+      {/* STATS */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-        <div className="p-3 rounded-xl bg-[#0f141d] border border-white/10">
-          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">
-            Total
+        {[
+          { l: "Total", v: stats.total, c: "text-white border-white/10" },
+          {
+            l: "Pending",
+            v: stats.pending,
+            c: "text-amber-300 border-amber-500/30",
+          },
+          {
+            l: "Published",
+            v: stats.published,
+            c: "text-emerald-300 border-emerald-500/30",
+          },
+          {
+            l: "Rejected",
+            v: stats.rejected,
+            c: "text-slate-400 border-slate-500/30",
+          },
+          {
+            l: "Verified",
+            v: stats.verified,
+            c: "text-violet-300 border-violet-500/30",
+          },
+          {
+            l: "Community",
+            v: stats.community,
+            c: "text-pink-300 border-pink-500/30",
+          },
+        ].map((s) => (
+          <div
+            key={s.l}
+            className={`p-3 rounded-xl bg-[#0f141d] border ${s.c.split(" ")[1]}`}
+          >
+            <div
+              className={`text-[10px] font-bold uppercase mb-1 flex items-center gap-1 ${s.c.split(" ")[0]}`}
+            >
+              {s.l === "Verified" && <ShieldCheck className="w-3 h-3" />}
+              {s.l === "Community" && <Users className="w-3 h-3" />}
+              {s.l}
+            </div>
+            <div className={`text-xl font-black ${s.c.split(" ")[0]}`}>
+              {s.v}
+            </div>
           </div>
-          <div className="text-xl font-black text-white">{stats.total}</div>
-        </div>
-        <div className="p-3 rounded-xl bg-[#0f141d] border border-amber-500/30">
-          <div className="text-[10px] text-amber-300 font-bold uppercase mb-1">
-            Pending
-          </div>
-          <div className="text-xl font-black text-amber-300">
-            {stats.pending}
-          </div>
-        </div>
-        <div className="p-3 rounded-xl bg-[#0f141d] border border-emerald-500/30">
-          <div className="text-[10px] text-emerald-300 font-bold uppercase mb-1">
-            Published
-          </div>
-          <div className="text-xl font-black text-emerald-300">
-            {stats.published}
-          </div>
-        </div>
-        <div className="p-3 rounded-xl bg-[#0f141d] border border-slate-500/30">
-          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">
-            Rejected
-          </div>
-          <div className="text-xl font-black text-slate-400">
-            {stats.rejected}
-          </div>
-        </div>
-        <div className="p-3 rounded-xl bg-[#0f141d] border border-violet-500/30">
-          <div className="text-[10px] text-violet-300 font-bold uppercase mb-1 flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3" /> Verified
-          </div>
-          <div className="text-xl font-black text-violet-300">
-            {stats.verified}
-          </div>
-        </div>
-        <div className="p-3 rounded-xl bg-[#0f141d] border border-pink-500/30">
-          <div className="text-[10px] text-pink-300 font-bold uppercase mb-1 flex items-center gap-1">
-            <Users className="w-3 h-3" /> Community
-          </div>
-          <div className="text-xl font-black text-pink-300">
-            {stats.community}
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* ========== CONTROLS & FILTERS ========== */}
+      {/* CONTROLS */}
       <div className="p-4 rounded-2xl bg-[#0f141d] border border-white/10 space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="text-xs font-bold text-white flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            আপডেট কিউ ({filteredUpdates.length} updates)
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />{" "}
+            আপডেট কিউ ({filteredUpdates.length})
           </div>
-
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Deep Research Button */}
             <button
               onClick={deepResearch}
-              className="px-3 py-1.5 rounded-lg bg-violet-500/15 text-violet-300 border border-violet-500/30 text-[10px] font-black cursor-pointer hover:bg-violet-500/25 flex items-center gap-1"
-              title="Deep Research (Perplexity-style deep scan)"
+              disabled={researching}
+              className="px-3 py-1.5 rounded-lg bg-violet-500/15 text-violet-300 border border-violet-500/30 text-[10px] font-black cursor-pointer hover:bg-violet-500/25 flex items-center gap-1 disabled:opacity-50"
+              title="Apps Script webhook দিয়ে on-demand scan"
             >
-              <Sparkles className="w-3 h-3" /> 🔬 Deep Research
+              <Sparkles
+                className={`w-3 h-3 ${researching ? "animate-spin" : ""}`}
+              />
+              {researching ? "Research চলছে..." : "🔬 Deep Research"}
             </button>
-
             {existedCount > 0 && (
               <button
                 onClick={deleteExisted}
@@ -450,7 +444,6 @@ export const UpdateQueueTab: React.FC = () => {
                 মুছো
               </button>
             )}
-
             {selected.length > 0 && (
               <button
                 onClick={bulkDelete}
@@ -460,12 +453,10 @@ export const UpdateQueueTab: React.FC = () => {
                 মুছো
               </button>
             )}
-
             <button
               onClick={load}
               disabled={loading}
               className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 cursor-pointer"
-              title="রিফ্রেশ"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`}
@@ -473,8 +464,6 @@ export const UpdateQueueTab: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* Search & Filter */}
         <div className="flex gap-2 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -486,7 +475,6 @@ export const UpdateQueueTab: React.FC = () => {
               className="w-full bg-[#151b27] border border-white/10 rounded-xl pl-9 pr-3 py-2 text-[11px] text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-500/50"
             />
           </div>
-
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
@@ -500,13 +488,13 @@ export const UpdateQueueTab: React.FC = () => {
         </div>
       </div>
 
-      {/* ========== UPDATES QUEUE ========== */}
+      {/* QUEUE */}
       <div className="p-4 rounded-2xl bg-[#0f141d] border border-white/10 space-y-3">
         {filteredUpdates.length === 0 ? (
           <div className="py-8 text-center text-xs text-slate-500">
             {updates.length === 0
               ? "কোনো আপডেট এন্ট্রি নেই।"
-              : "Filter-এ কোনো update পাওয়া যায়নি।"}
+              : "Filter-এ কিছু পাওয়া যায়নি।"}
           </div>
         ) : (
           <div className="space-y-2.5">
@@ -514,13 +502,10 @@ export const UpdateQueueTab: React.FC = () => {
               const ex = existsInApp(item);
               const isSel = selected.includes(item.id);
               const hasConcrete = hasConcreteCardData(item.extracted_data);
-              const isVerified = item.extracted_data?._verified;
-              const isCommunity = item.extracted_data?._source === "community";
-
               return (
                 <div
                   key={item.id}
-                  className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
+                  className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                     item.status === "published"
                       ? "bg-[#12201a] border-emerald-500/20"
                       : ex.exists
@@ -533,7 +518,6 @@ export const UpdateQueueTab: React.FC = () => {
                       <button
                         onClick={() => toggle(item.id)}
                         className="mt-0.5 cursor-pointer shrink-0"
-                        title="Select"
                       >
                         {isSel ? (
                           <CheckSquare className="w-4 h-4 text-sky-400" />
@@ -542,10 +526,8 @@ export const UpdateQueueTab: React.FC = () => {
                         )}
                       </button>
                     )}
-
-                    <div className="space-y-1 min-w-0 flex-1">
+                    <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        {/* Status Badge */}
                         <span
                           className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
                             item.status === "published"
@@ -557,22 +539,16 @@ export const UpdateQueueTab: React.FC = () => {
                         >
                           {item.status}
                         </span>
-
-                        {/* Verification Badge */}
-                        {isVerified && (
+                        {item.extracted_data?._verified && (
                           <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 flex items-center gap-1">
                             <ShieldCheck className="w-2.5 h-2.5" /> যাচাইকৃত
                           </span>
                         )}
-
-                        {/* Community Badge */}
-                        {isCommunity && (
+                        {item.extracted_data?._source === "community" && (
                           <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-pink-500/20 text-pink-300 border border-pink-500/30 flex items-center gap-1">
                             <Users className="w-2.5 h-2.5" /> কমিউনিটি
                           </span>
                         )}
-
-                        {/* Concrete Data Indicator */}
                         {item.status === "pending" &&
                           (hasConcrete ? (
                             <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-1">
@@ -583,78 +559,64 @@ export const UpdateQueueTab: React.FC = () => {
                               শুধু News
                             </span>
                           ))}
-
-                        {/* Existed Check */}
                         {item.status === "pending" && ex.exists && (
                           <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-slate-500/20 text-slate-300 border border-slate-500/30">
                             ✅ আগেই আছে: {ex.reason}
                           </span>
                         )}
-
                         <h4 className="text-xs font-bold text-white truncate">
                           {item.university_name}
                         </h4>
                       </div>
-
                       <p className="text-[11px] text-slate-300 truncate">
                         {item.title}
                       </p>
-
                       <div className="flex items-center gap-3 flex-wrap text-[10px] text-slate-400">
                         {item.extracted_data?.exam_date && (
-                          <div className="flex items-center gap-1 text-sky-400">
+                          <span className="flex items-center gap-1 text-sky-400">
                             <Clock className="w-3 h-3" />{" "}
                             {item.extracted_data.exam_date}
-                          </div>
+                          </span>
                         )}
                         {item.extracted_data?.fee_amount && (
-                          <div className="flex items-center gap-1 text-emerald-400">
+                          <span className="text-emerald-400">
                             💰 {item.extracted_data.fee_amount}
-                          </div>
+                          </span>
                         )}
                         {item.source_urls?.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            🔗 {item.source_urls.length} sources
-                          </div>
+                          <span>🔗 {item.source_urls.length} sources</span>
                         )}
                         {item.extracted_data?._confidence && (
-                          <div className="flex items-center gap-1">
+                          <span>
                             📊{" "}
                             {Math.round(item.extracted_data._confidence * 100)}%
-                          </div>
+                          </span>
                         )}
                       </div>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => setDetail(item)}
-                      className="p-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 cursor-pointer transition-colors"
+                      className="p-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 cursor-pointer"
                       title="Detail preview"
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </button>
-
                     {item.status !== "published" && (
                       <button
                         onClick={() => publish(item.id)}
-                        className={`px-3 py-1.5 rounded-lg text-white text-[11px] font-bold cursor-pointer active:scale-95 flex items-center gap-1 transition-all ${
-                          hasConcrete
-                            ? "bg-emerald-600 hover:bg-emerald-500"
-                            : "bg-sky-600 hover:bg-sky-500"
-                        }`}
+                        className={`px-3 py-1.5 rounded-lg text-white text-[11px] font-bold cursor-pointer active:scale-95 flex items-center gap-1 ${hasConcrete ? "bg-emerald-600 hover:bg-emerald-500" : "bg-sky-600 hover:bg-sky-500"}`}
                         title={
                           hasConcrete
-                            ? "Publish & update card"
-                            : "Publish to News only"
+                            ? "Publish + card update"
+                            : "শুধু News-এ publish"
                         }
                       >
-                        <CheckCircle className="w-3 h-3" />
+                        <CheckCircle className="w-3 h-3" />{" "}
                         {hasConcrete ? "পাবলিশ ও পুশ" : "News-এ পাঠাও"}
                       </button>
                     )}
-
                     {item.status === "published" && (
                       <button
                         onClick={() => rollback(item.id)}
@@ -663,10 +625,9 @@ export const UpdateQueueTab: React.FC = () => {
                         <RotateCcw className="w-3 h-3" /> Rollback
                       </button>
                     )}
-
                     <button
                       onClick={() => remove(item.id)}
-                      className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 cursor-pointer transition-colors"
+                      className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 cursor-pointer"
                       title="মুছে ফেলুন"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -679,13 +640,12 @@ export const UpdateQueueTab: React.FC = () => {
         )}
       </div>
 
-      {/* ========== COMMUNITY CONTRIBUTIONS ========== */}
+      {/* COMMUNITY */}
       <div className="p-4 rounded-2xl bg-[#0f141d] border border-white/10 space-y-3">
         <div className="text-xs font-bold text-white flex items-center gap-2">
-          <Users className="w-3.5 h-3.5 text-violet-400" />
-          কমিউনিটি তথ্য ({contribs.length} pending)
+          <Users className="w-3.5 h-3.5 text-violet-400" /> কমিউনিটি তথ্য (
+          {contribs.length} pending)
         </div>
-
         {contribs.length === 0 ? (
           <div className="py-5 text-center text-[11px] text-slate-500">
             কোনো contribution অপেক্ষায় নেই।
@@ -696,18 +656,12 @@ export const UpdateQueueTab: React.FC = () => {
               key={c.id}
               className="p-3 rounded-xl bg-[#151b27] border border-violet-500/20 space-y-1.5"
             >
-              <div className="text-[10px] font-black text-violet-300 flex items-center gap-2">
-                🤝 {c.contributor_name}
-                <span className="text-slate-500">•</span>
-                <span className="text-slate-400">
-                  {c.university_name || "সাধারণ"}
-                </span>
+              <div className="text-[10px] font-black text-violet-300">
+                🤝 {c.contributor_name} • {c.university_name || "সাধারণ"}
               </div>
-
               <p className="text-[11px] text-slate-200 leading-relaxed">
                 {c.info_text}
               </p>
-
               {c.source_url && (
                 <a
                   href={c.source_url}
@@ -715,20 +669,19 @@ export const UpdateQueueTab: React.FC = () => {
                   rel="noreferrer"
                   className="text-[10px] text-sky-400 underline break-all inline-block"
                 >
-                  📎 {c.source_url}
+                  📎 সূত্র
                 </a>
               )}
-
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={() => approveContrib(c)}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black cursor-pointer flex items-center gap-1 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black cursor-pointer flex items-center gap-1"
                 >
-                  <CheckCircle className="w-3 h-3" /> Approve → News-এ যাবে
+                  <CheckCircle className="w-3 h-3" /> Approve → News
                 </button>
                 <button
                   onClick={() => rejectContrib(c)}
-                  className="px-3 py-1.5 rounded-lg bg-rose-500/15 text-rose-300 text-[10px] font-black cursor-pointer hover:bg-rose-500/25 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-rose-500/15 text-rose-300 text-[10px] font-black cursor-pointer hover:bg-rose-500/25"
                 >
                   বাতিল
                 </button>
@@ -739,7 +692,6 @@ export const UpdateQueueTab: React.FC = () => {
       </div>
 
       <CardEditor />
-
       {detail && (
         <UpdateDetailModal update={detail} onClose={() => setDetail(null)} />
       )}
