@@ -31,6 +31,8 @@ import { SettingsPanel } from "./components/SettingsPanel";
 import { SkeletonCard } from "./components/SkeletonCard";
 import { UpdateNotifier } from "./components/UpdateNotifier";
 import { AppUpdateBanner } from "./components/AppUpdateBanner";
+import { NewsPanel } from "./components/NewsPanel";
+import { FeedbackPopup } from "./components/FeedbackPopup";
 import {
   GraduationCap,
   BookOpen,
@@ -144,6 +146,7 @@ export default function AdmissionDashboard({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isNewsOpen, setIsNewsOpen] = useState<boolean>(false);
 
   /* ---------- Side Effects ---------- */
   useEffect(() => {
@@ -195,6 +198,12 @@ export default function AdmissionDashboard({
      Approved update = card + details AUTO-UPDATE
      (application window, unit dates/fees, exam date, admit card,
       circularStatus confirmed, breaking banner)
+     
+     ⚠️ Rule: card fields ONLY update করবে যখন update-এ concrete
+     data (exam_date / application_start / application_deadline /
+     fee_amount / units[].date / admit_card_date) থাকবে।
+     না থাকলে শুধু `latestBreakingUpdate` সেট হবে — card-এ শুধু
+     amber breaking banner + News-এ দেখাবে (user-এর requirement)।
      ============================================================ */
   const rawUniversities = sheetData?.universities || [];
 
@@ -241,7 +250,7 @@ export default function AdmissionDashboard({
         d.fee_amount,
       );
 
-      /* ১) application window overwrite */
+      /* ১) application window overwrite — শুধু থাকলে */
       const startDate = d.application_start || uni.startDate;
       const endDate = d.application_deadline || uni.endDate;
 
@@ -435,6 +444,8 @@ export default function AdmissionDashboard({
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenNews={() => setIsNewsOpen(true)}
+        newsCount={liveUpdates.length}
       />
 
       {/* ================= MAIN ================= */}
@@ -605,6 +616,12 @@ export default function AdmissionDashboard({
 
       {/* 🔔 LIVE ADMISSION NOTIFICATION BANNER */}
       <UpdateNotifier />
+
+      {/* 📰 NEWS PANEL (header-এর 📰 icon-এ tap করলে slide-in) */}
+      <NewsPanel open={isNewsOpen} onClose={() => setIsNewsOpen(false)} />
+
+      {/* 💬 FEEDBACK POPUP (7 দিনে 1 বার + helpline) */}
+      <FeedbackPopup />
     </div>
   );
 }

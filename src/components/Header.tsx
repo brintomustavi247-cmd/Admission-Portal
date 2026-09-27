@@ -6,7 +6,6 @@ import {
   Check,
   GraduationCap,
   Layers,
-  BookMarked,
   X,
   MapPin,
   ChevronRight,
@@ -16,6 +15,7 @@ import {
   Sun,
   Moon,
   Settings,
+  Newspaper,
 } from "lucide-react";
 import { toBanglaNum } from "../lib/banglaUtils";
 import { University } from "../types/admission";
@@ -35,6 +35,8 @@ interface HeaderProps {
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
   onOpenSettings?: () => void;
+  onOpenNews?: () => void;
+  newsCount?: number;
 }
 
 type FontKey = "noto" | "anek" | "hind";
@@ -81,6 +83,8 @@ export const Header: React.FC<HeaderProps> = ({
   isDarkMode = false,
   onToggleDarkMode,
   onOpenSettings,
+  onOpenNews,
+  newsCount = 0,
 }) => {
   const [showFontMenu, setShowFontMenu] = useState(false);
   const [internalSearchModal, setInternalSearchModal] = useState(false);
@@ -90,13 +94,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   const showSearchModal =
     isSearchOpen !== undefined ? isSearchOpen : internalSearchModal;
-
   const setShowSearchModal = (open: boolean) => {
     setInternalSearchModal(open);
     onSearchOpenChange?.(open);
   };
 
-  /* Search results (max 20 for performance) */
   const filteredUniversities = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase().trim();
@@ -112,9 +114,8 @@ export const Header: React.FC<HeaderProps> = ({
       .slice(0, 20);
   }, [searchQuery, universities]);
 
-  /* Popular universities for empty state */
   const popularUniversities = useMemo(() => {
-    const popularIds = [
+    const ids = [
       "du",
       "ku",
       "buet",
@@ -126,24 +127,21 @@ export const Header: React.FC<HeaderProps> = ({
       "sust",
       "bup",
     ];
-    return universities.filter((u) => popularIds.includes(u.id));
+    return universities.filter((u) => ids.includes(u.id));
   }, [universities]);
 
-  /* Close font menu on outside click */
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const h = (e: MouseEvent) => {
       if (
         fontMenuRef.current &&
         !fontMenuRef.current.contains(e.target as Node)
-      ) {
+      )
         setShowFontMenu(false);
-      }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  /* Focus search input when modal opens */
   useEffect(() => {
     if (showSearchModal) {
       const t = setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -152,9 +150,8 @@ export const Header: React.FC<HeaderProps> = ({
     setSearchQuery("");
   }, [showSearchModal]);
 
-  /* Keyboard shortcuts: Ctrl/Cmd+K, Esc */
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const h = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setShowSearchModal(!showSearchModal);
@@ -163,8 +160,8 @@ export const Header: React.FC<HeaderProps> = ({
         setShowFontMenu(false);
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSearchModal]);
 
@@ -189,11 +186,9 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {/* ===================== HEADER BAR ===================== */}
       <header className="sticky top-0 z-30 bg-white/85 dark:bg-[#151a23]/90 backdrop-blur-xl border-b border-slate-200/70 dark:border-white/5 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
-            {/* Logo & Identity */}
             <div className="flex items-center gap-3 min-w-0">
               <motion.div
                 whileHover={{ rotate: -8, scale: 1.05 }}
@@ -206,7 +201,6 @@ export const Header: React.FC<HeaderProps> = ({
                   className="w-full h-full object-cover rounded-2xl"
                 />
               </motion.div>
-
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-base sm:text-xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
@@ -222,7 +216,6 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Desktop Nav Tabs */}
             {onSelectTab && (
               <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/70 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/60">
                 {desktopTabs.map((tab) => (
@@ -256,9 +249,7 @@ export const Header: React.FC<HeaderProps> = ({
               </nav>
             )}
 
-            {/* Right Side Controls */}
             <div className="flex items-center gap-2 shrink-0">
-              {/* Desktop Metrics */}
               <div className="hidden lg:flex items-center gap-4 text-xs pr-3 border-r border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
                   <Layers className="w-3.5 h-3.5 text-sky-500" />
@@ -280,12 +271,11 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </div>
 
-              {/* Search Button (desktop) */}
               <button
                 type="button"
                 onClick={() => setShowSearchModal(true)}
-                title="অনুসন্ধান করুন (Ctrl+K)"
-                className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-sky-800 dark:text-sky-300 border border-sky-200/90 dark:border-slate-700 active:scale-95 text-xs font-bold transition-all shadow-sm cursor-pointer"
+                title="অনুসন্ধান (Ctrl+K)"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-sky-800 dark:text-sky-300 border border-sky-200/90 dark:border-slate-700 active:scale-95 text-xs font-bold transition-all shadow-sm cursor-pointer"
               >
                 <Search className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                 <span className="hidden sm:inline">খুঁজুন</span>
@@ -294,7 +284,24 @@ export const Header: React.FC<HeaderProps> = ({
                 </kbd>
               </button>
 
-              {/* Font Switcher (desktop dropdown) */}
+              {/* 📰 NEWS — সব device-এ (mobile-এ settings-এর জায়গায়) */}
+              {onOpenNews && (
+                <button
+                  type="button"
+                  onClick={onOpenNews}
+                  title="ভর্তি সংবাদ"
+                  aria-label="ভর্তি সংবাদ"
+                  className="relative p-2 rounded-xl border border-sky-200 dark:border-sky-700 bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-950/60 dark:to-blue-950/60 text-sky-700 dark:text-sky-300 shadow-sm cursor-pointer active:scale-95 hover:border-sky-400 transition-all"
+                >
+                  <Newspaper className="w-4 h-4" />
+                  {newsCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center border-2 border-white dark:border-[#151a23]">
+                      {newsCount > 9 ? "৯+" : toBanglaNum(newsCount)}
+                    </span>
+                  )}
+                </button>
+              )}
+
               <div className="relative hidden sm:block" ref={fontMenuRef}>
                 <button
                   type="button"
@@ -305,7 +312,6 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <Type className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </button>
-
                 <AnimatePresence>
                   {showFontMenu && onFontChange && (
                     <motion.div
@@ -355,20 +361,19 @@ export const Header: React.FC<HeaderProps> = ({
                 </AnimatePresence>
               </div>
 
-              {/* ⚙️ SETTINGS — সব device-এ (PC + mobile) */}
+              {/* ⚙️ Settings — শুধু PC-তে (mobile-এ নিচের nav-এ আছে) */}
               {onOpenSettings && (
                 <button
                   type="button"
                   onClick={onOpenSettings}
                   title="সেটিংস"
                   aria-label="সেটিংস"
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer active:scale-95 hover:border-sky-300 dark:hover:border-sky-600 transition-all"
+                  className="hidden sm:inline-flex p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer active:scale-95 hover:border-sky-300 dark:hover:border-sky-600 transition-all"
                 >
                   <Settings className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                 </button>
               )}
 
-              {/* Dark Mode Toggle */}
               {onToggleDarkMode && (
                 <button
                   type="button"
@@ -405,9 +410,8 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Urgent Notice */}
         {ongoingCount > 0 && (
-          <div className="... text-xs text-amber-900 dark:text-amber-200 font-semibold">
+          <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 dark:from-amber-950/40 dark:via-amber-900/20 dark:to-amber-950/40 border-t border-amber-200/50 dark:border-amber-900/50 px-4 sm:px-6 py-2 text-xs text-amber-900 dark:text-amber-200">
             <div className="max-w-7xl mx-auto w-full flex items-center gap-2 min-w-0">
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
@@ -419,7 +423,7 @@ export const Header: React.FC<HeaderProps> = ({
                   চলতি সেশনে{" "}
                   <strong className="text-sky-800 dark:text-sky-300 font-number">
                     {toBanglaNum(ongoingCount)}
-                  </strong>
+                  </strong>{" "}
                   টি বিশ্ববিদ্যালয়ে আবেদন চলছে!
                 </span>
               </div>
@@ -428,7 +432,7 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </header>
 
-      {/* Search Modal */}
+      {/* Search Modal (অপরিবর্তিত) */}
       <AnimatePresence>
         {showSearchModal && (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 overflow-y-auto">
@@ -474,13 +478,12 @@ export const Header: React.FC<HeaderProps> = ({
                   Esc
                 </button>
               </div>
-
               <div className="max-h-[60vh] overflow-y-auto p-3">
                 {searchQuery.trim() ? (
                   filteredUniversities.length > 0 ? (
                     <div className="space-y-1">
                       <div className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-2 mb-1.5">
-                        পাওয়া গেছে {toBanglaNum(filteredUniversities.length)}
+                        পাওয়া গেছে {toBanglaNum(filteredUniversities.length)}{" "}
                         টি ফলাফল
                       </div>
                       {filteredUniversities.map((uni) => (
@@ -492,10 +495,7 @@ export const Header: React.FC<HeaderProps> = ({
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div
-                              className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-black shrink-0 shadow-sm ${
-                                uni.logoBg ||
-                                "bg-gradient-to-br from-sky-500 to-cyan-600"
-                              }`}
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-black shrink-0 shadow-sm ${uni.logoBg || "bg-gradient-to-br from-sky-500 to-cyan-600"}`}
                             >
                               {uni.logoLetter || uni.shortName.charAt(0)}
                             </div>
@@ -544,10 +544,7 @@ export const Header: React.FC<HeaderProps> = ({
                           className="text-left p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-sky-50 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/80 hover:border-sky-200 dark:hover:border-sky-700 transition-all flex items-center gap-2.5 cursor-pointer group"
                         >
                           <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black shrink-0 ${
-                              uni.logoBg ||
-                              "bg-gradient-to-br from-sky-500 to-cyan-600"
-                            }`}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black shrink-0 ${uni.logoBg || "bg-gradient-to-br from-sky-500 to-cyan-600"}`}
                           >
                             {uni.logoLetter || uni.shortName.charAt(0)}
                           </div>
@@ -565,8 +562,6 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
               </div>
-
-              {/* Footer */}
               <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                 <span>যেকোনো বিশ্ববিদ্যালয়ে ক্লিক করে সার্কুলার দেখুন</span>
                 <kbd className="hidden sm:inline-block px-1.5 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-[10px] text-slate-600 dark:text-slate-300 font-mono">
