@@ -8,7 +8,28 @@ import AdmissionDashboard from './page';
 
 const Inner: React.FC = () => {
   const { session, profile, loading } = useAuth();
-  const [route, setRoute] = useState<'landing' | 'login' | 'app' | 'admin'>('landing');
+  const [route, setRoute] = useState<'landing' | 'login' | 'app' | 'admin'>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      if (hash === 'admin') return 'admin';
+    }
+    return 'landing';
+  });
+
+  /* Hash sync for route (e.g. #/admin) */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleHash = () => {
+      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      if (hash === 'admin') {
+        setRoute('admin');
+      } else if (route === 'admin') {
+        setRoute('app');
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [route]);
 
   /* referral link (?ref=CODE) → সরাসরি register screen */
   useEffect(() => {
@@ -33,12 +54,25 @@ const Inner: React.FC = () => {
   const effective = route === 'landing' ? 'app' : route;
 
   if (effective === 'admin' && profile?.role === 'admin') {
-    return <Admin onExit={() => setRoute('app')} />;
+    return (
+      <Admin
+        onExit={() => {
+          setRoute('app');
+          const savedTab = localStorage.getItem('active_tab') || 'home';
+          window.location.hash = `/${savedTab}`;
+        }}
+      />
+    );
   }
 
   return (
     <AppGate>
-      <AdmissionDashboard onOpenAdmin={() => setRoute('admin')} />
+      <AdmissionDashboard
+        onOpenAdmin={() => {
+          setRoute('admin');
+          window.location.hash = '/admin';
+        }}
+      />
     </AppGate>
   );
 };

@@ -157,7 +157,11 @@ export default function AdmissionDashboard({
   // Tab change হলে hash + localStorage update করো
   useEffect(() => {
     if (typeof window !== "undefined") {
-      window.location.hash = `/${activeTab}`;
+      // Don't overwrite admin hash if navigating or reloading on admin
+      const currentHash = window.location.hash.replace("#/", "").replace("#", "");
+      if (currentHash !== "admin") {
+        window.location.hash = `/${activeTab}`;
+      }
       try {
         localStorage.setItem("active_tab", activeTab);
       } catch {}
