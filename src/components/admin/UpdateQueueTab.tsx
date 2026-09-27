@@ -4,6 +4,8 @@ import { ManualUpdateForm } from "./ManualUpdateForm";
 import { CardEditor } from "./CardEditor";
 import { UpdateDetailModal } from "../UpdateDetailModal";
 import { initialUniversitiesData } from "../../data/mockUniversities";
+import { markSeen } from "../../lib/newsSeen";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   RefreshCw,
   CheckCircle,
@@ -55,6 +57,8 @@ function existsInApp(item: any): { exists: boolean; reason: string } {
 }
 
 export const UpdateQueueTab: React.FC = () => {
+  const { profile } = useAuth();
+  const uid = profile?.id || "guest";
   const [updates, setUpdates] = useState<any[]>([]);
   const [contribs, setContribs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -74,10 +78,16 @@ export const UpdateQueueTab: React.FC = () => {
         .eq("status", "pending")
         .order("created_at", { ascending: false }),
     ]);
-    setUpdates(u.data || []);
+    const items = u.data || [];
+    setUpdates(items);
+    markSeen(
+      uid,
+      "updates",
+      items.filter((x: any) => x.status === "published").map((x: any) => x.id),
+    );
     setContribs(c.data || []);
     setLoading(false);
-  }, []);
+  }, [uid]);
   useEffect(() => {
     load();
   }, [load]);
@@ -255,6 +265,11 @@ export const UpdateQueueTab: React.FC = () => {
                         >
                           {item.status}
                         </span>
+                        {item.extracted_data?._source === "community" && (
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                            🤝 কমিউনিটি
+                          </span>
+                        )}
                         {item.status === "pending" &&
                           (ex.exists ? (
                             <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-slate-500/20 text-slate-300 border border-slate-500/30">

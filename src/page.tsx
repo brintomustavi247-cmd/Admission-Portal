@@ -40,6 +40,8 @@ import { AppUpdateBanner } from "./components/AppUpdateBanner";
 import { NewsPanel } from "./components/NewsPanel";
 import { FeedbackPopup } from "./components/FeedbackPopup";
 import { Admin } from "./pages/Admin";
+import { unreadUpdates } from "./lib/newsSeen";
+import { useAuth } from "./contexts/AuthContext";
 import {
   GraduationCap,
   BookOpen,
@@ -79,6 +81,10 @@ function readRoute(): {
 export default function AdmissionDashboard({
   onOpenAdmin,
 }: { onOpenAdmin?: () => void } = {}) {
+  const { profile } = useAuth();
+  const newsUid = profile?.id || "guest";
+  const [newsUnread, setNewsUnread] = useState(0);
+
   /* ---------- ROUTER STATE ---------- */
   const [route, setRoute] = useState(readRoute);
   const lastTab = useRef<TabKey>("home");
@@ -165,6 +171,14 @@ export default function AdmissionDashboard({
       supabase.removeChannel(channel);
     };
   }, [fetchLiveUpdates]);
+
+  useEffect(() => {
+    const recompute = () =>
+      setNewsUnread(unreadUpdates(newsUid, liveUpdates).length);
+    recompute();
+    window.addEventListener("news-seen-changed", recompute);
+    return () => window.removeEventListener("news-seen-changed", recompute);
+  }, [liveUpdates, newsUid]);
 
   /* ---------- 4. Preferences ---------- */
   const [isSecondTimer, setIsSecondTimer] = useState<boolean>(false);
@@ -483,7 +497,7 @@ export default function AdmissionDashboard({
         onToggleDarkMode={toggleDarkMode}
         onOpenSettings={() => go("/settings")}
         onOpenNews={() => go("/news")}
-        newsCount={liveUpdates.length}
+        newsCount={newsUnread}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 sm:pb-16">

@@ -1,5 +1,6 @@
 import React from "react";
 import { UniversityUpdate } from "../types/admission";
+import { safeUrl } from "../lib/newsSeen";
 import { X, Calendar, DollarSign, Award, ExternalLink, CheckCircle2, Users } from "lucide-react";
 
 interface Props {
@@ -88,17 +89,21 @@ export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
           {update.source_urls && update.source_urls.length > 0 && (
             <div className="pt-2">
               <span className="text-slate-400 text-[11px] block mb-1.5 font-semibold">অফিসিয়াল উৎস / সার্কুলার:</span>
-              {update.source_urls.map((url, i) => (
-                <a
-                  key={i}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-sky-400 hover:text-sky-300 underline underline-offset-2 break-all"
-                >
-                  <ExternalLink className="w-3 h-3 shrink-0" /> {url}
-                </a>
-              ))}
+              {update.source_urls.map((url, i) => {
+                const href = safeUrl(url);
+                if (!href) return null;
+                return (
+                  <a
+                    key={i}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-sky-400 hover:text-sky-300 underline underline-offset-2 break-all mb-1"
+                  >
+                    <ExternalLink className="w-3 h-3 shrink-0" /> {href}
+                  </a>
+                );
+              })}
             </div>
           )}
         </div>

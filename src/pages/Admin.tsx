@@ -461,7 +461,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
             </h1>
           </div>
           <span className="text-[10px] px-2 py-1 rounded-full bg-blue-500/15 text-blue-300 font-bold">
-            ADMIN
+            AUTHORITY
           </span>
         </div>
       </div>
