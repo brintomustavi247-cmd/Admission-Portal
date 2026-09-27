@@ -271,20 +271,18 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </div>
 
+              {/* 🔍 Search — শুধু magnifying glass icon */}
               <button
                 type="button"
                 onClick={() => setShowSearchModal(true)}
                 title="অনুসন্ধান (Ctrl+K)"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-sky-800 dark:text-sky-300 border border-sky-200/90 dark:border-slate-700 active:scale-95 text-xs font-bold transition-all shadow-sm cursor-pointer"
+                aria-label="অনুসন্ধান"
+                className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer active:scale-95 hover:border-sky-300 dark:hover:border-sky-600 transition-all"
               >
-                <Search className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
-                <span className="hidden sm:inline">খুঁজুন</span>
-                <kbd className="hidden lg:inline-block text-[10px] px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
-                  ⌘K
-                </kbd>
+                <Search className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               </button>
 
-              {/* 📰 NEWS — সব device-এ (mobile-এ settings-এর জায়গায়) */}
+              {/* 📰 NEWS — সব device-এ + badge */}
               {onOpenNews && (
                 <button
                   type="button"
@@ -361,7 +359,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </AnimatePresence>
               </div>
 
-              {/* ⚙️ Settings — শুধু PC-তে (mobile-এ নিচের nav-এ আছে) */}
+              {/* ⚙️ Settings — শুধু PC (mobile-এ নিচের nav + back button) */}
               {onOpenSettings && (
                 <button
                   type="button"

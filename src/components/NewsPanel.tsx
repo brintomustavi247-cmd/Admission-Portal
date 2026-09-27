@@ -18,6 +18,7 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
   const [uniId, setUniId] = useState("");
   const [info, setInfo] = useState("");
   const [srcUrl, setSrcUrl] = useState("");
+  const [nameInput, setNameInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -59,7 +60,9 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
     const { error } = await supabase.from("user_contributions").insert({
       user_id: profile?.id || null,
       contributor_name:
-        profile?.full_name || `User-${profile?.referral_code || "ANON"}`,
+        nameInput.trim() ||
+        profile?.full_name ||
+        `User-${profile?.referral_code || "ANON"}`,
       university_id: uniId || null,
       university_name: uni?.name || "সাধারণ",
       info_text: info.trim(),
@@ -74,6 +77,7 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
     );
     setInfo("");
     setSrcUrl("");
+    setNameInput("");
     setTimeout(() => setMsg(""), 4000);
   };
 
@@ -196,6 +200,12 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
                   <h3 className="text-xs font-black text-indigo-800 dark:text-indigo-300 mb-2 flex items-center gap-1.5">
                     <Send className="w-3.5 h-3.5" /> তুমি কিছু জানো? তথ্য পাঠাও!
                   </h3>
+                  <input
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    placeholder="তোমার নাম (দেখাবে: তথ্য সংগ্রহ করেছেন — ...)"
+                    className="w-full mb-2 bg-white dark:bg-[#0f141d] border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-[11px] focus:outline-none"
+                  />
                   <select
                     value={uniId}
                     onChange={(e) => setUniId(e.target.value)}

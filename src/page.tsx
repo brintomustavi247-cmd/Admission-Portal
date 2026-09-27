@@ -1,10 +1,16 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
  * Bangladesh University Admission 2026-27 - Main Dashboard
+ * v3: HASH ROUTER — phone back button = tab/panel navigation
+ *     #/home #/eligibility #/calendar #/admin #/news #/settings #/search #/uni/<id>
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { supabase } from "./lib/supabase";
 import {
@@ -33,6 +39,7 @@ import { UpdateNotifier } from "./components/UpdateNotifier";
 import { AppUpdateBanner } from "./components/AppUpdateBanner";
 import { NewsPanel } from "./components/NewsPanel";
 import { FeedbackPopup } from "./components/FeedbackPopup";
+import { Admin } from "./pages/Admin";
 import {
   GraduationCap,
   BookOpen,
@@ -46,13 +53,70 @@ import {
 
 type TabKey = "home" | "eligibility" | "calendar";
 type FontKey = "noto" | "anek" | "hind";
+type RouteView = TabKey | "admin";
+type RouteOverlay = "news" | "settings" | "search" | "uni" | null;
 
 const FONT_STORAGE_KEY = "admission_font_pref";
 const THEME_STORAGE_KEY = "varsity_theme";
 
+/* ---------- hash parse ---------- */
+function readRoute(): {
+  view: RouteView | "keep";
+  overlay: RouteOverlay;
+  uniId: string;
+} {
+  const h = window.location.hash.replace(/^#\/?/, "");
+  if (h === "admin") return { view: "admin", overlay: null, uniId: "" };
+  if (h === "news" || h === "settings" || h === "search")
+    return { view: "keep", overlay: h, uniId: "" };
+  if (h.startsWith("uni/"))
+    return { view: "keep", overlay: "uni", uniId: h.slice(4) };
+  if (h === "home" || h === "eligibility" || h === "calendar")
+    return { view: h, overlay: null, uniId: "" };
+  return { view: "home", overlay: null, uniId: "" };
+}
+
 export default function AdmissionDashboard({
   onOpenAdmin,
 }: { onOpenAdmin?: () => void } = {}) {
+  /* ---------- ROUTER STATE ---------- */
+  const [route, setRoute] = useState(readRoute);
+  const lastTab = useRef<TabKey>("home");
+
+  useEffect(() => {
+    if (!window.location.hash) window.history.replaceState(null, "", "#/home");
+    const onHash = () => setRoute(readRoute());
+    window.addEventListener("hashchange", onHash);
+    window.addEventListener("popstate", onHash);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener("popstate", onHash);
+    };
+  }, []);
+
+  const go = useCallback((hash: string) => {
+    window.location.hash = hash;
+  }, []);
+  const goBack = useCallback(() => {
+    if (window.history.length > 1) window.history.back();
+    else go("/" + lastTab.current);
+  }, [go]);
+
+  useEffect(() => {
+    if (route.view !== "keep" && route.view !== "admin")
+      lastTab.current = route.view;
+  }, [route]);
+
+  const activeTab: TabKey =
+    route.view === "keep" || route.view === "admin"
+      ? lastTab.current
+      : route.view;
+  const showAdmin = route.view === "admin";
+  const isNewsOpen = route.overlay === "news";
+  const isSettingsOpen = route.overlay === "settings";
+  const isSearchOpen = route.overlay === "search";
+  const isUniModal = route.overlay === "uni";
+
   /* ---------- 1. Data Source ---------- */
   const [sheetData, setSheetData] = useState<SheetFetchResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -60,27 +124,9 @@ export default function AdmissionDashboard({
     useState<string>(DEFAULT_SHEET_ID);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
 
-  /* ---------- 2. Live Supabase Realtime Updates ---------- */
+  /* ---------- 2. Live Updates + Overrides ---------- */
   const [liveUpdates, setLiveUpdates] = useState<any[]>([]);
-
-  /* ---------- 2b. Card Editor overrides (admin-এর manual card edit) ---------- */
   const [overrides, setOverrides] = useState<Record<string, any>>({});
-
-  const fetchOverrides = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from("university_overrides")
-        .select("*");
-      if (error || !data) return;
-      const map: Record<string, any> = {};
-      data.forEach((o: any) => {
-        map[o.university_id] = o.data || {};
-      });
-      setOverrides(map);
-    } catch (e) {
-      console.error("Overrides fetch failed:", e);
-    }
-  }, []);
 
   const fetchLiveUpdates = useCallback(async () => {
     try {
@@ -89,10 +135,7 @@ export default function AdmissionDashboard({
         .select("*")
         .eq("status", "published")
         .order("published_at", { ascending: false });
-
-      if (!error && data) {
-        setLiveUpdates(data);
-      }
+      if (!error && data) setLiveUpdates(data);
     } catch (e) {
       console.error("Live updates fetch failed:", e);
     }
@@ -100,86 +143,28 @@ export default function AdmissionDashboard({
 
   useEffect(() => {
     fetchLiveUpdates();
-
-    fetchOverrides();
-
-    // Instant Realtime sync when admin publishes an update
+    supabase
+      .from("university_overrides")
+      .select("*")
+      .then(({ data }) => {
+        const map: Record<string, any> = {};
+        (data || []).forEach((o: any) => {
+          map[o.university_id] = o.data || {};
+        });
+        setOverrides(map);
+      });
     const channel = supabase
       .channel("page_live_sync_channel")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "university_updates",
-        },
-        () => {
-          fetchLiveUpdates();
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "university_overrides",
-        },
-        () => {
-          fetchOverrides();
-        },
+        { event: "*", schema: "public", table: "university_updates" },
+        () => fetchLiveUpdates(),
       )
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchLiveUpdates, fetchOverrides]);
-
-  /* ---------- 3. Navigation (URL hash + localStorage persist) ---------- */
-  const [activeTab, setActiveTab] = useState<TabKey>(() => {
-    // 1) URL hash-এ থাকলে সেটা (যেমন: #/eligibility)
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash.replace("#/", "").replace("#", "");
-      if (hash === "home" || hash === "eligibility" || hash === "calendar") {
-        return hash;
-      }
-    }
-    // 2) localStorage-এ থাকলে সেটা
-    try {
-      const saved = localStorage.getItem("active_tab");
-      if (saved === "home" || saved === "eligibility" || saved === "calendar") {
-        return saved;
-      }
-    } catch {}
-    return "home";
-  });
-
-  // Tab change হলে hash + localStorage update করো
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Don't overwrite admin hash if navigating or reloading on admin
-      const currentHash = window.location.hash.replace("#/", "").replace("#", "");
-      if (currentHash !== "admin") {
-        window.location.hash = `/${activeTab}`;
-      }
-      try {
-        localStorage.setItem("active_tab", activeTab);
-      } catch {}
-    }
-  }, [activeTab]);
-
-  // Browser navigation (back/forward) handle
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace("#/", "").replace("#", "");
-      if (hash === "home" || hash === "eligibility" || hash === "calendar") {
-        setActiveTab(hash);
-      }
-    };
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
+  }, [fetchLiveUpdates]);
 
   /* ---------- 4. Preferences ---------- */
   const [isSecondTimer, setIsSecondTimer] = useState<boolean>(false);
@@ -215,13 +200,21 @@ export default function AdmissionDashboard({
   > | null>(null);
   const [onlyShowEligible, setOnlyShowEligible] = useState<boolean>(false);
 
-  /* ---------- 7. Modals ---------- */
+  /* ---------- 7. Selected university (modal) ---------- */
   const [selectedUniversity, setSelectedUniversity] =
     useState<University | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-  const [isNewsOpen, setIsNewsOpen] = useState<boolean>(false);
+
+  /* sync modal selection with #/uni/<id> */
+  const rawUniversities = sheetData?.universities || [];
+  useEffect(() => {
+    if (isUniModal && route.uniId) {
+      const found = rawUniversities.find((u) => u.id === route.uniId);
+      if (found && selectedUniversity?.id !== found.id)
+        setSelectedUniversity(found);
+    }
+    if (!isUniModal && selectedUniversity) setSelectedUniversity(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUniModal, route.uniId, rawUniversities.length]);
 
   /* ---------- Side Effects ---------- */
   useEffect(() => {
@@ -239,8 +232,7 @@ export default function AdmissionDashboard({
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = useCallback(() => setIsDarkMode((prev) => !prev), []);
-
+  const toggleDarkMode = useCallback(() => setIsDarkMode((p) => !p), []);
   const handleFontChange = useCallback((font: FontKey) => {
     setFontPreference(font);
     try {
@@ -253,8 +245,7 @@ export default function AdmissionDashboard({
     async (urlOrId?: string) => {
       setIsLoading(true);
       try {
-        const result = await fetchAdmissionData(urlOrId || customSheetUrl);
-        setSheetData(result);
+        setSheetData(await fetchAdmissionData(urlOrId || customSheetUrl));
       } catch (err) {
         console.error("Failed to load admission data:", err);
       } finally {
@@ -268,143 +259,109 @@ export default function AdmissionDashboard({
     loadData();
   }, [loadData]);
 
-  /* ============================================================
-     POWER-MATCHER v2
-     Approved update = card + details AUTO-UPDATE
-     (application window, unit dates/fees, exam date, admit card,
-      circularStatus confirmed, breaking banner)
-     
-     ⚠️ Rule: card fields ONLY update করবে যখন update-এ concrete
-     data (exam_date / application_start / application_deadline /
-     fee_amount / units[].date / admit_card_date) থাকবে।
-     না থাকলে শুধু `latestBreakingUpdate` সেট হবে — card-এ শুধু
-     amber breaking banner + News-এ দেখাবে (user-এর requirement)।
-     ============================================================ */
-  const rawUniversities = sheetData?.universities || [];
-
+  /* ---------- POWER-MATCHER v2 + OVERRIDES ---------- */
   const universities = useMemo(() => {
     if (!rawUniversities.length) return [];
-    if (!liveUpdates.length && !Object.keys(overrides).length)
-      return rawUniversities;
-
     const normalize = (str: string) =>
       str
         .replace(/[\(\)（）\-\_\,\.]/g, "")
         .replace(/\s+/g, "")
         .toLowerCase();
 
-    /* Card Editor override merge — admin-এর manual edit সবার উপরে */
-    const applyOverride = (base: University): University => {
-      const ov = overrides[base.id];
-      return ov
-        ? { ...base, ...ov, examUnits: ov.examUnits || base.examUnits }
-        : base;
-    };
-
     return rawUniversities.map((uni) => {
-      const normUniName = normalize(uni.name);
-      const normShort = normalize(uni.shortName || "");
-      const normEnglish = normalize(uni.englishName || "");
+      let merged: any = uni;
+      if (liveUpdates.length) {
+        const normUniName = normalize(uni.name);
+        const normShort = normalize(uni.shortName || "");
+        const normEnglish = normalize(uni.englishName || "");
+        const match =
+          liveUpdates.find(
+            (u) => u.university_id && u.university_id === uni.id,
+          ) ||
+          liveUpdates.find((u) => {
+            if (!u.university_name) return false;
+            const normDb = normalize(u.university_name);
+            return (
+              normUniName.includes(normDb) ||
+              normDb.includes(normUniName) ||
+              (normShort &&
+                (normDb.includes(normShort) || normShort.includes(normDb))) ||
+              (normEnglish && normDb.includes(normEnglish))
+            );
+          });
 
-      /* latest published update: 1) exact id match, 2) name match
-         (liveUpdates already newest-first, so .find = latest) */
-      const match =
-        liveUpdates.find(
-          (u) => u.university_id && u.university_id === uni.id,
-        ) ||
-        liveUpdates.find((u) => {
-          if (!u.university_name) return false;
-          const normDb = normalize(u.university_name);
-          return (
-            normUniName.includes(normDb) ||
-            normDb.includes(normUniName) ||
-            (normShort &&
-              (normDb.includes(normShort) || normShort.includes(normDb))) ||
-            (normEnglish && normDb.includes(normEnglish))
+        if (match) {
+          const d = match.extracted_data || {};
+          const hasConcrete = Boolean(
+            d.exam_date ||
+            d.application_start ||
+            d.application_deadline ||
+            d.fee_amount,
           );
-        });
-
-      if (!match) return applyOverride(uni);
-
-      const d = match.extracted_data || {};
-      const hasConcrete = Boolean(
-        d.exam_date ||
-        d.application_start ||
-        d.application_deadline ||
-        d.fee_amount,
-      );
-
-      /* ১) application window overwrite — শুধু থাকলে */
-      const startDate = d.application_start || uni.startDate;
-      const endDate = d.application_deadline || uni.endDate;
-
-      /* ২) examUnits merge — unit নাম মিলিয়ে তারিখ/ফি update */
-      let examUnits = (uni.examUnits || []).map((u) => ({ ...u }));
-      if (Array.isArray(d.units) && d.units.length) {
-        d.units.forEach((nu: any) => {
-          if (!nu || !nu.name) return;
-          const nn = normalize(String(nu.name));
-          const target = examUnits.find(
-            (eu) =>
-              normalize(eu.unit).includes(nn) ||
-              nn.includes(normalize(eu.unit)),
-          );
-          if (target) {
-            if (nu.date) target.examDate = nu.date;
-            if (nu.fee) target.fee = nu.fee;
+          const startDate = d.application_start || uni.startDate;
+          const endDate = d.application_deadline || uni.endDate;
+          let examUnits = (uni.examUnits || []).map((u: any) => ({ ...u }));
+          if (Array.isArray(d.units) && d.units.length) {
+            d.units.forEach((nu: any) => {
+              if (!nu || !nu.name) return;
+              const nn = normalize(String(nu.name));
+              const target = examUnits.find(
+                (eu: any) =>
+                  normalize(eu.unit).includes(nn) ||
+                  nn.includes(normalize(eu.unit)),
+              );
+              if (target) {
+                if (nu.date) target.examDate = nu.date;
+                if (nu.fee) target.fee = nu.fee;
+              }
+            });
           }
-        });
-      }
-
-      /* ৩) global exam_date — units list না থাকলে first unit / নতুন unit */
-      if (d.exam_date && (!Array.isArray(d.units) || !d.units.length)) {
-        if (examUnits.length) {
-          examUnits = examUnits.map((u, i) =>
-            i === 0 ? { ...u, examDate: d.exam_date } : u,
-          );
-        } else {
-          examUnits = [
-            {
-              unit: "ভর্তি পরীক্ষা",
-              title: match.title || "সর্বশেষ আপডেট",
-              examDate: d.exam_date,
-              fee: d.fee_amount || "",
-            },
-          ];
+          if (d.exam_date && (!Array.isArray(d.units) || !d.units.length)) {
+            if (examUnits.length) {
+              examUnits = examUnits.map((u: any, i: number) =>
+                i === 0 ? { ...u, examDate: d.exam_date } : u,
+              );
+            } else {
+              examUnits = [
+                {
+                  unit: "ভর্তি পরীক্ষা",
+                  title: match.title || "সর্বশেষ আপডেট",
+                  examDate: d.exam_date,
+                  fee: d.fee_amount || "",
+                },
+              ];
+            }
+          }
+          if (d.fee_amount && examUnits.length) {
+            examUnits = examUnits.map((u: any) => ({
+              ...u,
+              fee: u.fee || d.fee_amount,
+            }));
+          }
+          merged = {
+            ...uni,
+            startDate,
+            endDate,
+            examUnits,
+            circularStatus: hasConcrete
+              ? ("confirmed" as const)
+              : uni.circularStatus,
+            latestBreakingUpdate: match,
+            ...(d.admit_card_date ? { admitCardDate: d.admit_card_date } : {}),
+          };
         }
       }
-
-      /* ৪) fee merge — যেসব unit-এ ফি নেই সেগুলোতে বসাও */
-      if (d.fee_amount && examUnits.length) {
-        examUnits = examUnits.map((u) => ({
-          ...u,
-          fee: u.fee || d.fee_amount,
-        }));
-      }
-
-      /* ৫) merged object (conditional spread = type-safe) */
-      const merged = {
-        ...uni,
-        startDate,
-        endDate,
-        examUnits,
-        circularStatus: hasConcrete
-          ? ("confirmed" as const)
-          : uni.circularStatus,
-        latestBreakingUpdate: match,
-        ...(d.admit_card_date ? { admitCardDate: d.admit_card_date } : {}),
-      };
-
-      /* Card Editor override থাকলে base/live data-এর উপরে বসাও */
-      return applyOverride(merged);
+      const ov = overrides[uni.id];
+      return ov
+        ? { ...merged, ...ov, examUnits: ov.examUnits || merged.examUnits }
+        : merged;
     });
   }, [rawUniversities, liveUpdates, overrides]);
 
-  // Keep modal continuously in sync with the matched realtime university
   const currentSelectedUniversity = useMemo(() => {
     if (!selectedUniversity) return null;
     return (
-      universities.find((u) => u.id === selectedUniversity.id) ||
+      universities.find((u: any) => u.id === selectedUniversity.id) ||
       selectedUniversity
     );
   }, [selectedUniversity, universities]);
@@ -412,11 +369,11 @@ export default function AdmissionDashboard({
   /* ---------- Metrics ---------- */
   const metrics = useMemo(() => {
     const secondTimerCount = universities.filter(
-      (u) => u.secondTimerAllowed,
+      (u: any) => u.secondTimerAllowed,
     ).length;
-    let ongoingCount = 0;
-    let upcomingCount = 0;
-    universities.forEach((u) => {
+    let ongoingCount = 0,
+      upcomingCount = 0;
+    universities.forEach((u: any) => {
       const status = calculateUrgency(u.startDate, u.endDate).status;
       if (status === "ongoing") ongoingCount++;
       else if (status === "upcoming") upcomingCount++;
@@ -427,7 +384,7 @@ export default function AdmissionDashboard({
   /* ---------- Filtering ---------- */
   const filteredUniversities = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    return universities.filter((uni) => {
+    return universities.filter((uni: any) => {
       if (isSecondTimer && !uni.secondTimerAllowed) return false;
       if (query) {
         const matchesName =
@@ -436,21 +393,22 @@ export default function AdmissionDashboard({
           uni.englishName.toLowerCase().includes(query) ||
           uni.location.toLowerCase().includes(query);
         const matchesUnits = uni.examUnits?.some(
-          (u) =>
+          (u: any) =>
             u.unit.toLowerCase().includes(query) ||
             u.title.toLowerCase().includes(query),
         );
         if (!matchesName && !matchesUnits) return false;
       }
-      if (timeFilter !== "all") {
-        if (calculateUrgency(uni.startDate, uni.endDate).status !== timeFilter)
-          return false;
-      }
+      if (
+        timeFilter !== "all" &&
+        calculateUrgency(uni.startDate, uni.endDate).status !== timeFilter
+      )
+        return false;
       if (categoryFilter !== "all" && uni.category !== categoryFilter)
         return false;
       if (onlyShowEligible && eligibilityResults) {
-        const evalResult = eligibilityResults[uni.id];
-        if (!evalResult || !evalResult.isEligible) return false;
+        const r = eligibilityResults[uni.id];
+        if (!r || !r.isEligible) return false;
       }
       return true;
     });
@@ -465,16 +423,10 @@ export default function AdmissionDashboard({
   ]);
 
   /* ---------- Handlers ---------- */
-  const handleOpenModal = useCallback((uni: University) => {
-    setSelectedUniversity(uni);
-    setIsModalOpen(true);
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-    setSelectedUniversity(null);
-  }, []);
-
+  const handleOpenModal = useCallback(
+    (uni: University) => go("/uni/" + uni.id),
+    [go],
+  );
   const handleEligibilityEvaluations = useCallback(
     (
       results: Record<string, EligibilityEvaluation> | null,
@@ -485,7 +437,6 @@ export default function AdmissionDashboard({
     },
     [],
   );
-
   const handleResetFilters = useCallback(() => {
     setSearchQuery("");
     setTimeFilter("all");
@@ -498,7 +449,6 @@ export default function AdmissionDashboard({
     timeFilter !== "all" ||
     categoryFilter !== "all" ||
     onlyShowEligible;
-
   const fontClass =
     fontPreference === "anek"
       ? "font-anek"
@@ -506,16 +456,17 @@ export default function AdmissionDashboard({
         ? "font-hind"
         : "font-noto";
 
+  /* ---------- ADMIN VIEW ---------- */
+  if (showAdmin) {
+    return <Admin onExit={goBack} />;
+  }
+
   return (
     <div
-      className={`min-h-screen ${fontClass} transition-colors duration-300 ${
-        isDarkMode ? "dark text-slate-100" : "text-slate-900"
-      }`}
+      className={`min-h-screen ${fontClass} transition-colors duration-300 ${isDarkMode ? "dark text-slate-100" : "text-slate-900"}`}
     >
-      {/* 🚀 APP VERSION UPDATE BANNER */}
       <AppUpdateBanner />
 
-      {/* ================= HEADER ================= */}
       <Header
         universities={universities}
         onSelectUniversity={handleOpenModal}
@@ -525,20 +476,18 @@ export default function AdmissionDashboard({
         currentFont={fontPreference}
         onFontChange={handleFontChange}
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={(t) => go("/" + t)}
         isSearchOpen={isSearchOpen}
-        onSearchOpenChange={setIsSearchOpen}
+        onSearchOpenChange={(open) => (open ? go("/search") : goBack())}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenNews={() => setIsNewsOpen(true)}
+        onOpenSettings={() => go("/settings")}
+        onOpenNews={() => go("/news")}
         newsCount={liveUpdates.length}
       />
 
-      {/* ================= MAIN ================= */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 sm:pb-16">
         <AnimatePresence mode="wait">
-          {/* ==================== HOME TAB ==================== */}
           {activeTab === "home" && (
             <motion.div
               key="home"
@@ -553,13 +502,12 @@ export default function AdmissionDashboard({
                 secondTimerCount={metrics.secondTimerCount}
                 ongoingCount={metrics.ongoingCount}
                 upcomingCount={metrics.upcomingCount}
-                onNavigateToEligibility={() => setActiveTab("eligibility")}
-                onNavigateToCalendar={() => setActiveTab("calendar")}
+                onNavigateToEligibility={() => go("/eligibility")}
+                onNavigateToCalendar={() => go("/calendar")}
               />
-
               <AttemptToggle
                 isSecondTimer={isSecondTimer}
-                onToggle={(val) => setIsSecondTimer(val)}
+                onToggle={setIsSecondTimer}
                 totalUniversitiesCount={universities.length}
                 secondTimerCount={metrics.secondTimerCount}
               />
@@ -598,7 +546,7 @@ export default function AdmissionDashboard({
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
                 >
                   <AnimatePresence mode="popLayout">
-                    {filteredUniversities.map((uni, idx) => (
+                    {filteredUniversities.map((uni: any, idx: number) => (
                       <motion.div
                         key={uni.id}
                         layout
@@ -632,7 +580,6 @@ export default function AdmissionDashboard({
             </motion.div>
           )}
 
-          {/* ==================== ELIGIBILITY TAB ==================== */}
           {activeTab === "eligibility" && (
             <motion.div
               key="eligibility"
@@ -651,7 +598,6 @@ export default function AdmissionDashboard({
             </motion.div>
           )}
 
-          {/* ==================== CALENDAR TAB ==================== */}
           {activeTab === "calendar" && (
             <motion.div
               key="calendar"
@@ -666,18 +612,16 @@ export default function AdmissionDashboard({
         </AnimatePresence>
       </main>
 
-      {/* ================= MODALS & NAV ================= */}
       <SettingsPanel
         open={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        onOpenAdmin={onOpenAdmin}
+        onClose={goBack}
+        onOpenAdmin={() => go("/admin")}
       />
       <UniversityModal
         university={currentSelectedUniversity}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isUniModal}
+        onClose={goBack}
       />
-
       <SheetConfigModal
         isOpen={isConfigModalOpen}
         onClose={() => setIsConfigModalOpen(false)}
@@ -693,30 +637,23 @@ export default function AdmissionDashboard({
         onRefresh={() => loadData(customSheetUrl)}
         isLoading={isLoading}
       />
-
       <MobileBottomNav
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        onSelectTab={(t) => go("/" + t)}
+        onOpenSearch={() => go("/search")}
+        onOpenSettings={() => go("/settings")}
       />
 
-      {/* 🔔 LIVE ADMISSION NOTIFICATION BANNER */}
+      <NewsPanel open={isNewsOpen} onClose={goBack} />
       <UpdateNotifier />
-
-      {/* 📰 NEWS PANEL (header-এর 📰 icon-এ tap করলে slide-in) */}
-      <NewsPanel open={isNewsOpen} onClose={() => setIsNewsOpen(false)} />
-
-      {/* 💬 FEEDBACK POPUP (7 দিনে 1 বার + helpline) */}
       <FeedbackPopup />
     </div>
   );
 }
 
 /* ============================================================
-   SUB-COMPONENTS
+   SUB-COMPONENTS (অপরিবর্তিত)
    ============================================================ */
-
 const HeroMetricsBanner: React.FC<{
   totalCount: number;
   secondTimerCount: number;
@@ -738,7 +675,6 @@ const HeroMetricsBanner: React.FC<{
   >
     <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-sky-500/20 blur-3xl pointer-events-none" />
     <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
-
     <div className="relative z-10 p-5 sm:p-8 lg:p-10">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div className="max-w-xl">
@@ -753,12 +689,11 @@ const HeroMetricsBanner: React.FC<{
             সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছভুক্ত বিশ্ববিদ্যালয়ের ভর্তি
             পরীক্ষার সময়সূচি, জিপিএ শর্ত ও ২য় বার সুযোগ।
           </p>
-
           <div className="mt-5 flex items-center gap-2.5 flex-wrap">
             <button
               type="button"
               onClick={onNavigateToEligibility}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-400 hover:to-violet-400 active:scale-95 text-slate-950 text-xs font-black shadow-lg shadow-indigo-500/40 dark:shadow-[0_8px_24px_-6px_rgba(59,130,246,0.35)] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-400 hover:to-violet-400 active:scale-95 text-slate-950 text-xs font-black shadow-lg shadow-indigo-500/40 transition-all cursor-pointer"
             >
               <Award className="w-4 h-4" />
               <span>যোগ্যতা যাচাই করুন</span>
@@ -773,7 +708,6 @@ const HeroMetricsBanner: React.FC<{
             </button>
           </div>
         </div>
-
         <div className="grid grid-cols-2 gap-3 lg:w-[380px]">
           <MetricCard
             icon={<BookOpen className="w-4 h-4" />}
@@ -802,7 +736,6 @@ const HeroMetricsBanner: React.FC<{
           />
         </div>
       </div>
-
       <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-[0.07] pointer-events-none hidden lg:flex items-center justify-end pr-10">
         <GraduationCap className="w-64 h-64 text-sky-400" />
       </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import { UniversityUpdate } from "../types/admission";
-import { X, Calendar, DollarSign, Award, ExternalLink, CheckCircle2 } from "lucide-react";
+import { X, Calendar, DollarSign, Award, ExternalLink, CheckCircle2, Users } from "lucide-react";
 
 interface Props {
   update: UniversityUpdate;
@@ -72,6 +72,16 @@ export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
                   <span>{h}</span>
                 </div>
               ))}
+            </div>
+          )}
+
+          {update.extracted_data?._contributor && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+              <Users className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div>
+                <span className="text-slate-400 block text-[11px]">তথ্য সংগ্রহ করেছেন</span>
+                <span className="font-bold text-emerald-300">{update.extracted_data._contributor}</span>
+              </div>
             </div>
           )}
 

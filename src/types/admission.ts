@@ -87,6 +87,9 @@ export interface UniversityUpdate {
     units?: { unit: string; date?: string; fee?: string }[];
     min_gpa?: { ssc?: number; hsc?: number; combined?: number };
     highlights?: string[];
+    _contributor?: string;
+    _source?: string;
+    [key: string]: any;
   };
   source_urls?: string[];
   status: 'pending' | 'published' | 'rejected';
