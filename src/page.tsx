@@ -63,6 +63,25 @@ export default function AdmissionDashboard({
   /* ---------- 2. Live Supabase Realtime Updates ---------- */
   const [liveUpdates, setLiveUpdates] = useState<any[]>([]);
 
+  /* ---------- 2b. Card Editor overrides (admin-এর manual card edit) ---------- */
+  const [overrides, setOverrides] = useState<Record<string, any>>({});
+
+  const fetchOverrides = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("university_overrides")
+        .select("*");
+      if (error || !data) return;
+      const map: Record<string, any> = {};
+      data.forEach((o: any) => {
+        map[o.university_id] = o.data || {};
+      });
+      setOverrides(map);
+    } catch (e) {
+      console.error("Overrides fetch failed:", e);
+    }
+  }, []);
+
   const fetchLiveUpdates = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -82,6 +101,8 @@ export default function AdmissionDashboard({
   useEffect(() => {
     fetchLiveUpdates();
 
+    fetchOverrides();
+
     // Instant Realtime sync when admin publishes an update
     const channel = supabase
       .channel("page_live_sync_channel")
@@ -96,12 +117,23 @@ export default function AdmissionDashboard({
           fetchLiveUpdates();
         },
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "university_overrides",
+        },
+        () => {
+          fetchOverrides();
+        },
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchLiveUpdates]);
+  }, [fetchLiveUpdates, fetchOverrides]);
 
   /* ---------- 3. Navigation ---------- */
   const [activeTab, setActiveTab] = useState<TabKey>("home");
@@ -209,13 +241,22 @@ export default function AdmissionDashboard({
 
   const universities = useMemo(() => {
     if (!rawUniversities.length) return [];
-    if (!liveUpdates.length) return rawUniversities;
+    if (!liveUpdates.length && !Object.keys(overrides).length)
+      return rawUniversities;
 
     const normalize = (str: string) =>
       str
         .replace(/[\(\)（）\-\_\,\.]/g, "")
         .replace(/\s+/g, "")
         .toLowerCase();
+
+    /* Card Editor override merge — admin-এর manual edit সবার উপরে */
+    const applyOverride = (base: University): University => {
+      const ov = overrides[base.id];
+      return ov
+        ? { ...base, ...ov, examUnits: ov.examUnits || base.examUnits }
+        : base;
+    };
 
     return rawUniversities.map((uni) => {
       const normUniName = normalize(uni.name);
@@ -240,7 +281,7 @@ export default function AdmissionDashboard({
           );
         });
 
-      if (!match) return uni;
+      if (!match) return applyOverride(uni);
 
       const d = match.extracted_data || {};
       const hasConcrete = Boolean(
@@ -299,7 +340,7 @@ export default function AdmissionDashboard({
       }
 
       /* ৫) merged object (conditional spread = type-safe) */
-      return {
+      const merged = {
         ...uni,
         startDate,
         endDate,
@@ -310,8 +351,11 @@ export default function AdmissionDashboard({
         latestBreakingUpdate: match,
         ...(d.admit_card_date ? { admitCardDate: d.admit_card_date } : {}),
       };
+
+      /* Card Editor override থাকলে base/live data-এর উপরে বসাও */
+      return applyOverride(merged);
     });
-  }, [rawUniversities, liveUpdates]);
+  }, [rawUniversities, liveUpdates, overrides]);
 
   // Keep modal continuously in sync with the matched realtime university
   const currentSelectedUniversity = useMemo(() => {

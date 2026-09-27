@@ -16,6 +16,7 @@ import {
   CalendarClock,
   Save,
   Heart,
+  MessageSquareHeart,
   Megaphone,
   Banknote,
   Radio,
@@ -78,6 +79,8 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const [subEnabled, setSubEnabled] = useState(false);
   const [referralOn, setReferralOn] = useState(true);
   const [donationOn, setDonationOn] = useState(true);
+  const [contribOn, setContribOn] = useState(true);
+  const [feedbackOn, setFeedbackOn] = useState(true);
   const [freeUntil, setFreeUntil] = useState("");
   const [basePrice, setBasePrice] = useState(99);
   const [referralPrice, setReferralPrice] = useState(49);
@@ -110,6 +113,8 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       setBasePrice(s.base_price ?? 99);
       setReferralPrice(s.referral_price ?? 49);
       setAnnouncement(s.announcement_text || "");
+      setContribOn(s.contribution_enabled !== false);
+      setFeedbackOn(s.feedback_popup_enabled !== false);
     }
   }, []);
 
@@ -146,6 +151,8 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         subscription_enabled: subEnabled,
         referral_discount_enabled: referralOn,
         donation_enabled: donationOn,
+        contribution_enabled: contribOn,
+        feedback_popup_enabled: feedbackOn,
         free_until: freeUntil
           ? new Date(freeUntil + "T23:59:59").toISOString()
           : null,
@@ -572,6 +579,60 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 <Switch
                   on={donationOn}
                   onChange={() => setDonationOn(!donationOn)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                      contribOn
+                        ? "bg-violet-500/15 text-violet-400"
+                        : "bg-slate-500/15 text-slate-400"
+                    }`}
+                  >
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white">
+                      কমিউনিটি Contribution
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      {contribOn
+                        ? "ON — user রা তথ্য পাঠাতে পারবে"
+                        : "OFF — box লুকানো"}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  on={contribOn}
+                  onChange={() => setContribOn(!contribOn)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                      feedbackOn
+                        ? "bg-pink-500/15 text-pink-400"
+                        : "bg-slate-500/15 text-slate-400"
+                    }`}
+                  >
+                    <MessageSquareHeart className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white">
+                      ৭-দিনের Feedback Popup
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      {feedbackOn ? "ON — সপ্তাহে ১বার মতামত চাইবে" : "OFF"}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  on={feedbackOn}
+                  onChange={() => setFeedbackOn(!feedbackOn)}
                 />
               </div>
 

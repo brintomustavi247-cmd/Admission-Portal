@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { ManualUpdateForm } from "./ManualUpdateForm";
+import { CardEditor } from "./CardEditor";
 import { UpdateDetailModal } from "../UpdateDetailModal";
 import { initialUniversitiesData } from "../../data/mockUniversities";
 import {
@@ -13,7 +14,7 @@ import {
   CheckSquare,
   Square,
   AlertTriangle,
-  Sparkles,
+  RotateCcw,
 } from "lucide-react";
 
 const norm = (s: string) =>
@@ -22,7 +23,6 @@ const norm = (s: string) =>
     .toLowerCase();
 const digits = (s: string) => String(s || "").replace(/[^\d০-৯]/g, "");
 
-/* ===== App-এর base data-তে আগে থেকেই আছে কিনা check ===== */
 function existsInApp(item: any): { exists: boolean; reason: string } {
   const base =
     initialUniversitiesData.find((b) => b.id === item.university_id) ||
@@ -90,13 +90,26 @@ export const UpdateQueueTab: React.FC = () => {
     alert(
       error
         ? "❌ " + error.message
-        : "✅ Published! Card-এ concrete data থাকলে auto-update হবে, নাহলে শুধু News-এ দেখাবে।",
+        : "✅ Published! Concrete data থাকলে card update, নাহলে শুধু News-এ।",
     );
     load();
   };
   const remove = async (id: string) => {
     if (!confirm("মুছে ফেলবে?")) return;
     await supabase.from("university_updates").delete().eq("id", id);
+    load();
+  };
+  const rollback = async (id: string) => {
+    if (
+      !confirm(
+        "Rollback? Update unpublish হবে এবং card আগের অবস্থায় ফিরে যাবে।",
+      )
+    )
+      return;
+    await supabase
+      .from("university_updates")
+      .update({ status: "rejected", published_at: null })
+      .eq("id", id);
     load();
   };
   const bulkDelete = async () => {
@@ -158,7 +171,6 @@ export const UpdateQueueTab: React.FC = () => {
     <div className="space-y-5">
       <ManualUpdateForm onSuccess={load} />
 
-      {/* ===== QUEUE ===== */}
       <div className="p-4 rounded-2xl bg-[#0f141d] border border-white/10 space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="text-xs font-bold text-white flex items-center gap-2">
@@ -236,7 +248,9 @@ export const UpdateQueueTab: React.FC = () => {
                           className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
                             item.status === "published"
                               ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                              : item.status === "rejected"
+                                ? "bg-slate-500/20 text-slate-400 border border-slate-500/30"
+                                : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                           }`}
                         >
                           {item.status}
@@ -282,6 +296,14 @@ export const UpdateQueueTab: React.FC = () => {
                         <CheckCircle className="w-3 h-3" /> পাবলিশ ও পুশ
                       </button>
                     )}
+                    {item.status === "published" && (
+                      <button
+                        onClick={() => rollback(item.id)}
+                        className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-black cursor-pointer hover:bg-amber-500/25 flex items-center gap-1"
+                      >
+                        <RotateCcw className="w-3 h-3" /> Rollback
+                      </button>
+                    )}
                     <button
                       onClick={() => remove(item.id)}
                       className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 cursor-pointer"
@@ -297,7 +319,6 @@ export const UpdateQueueTab: React.FC = () => {
         )}
       </div>
 
-      {/* ===== COMMUNITY CONTRIBUTIONS ===== */}
       <div className="p-4 rounded-2xl bg-[#0f141d] border border-white/10 space-y-3">
         <div className="text-xs font-bold text-white flex items-center gap-2">
           <Users className="w-3.5 h-3.5 text-violet-400" /> কমিউনিটি তথ্য (
@@ -347,6 +368,8 @@ export const UpdateQueueTab: React.FC = () => {
           ))
         )}
       </div>
+
+      <CardEditor />
 
       {detail && (
         <UpdateDetailModal update={detail} onClose={() => setDetail(null)} />
