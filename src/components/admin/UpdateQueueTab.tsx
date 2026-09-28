@@ -24,12 +24,24 @@ import {
 } from "lucide-react";
 
 /* ============================================================
-   ⚙️ CONFIG — এখানে তোমার আসল Apps Script Web App URL বসাও
+   ⚙️ CONFIG — Apps Script Web App URL + key এখন .env.local থেকে আসে
    (Apps Script → Deploy → Manage deployments → Web app URL)
    ============================================================ */
-const RESEARCH_WEBHOOK_URL =
-  "https://script.google.com/macros/s/AKfycbw8NbPPn8C8P-SbqFTmi-HDkjYayaXsptbz3jKoJbGGpTqq59hzJayF2jpw0l8PH4aWmw/exec";
-const WEBHOOK_KEY = "ami123badlo";
+// SECURITY: URL/key আর কখনো source-এ hardcode করো না — git history-তে থেকে যায়।
+// .env.local (gitignored) এ রাখো:
+//   VITE_RESEARCH_WEBHOOK_URL=https://script.google.com/macros/s/..../exec
+//   VITE_WEBHOOK_KEY=<rotated Apps Script WEBHOOK_SECRET>
+const RESEARCH_WEBHOOK_URL = (
+  import.meta.env.VITE_RESEARCH_WEBHOOK_URL || ""
+).trim();
+const WEBHOOK_KEY = (import.meta.env.VITE_WEBHOOK_KEY || "").trim();
+const WEBHOOK_CONFIGURED = Boolean(RESEARCH_WEBHOOK_URL && WEBHOOK_KEY);
+
+if (!WEBHOOK_CONFIGURED) {
+  console.warn(
+    "Research webhook not configured. Set VITE_RESEARCH_WEBHOOK_URL and VITE_WEBHOOK_KEY (see .env.example / apps-script/README.md)",
+  );
+}
 
 const norm = (s: string) =>
   String(s || "")
@@ -103,6 +115,8 @@ async function callContributionWebhook(
   action: "approve_contribution" | "reject_contribution",
   contributionId: string,
 ) {
+  /* env missing → fetch-ই করবো না; caller Supabase fallback path নেবে */
+  if (!WEBHOOK_CONFIGURED) return { ok: false, json: null };
   const url = `${RESEARCH_WEBHOOK_URL}?key=${encodeURIComponent(WEBHOOK_KEY)}&action=${action}`;
   const res = await fetch(url, {
     method: "POST",
@@ -192,9 +206,9 @@ export const UpdateQueueTab: React.FC = () => {
 
   /* ========== 🔬 DEEP RESEARCH — FIXED ========== */
   const deepResearch = async () => {
-    if (RESEARCH_WEBHOOK_URL.includes("PASTE_YOUR_REAL_DEPLOYMENT_ID")) {
+    if (!WEBHOOK_CONFIGURED) {
       showToast(
-        "❌ আগে ফাইলের উপরে RESEARCH_WEBHOOK_URL-এ আসল Apps Script Web App URL বসাও!",
+        "❌ VITE_RESEARCH_WEBHOOK_URL / VITE_WEBHOOK_KEY সেট করা নেই — .env.local দেখো (apps-script/README.md → Deployment)",
         "error",
       );
       return;

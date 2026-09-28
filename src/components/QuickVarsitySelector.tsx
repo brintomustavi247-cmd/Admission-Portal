@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ChevronRight, GraduationCap, Building2, School, Check, ExternalLink } from 'lucide-react';
+import { Search, ChevronRight, GraduationCap, Building2 } from 'lucide-react';
 import { University } from '../types/admission';
-import { toBanglaNum } from '../lib/banglaUtils';
 
 interface QuickVarsitySelectorProps {
   universities: University[];
@@ -152,7 +151,6 @@ export const QuickVarsitySelector: React.FC<QuickVarsitySelectorProps> = ({
           </span>
 
           {popularUniversities.map((uni) => {
-            const is2nd = isSecondTimer && uni.secondTimerAllowed;
             return (
               <button
                 key={uni.id}

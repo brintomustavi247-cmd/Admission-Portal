@@ -118,12 +118,7 @@ const Inner: React.FC = () => {
     <ErrorBoundary>
       <Suspense fallback={suspenseFallback}>
         <AppGate>
-          <AdmissionDashboard
-            onOpenAdmin={() => {
-              setRoute('admin');
-              window.location.hash = '/admin';
-            }}
-          />
+          <AdmissionDashboard />
         </AppGate>
       </Suspense>
     </ErrorBoundary>

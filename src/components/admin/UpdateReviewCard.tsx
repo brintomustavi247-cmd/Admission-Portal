@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { UniversityUpdate } from "../../types/admission";
 import { supabase } from "../../lib/supabase";
-import { Check, Trash2, Globe, Calendar, DollarSign } from "lucide-react";
+import { Check, Trash2, Calendar, DollarSign } from "lucide-react";
 
 interface Props {
   update: UniversityUpdate;

@@ -3,17 +3,10 @@ import {
   Calendar as CalendarIcon,
   Clock,
   CheckCircle2,
-  AlertCircle,
   Printer,
-  FileText,
   Search,
-  Filter,
   Check,
-  ChevronRight,
-  Sparkles,
   GraduationCap,
-  Download,
-  Share2,
 } from 'lucide-react';
 import { formatBanglaDate, toBanglaNum } from '../lib/banglaUtils';
 

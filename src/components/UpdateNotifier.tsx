@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useUniversityUpdates } from "../hooks/useUniversityUpdates";
 import { UpdateDetailModal } from "./UpdateDetailModal";
-import { Sparkles, X, ArrowRight, BellRing } from "lucide-react";
+import { X, ArrowRight, BellRing } from "lucide-react";
 
 export const UpdateNotifier: React.FC = () => {
   const { latestUpdate, dismissUpdate } = useUniversityUpdates();

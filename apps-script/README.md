@@ -37,17 +37,58 @@ status poll করে confirm করে।
 3. `testConnection()` → Supabase ও Gemini দুটোতেই HTTP 200 আশা করো।
 4. `setupTriggers()` → ৪x daily research + ৬ ঘণ্টায় notice-board check + digest।
 5. **Deploy → New deployment → Web app** → *Execute as: Me*, *Who has access: Anyone* → Deploy → URL copy।
-6. ওই URL `src/components/admin/UpdateQueueTab.tsx`-এর `RESEARCH_WEBHOOK_URL`-এ বসাও (আর `WEBHOOK_KEY`
-   = `WEBHOOK_SECRET`)।
-7. Supabase SQL Editor-এ migrations run করো (নিচে দেখো)।
+6. ⚠️ **`WEBHOOK_SECRET` rotate করো** (পুরনো value git history-তে পড়ে আছে) → `saveSecrets()` চালিয়ে
+   Script Properties-এ নতুন random secret বসাও।
+7. URL + key **`.env.local`-এ** (gitignored) বসাও — source file-এ আর কোনোদিন বসাবে না:
+   ```bash
+   VITE_RESEARCH_WEBHOOK_URL=https://script.google.com/macros/s/...../exec
+   VITE_WEBHOOK_KEY=<নতুন WEBHOOK_SECRET>
+   ```
+   Vercel-এ deploy করলে Project → Settings → Environment Variables-এ এই দুটো var-ও add করো
+   (নাহলে production build-এ webhook চালু হবে না)।
+8. Supabase SQL Editor-এ migrations run করো (নিচের "Bootstrap order" দেখো)।
+9. AI extract এখন Edge Function দিয়ে (key client-এ নেই):
+   ```bash
+   supabase functions deploy extract-with-gemini
+   supabase secrets set GEMINI_API_KEY=<আগের Gemini key>
+   ```
+   Function deploy না হওয়া পর্যন্ত Admin → "১-ক্লিক AI এক্সট্রাক্টর" নিজে থেকেই
+   local regex fallback extractor-এ কাজ করবে (feature ভাঙবে না)।
 
-## Database যেগুলো লাগে (repo-র migrations)
+## Bootstrap order (গুরুত্বপূর্ণ)
+
+Fresh DB বানাতে হলে ঠিক এই order-এ run করো (Supabase SQL Editor):
+
+1. `supabase/schema.sql` — সব table + base function/trigger/policy
+2. `supabase/migrations/20260927_restore_schema.sql` — v10 feature + RLS
+3. `supabase/migrations/20260928_notice_board_and_scrape_logs.sql` — notice board + run logs
+4. `supabase/migrations/20260928_fix_blockers.sql` — **সবসময় শেষে** (blocker + security fix)
+
+**Migrations কখনো out-of-order run করবে না** — পরেরটা আগেরটার তৈরি করা object-এর উপর নির্ভর করে
+(যেমন `check_referral_code()`/`validate_and_set_payment_amount()` আগের migration-ই বানায়)।
+সবগুলো idempotent, তাই আগেরগুলো re-run করা নিরাপদ।
+
+প্রতিটা migration কী যোগ করে:
 
 - `supabase/migrations/20260927_restore_schema.sql` — `university_updates`, `user_contributions`, `app_feedback`,
   `source_weights`, `university_overrides`, `user_events`, `app_settings` columns, `update_source_weight()`,
   `admin_process_payment()`, RLS + realtime publication।
 - `supabase/migrations/20260928_notice_board_and_scrape_logs.sql` — `notice_board_snapshots`, `ai_scrape_logs`
-  (v10-এর notice detection + logging এখানে লেখে)।
+  (v10-এর notice detection + logging)।
+- `supabase/migrations/20260928_fix_blockers.sql` — `profiles.email` column, `check_referral_code()` return type,
+  self-update privilege-escalation বন্ধ, `profiles_select_all` সীমিত, `update_source_weight()` admin guard,
+  `free_until` payment logic, `referred_by` overwrite বন্ধ।
+
+## Security notes (গুরুত্বপূর্ণ)
+
+- Apps Script-এর `GEMINI_API_KEY` / `SUPABASE_SERVICE_KEY` server-side ✅ — client-এ যায় না।
+- **Browser-এ Gemini key নেই** — `ManualUpdateForm` / `AIExtractButton` এখন
+  `supabase/functions/extract-with-gemini` proxy-তে call করে (key = Edge Function secret,
+  admin-only: caller-এর JWT দিয়ে role verify হয়)।
+- `VITE_WEBHOOK_KEY` এখন env-এ (`VITE_` prefix মানেই client bundle-এ যায়) — এটা শুধু webhook
+  *trigger* করতে পারে; abuse ঠেকাতে চাইলে এটাও Edge Function proxy-তে সরাও।
+- **Compromised secret git history-তে থাকে** — `WEBHOOK_SECRET` + Gemini key rotate করে
+  সব জায়গায় (`.env.local`, Vercel env, Apps Script Script Properties, Supabase secrets) নতুন value বসাও।
 
 ## Verification checklist
 
@@ -58,11 +99,3 @@ status poll করে confirm করে।
 4. **Feedback popup** — localStorage-এর `feedback_popup_last_shown` মুছে reload → popup; submit → `app_feedback` row।
    Admin → Settings → "মতামত/ফিডব্যাক পপআপ" switch OFF করলে আর দেখাবে না।
 5. **Notice board** — দুইবার `checkNoticeBoards` চালাও; দ্বিতীয়বার hash বদলালে Telegram alert + নতুন snapshot row।
-
-## Security notes (গুরুত্বপূর্ণ)
-
-- Apps Script-এর `GEMINI_API_KEY` / `SUPABASE_SERVICE_KEY` server-side থাকে ✅ — client-এ যায় না।
-- কিন্তু `WEBHOOK_SECRET` client bundle-এ আছে (যে কেউ দেখতে পারে) — এটা দিয়ে শুধু webhook trigger করা যায়,
-  তাই কম ঝুঁকি; তবু ভবিষ্যতে rate-limit/quota abuse ঠেকাতে Supabase Edge Function proxy-তে সরানো ভালো।
-- `src/components/admin/ManualUpdateForm.tsx` এখনো ব্রাউজারে `import.meta.env.VITE_GEMINI_API_KEY` পড়ে —
-  এই ফাইলের "GEMINI key শুধু Apps Script-এ" নীতির সাথে সাংঘর্ষিক; decision দরকার (proxy তে সরাও বা key যোগ করো)।

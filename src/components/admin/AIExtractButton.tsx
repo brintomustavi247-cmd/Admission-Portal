@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { supabase } from "../../lib/supabase";
 import { Sparkles, Loader2 } from "lucide-react";
 
 interface Props {
@@ -15,84 +16,41 @@ export const AIExtractButton: React.FC<Props> = ({ onExtracted }) => {
       return;
     }
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      alert("VITE_GEMINI_API_KEY paoya jayni! Vercel ba .env.local check koro.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const prompt = `You are an expert Bangladeshi University admission circular analyzer. Extract admission details from the following news or circular text/url:
-"${inputUrlOrText}"
-
-Return ONLY a pure valid JSON object in this exact structure without markdown backticks:
-{
-  "university_name": "University Name in Bangla (e.g. জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)",
-  "title": "Short title in Bangla (e.g. জাবি ভর্তি পরীক্ষা শুরু ১৭ জানুয়ারি)",
-  "update_type": "admission_circular",
-  "extracted_data": {
-    "exam_date": "Exam date in Bangla (e.g. ১৭ জানুয়ারি)",
-    "application_start": "",
-    "application_end": "",
-    "fees": "",
-    "highlights": []
-  },
-  "source_urls": ["${inputUrlOrText.startsWith("http") ? inputUrlOrText : ""}"]
-}`;
-
-      const requestPayload = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.1,
-        },
-      };
-
-      const headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey.trim(),
-      };
-
-      // Try with gemini-2.5-flash
-      let res = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify(requestPayload),
-        }
+      /* SECURITY: Gemini key আর ব্রাউজারে নেই (আগে VITE_GEMINI_API_KEY bundle-এ যেত)।
+         Supabase Edge Function proxy:
+           deploy → supabase functions deploy extract-with-gemini
+           secret → supabase secrets set GEMINI_API_KEY=... */
+      const { data: json, error } = await supabase.functions.invoke(
+        "extract-with-gemini",
+        { body: { text: inputUrlOrText } },
       );
 
-      // Fallback to gemini-1.5-flash
-      if (!res.ok) {
-        res = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-          {
-            method: "POST",
-            headers,
-            body: JSON.stringify(requestPayload),
-          }
+      if (error) {
+        throw new Error(
+          error.message ||
+            "Edge Function call fail — deploy করা আছে কিনা + GEMINI_API_KEY secret check koro",
         );
       }
+      if (json?.error) throw new Error(String(json.error));
 
-      const json = await res.json();
-
-      if (!res.ok || json.error) {
-        throw new Error(json.error?.message || "Google Gemini API error occurred");
-      }
-
-      let rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      let rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!rawText) {
         throw new Error("AI kono data extract korte pareni.");
       }
 
-      rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+      rawText = String(rawText)
+        .replace(/```json/gi, "")
+        .replace(/```/g, "")
+        .trim();
       const parsed = JSON.parse(rawText);
 
       onExtracted(parsed);
-      alert("✅ AI safolbhabe data extract koreche! Nicher form check kore 'Queue for Review'-te chapo.");
+      alert(
+        "✅ AI safolbhabe data extract koreche! Nicher form check kore 'Queue for Review'-te chapo.",
+      );
     } catch (err: any) {
       console.error("AI Extraction Error:", err);
       alert("AI Extraction Error:\n" + (err.message || err));

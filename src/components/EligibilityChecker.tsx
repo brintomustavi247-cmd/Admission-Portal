@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import {
   GraduationCap,
-  CheckCircle2,
   AlertCircle,
   RotateCcw,
-  Sliders,
-  ChevronDown,
   Award,
   BookOpen,
   Check,
-  Building2,
-  ExternalLink,
   ChevronRight,
-  Filter,
-  Sparkles,
   Atom,
   FlaskConical,
   Calculator,
@@ -67,8 +59,6 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({
   universities,
   isSecondTimer: initialSecondTimer,
   onFilterEvaluations,
-  activeOnlyEligible,
-  forceOpen,
   onSelectUniversity,
 }) => {
   /* Raw string inputs (leading-zero bug fix) + derived numbers for logic */

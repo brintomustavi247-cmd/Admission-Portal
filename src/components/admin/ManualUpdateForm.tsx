@@ -68,56 +68,37 @@ export const ManualUpdateForm: React.FC<Props> = ({ onSuccess }) => {
     }
 
     setExtracting(true);
-    const apiKey = (import.meta.env.VITE_GEMINI_API_KEY || "").trim();
 
     let extracted = null;
 
-    if (apiKey) {
-      const prompt = `Extract admission circular details from: "${inputUrlOrText}". Return pure JSON only: {"university_name":"","title":"","exam_date":"","fees":""}`;
-      const models = [
-        "gemini-3.8-flash",
-        "gemini-3.5-flash-lite",
-        "gemini-2.5-flash",
-      ];
+    /* SECURITY: Gemini key আর ব্রাউজারে নেই — Supabase Edge Function proxy
+       (supabase/functions/extract-with-gemini) server-side key দিয়ে call করে।
+       Function deploy করা না থাকলে নিচের local fail-safe extractor-ই চলবে। */
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "extract-with-gemini",
+        { body: { text: inputUrlOrText } },
+      );
+      if (error) throw error;
 
-      for (const m of models) {
-        try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-goog-api-key": apiKey,
-              },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { responseMimeType: "application/json" },
-              }),
-            },
-          );
-          if (!res.ok) continue;
-          const data = await res.json();
-          let raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (raw) {
-            raw = raw
-              .replace(/```json/gi, "")
-              .replace(/```/g, "")
-              .trim();
-            const parsed = JSON.parse(raw);
-            extracted = {
-              uni: parsed.university_name || "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়",
-              ttl: parsed.title || "ভর্তি সংক্রান্ত জরুরি বিজ্ঞপ্তি",
-              date: parsed.exam_date || "",
-              fee: parsed.fees || "",
-              url: inputUrlOrText.startsWith("http") ? inputUrlOrText : "",
-            };
-            break;
-          }
-        } catch {
-          continue;
-        }
+      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (raw) {
+        const parsed = JSON.parse(
+          String(raw)
+            .replace(/```json/gi, "")
+            .replace(/```/g, "")
+            .trim(),
+        );
+        extracted = {
+          uni: parsed.university_name || "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়",
+          ttl: parsed.title || "ভর্তি সংক্রান্ত জরুরি বিজ্ঞপ্তি",
+          date: parsed.exam_date || parsed.extracted_data?.exam_date || "",
+          fee: parsed.fees || parsed.extracted_data?.fees || "",
+          url: inputUrlOrText.startsWith("http") ? inputUrlOrText : "",
+        };
       }
+    } catch (e) {
+      console.warn("AI extract (edge function) failed — local fallback:", e);
     }
 
     // Direct Local Fail-safe fallback
@@ -148,7 +129,7 @@ export const ManualUpdateForm: React.FC<Props> = ({ onSuccess }) => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("university_updates")
         .insert([
           {

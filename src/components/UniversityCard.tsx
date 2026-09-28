@@ -7,16 +7,11 @@ import {
   ChevronRight,
   Check,
   AlertTriangle,
-  GraduationCap,
   Zap,
 } from "lucide-react";
 import { University, EligibilityEvaluation } from "../types/admission";
 import { UrgencyBadge } from "./UrgencyBadge";
-import {
-  toBanglaNum,
-  formatBanglaDate,
-  formatBanglaGpa,
-} from "../lib/banglaUtils";
+import { formatBanglaDate, formatBanglaGpa } from "../lib/banglaUtils";
 
 interface UniversityCardProps {
   university: University & {

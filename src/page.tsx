@@ -85,9 +85,7 @@ function readRoute(): {
   return { view: "home", overlay: null, uniId: "" };
 }
 
-export default function AdmissionDashboard({
-  onOpenAdmin,
-}: { onOpenAdmin?: () => void } = {}) {
+export default function AdmissionDashboard() {
   const { profile } = useAuth();
   const newsUid = profile?.id || "guest";
   const [newsUnread, setNewsUnread] = useState(0);

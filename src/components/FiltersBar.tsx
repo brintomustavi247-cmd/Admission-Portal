@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Filter, Clock, GraduationCap, X } from 'lucide-react';
+import { Search, Clock, GraduationCap, X } from 'lucide-react';
 import { TimeFilterOption, CategoryFilterOption } from '../types/admission';
 import { toBanglaNum } from '../lib/banglaUtils';
 

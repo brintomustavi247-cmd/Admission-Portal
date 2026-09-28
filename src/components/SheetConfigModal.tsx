@@ -9,7 +9,6 @@ import {
   Link,
   Code2,
   Database,
-  ExternalLink,
 } from 'lucide-react';
 import { runSheetFetcherUnitTests } from '../lib/sheetFetcher';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -32,7 +31,6 @@ export const SheetConfigModal: React.FC<SheetConfigModalProps> = ({
   onClose,
   currentSheetId,
   isLive,
-  source,
   lastUpdated,
   errorMessage,
   onApplySheetUrl,
