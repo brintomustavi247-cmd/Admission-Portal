@@ -50,7 +50,6 @@ import {
   Calendar as CalendarIcon,
   TrendingUp,
   Clock,
-  Sparkles,
   Zap,
 } from "lucide-react";
 
@@ -729,8 +728,8 @@ const HeroMetricsBanner: React.FC<{
 
       <div className="relative">
         <div className="flex items-center gap-2 flex-wrap mb-3">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-sky-200 text-[10px] font-black border border-white/15 tracking-wide uppercase">
-            <Sparkles className="w-3 h-3" /> Admission 2026–27
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/10 text-sky-200 text-[10px] font-black border border-white/15 tracking-wide uppercase">
+            Admission 2026–27
           </span>
           {liveHeadline && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-[10px] font-black border border-emerald-400/25">
