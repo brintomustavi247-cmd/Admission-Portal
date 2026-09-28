@@ -51,8 +51,6 @@ interface Payment {
   profiles?: { full_name: string | null; phone: string | null } | null;
 }
 
-const SESSION_END = "2027-12-31T23:59:59.000Z";
-
 const Switch: React.FC<{ on: boolean; onChange: () => void }> = ({
   on,
   onChange,
@@ -194,46 +192,12 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   };
 
   const decidePayment = async (p: Payment, approve: boolean) => {
-    if (approve) {
-      if (p.plan === "season") {
-        await supabase
-          .from("profiles")
-          .update({ is_premium: true, premium_expires_at: SESSION_END })
-          .eq("id", p.user_id);
-      }
-      if (p.plan === "donation") {
-        const { data: u } = await supabase
-          .from("profiles")
-          .select("total_donated")
-          .eq("id", p.user_id)
-          .single();
-        await supabase
-          .from("profiles")
-          .update({ total_donated: (u?.total_donated || 0) + p.amount })
-          .eq("id", p.user_id);
-      }
-      if (p.referral_code) {
-        const { data: owner } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("referral_code", p.referral_code.toUpperCase())
-          .single();
-        if (owner && owner.id !== p.user_id) {
-          await supabase
-            .from("profiles")
-            .update({ discount_unlocked: true })
-            .eq("id", owner.id);
-          await supabase
-            .from("profiles")
-            .update({ referred_by: owner.id })
-            .eq("id", p.user_id);
-        }
-      }
-    }
-    const { error } = await supabase
-      .from("payment_requests")
-      .update({ status: approve ? "approved" : "rejected" })
-      .eq("id", p.id);
+    /* ✅ ATOMIC: row-lock + status check + profile update সব একসাথে DB-তে (RPC)
+       ২বার দ্রুত click করলেও double-count হবে না — ২য় call 'already decided' throw করবে */
+    const { error } = await supabase.rpc("admin_process_payment", {
+      p_payment_id: p.id,
+      p_approve: approve,
+    });
     if (error) alert("❌ Payment update failed: " + error.message);
     load();
   };
