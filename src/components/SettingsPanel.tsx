@@ -24,7 +24,8 @@ import {
   MessageSquareHeart,
   Phone,
   HelpCircle,
-  Sparkles,
+  SlidersHorizontal,
+  Award,
 } from "lucide-react";
 
 const BKASH_NUMBER = "01XXXXXXXXX";
@@ -170,7 +171,7 @@ const PremiumCard = ({
         <div className="relative z-10 flex items-start justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-cyan-950/80 border border-cyan-400/40 flex items-center justify-center shadow-inner">
-              <span className="text-cyan-400 text-xs font-black">✦</span>
+              <Crown className="w-4 h-4 text-cyan-400" />
             </div>
             <div>
               <span className="text-xs font-mono font-bold tracking-widest text-slate-100 uppercase block leading-none">
@@ -310,7 +311,7 @@ const DonorCard = ({
         />
         <div className="relative z-10 flex items-start justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-white/90" />
+            <Award className="w-4 h-4 text-white/90" />
             <div>
               <span className="text-xs font-mono font-bold tracking-wider text-white uppercase block leading-none">
                 ADMISSION
@@ -702,20 +703,20 @@ export const SettingsPanel: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-[70] flex justify-end">
-      {/* Ultra-luxe Matte Dim Backdrop */}
+      {/* Matte Backdrop */}
       <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       {/* Main Drawer */}
-      <div className="relative w-full max-w-md bg-[#090d14]/95 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col h-full z-10 text-slate-200">
+      <div className="relative w-full max-w-md bg-[#080b11] border-l border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.95)] flex flex-col h-full z-10 text-slate-200">
         {/* Header Bar */}
-        <div className="relative px-6 py-4.5 border-b border-white/10 bg-gradient-to-r from-cyan-950/30 via-[#0f1523] to-indigo-950/30">
+        <div className="relative px-6 py-4.5 border-b border-white/10 bg-[#0c1017]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)]">
-                <Sparkles className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center text-slate-300">
+                <SlidersHorizontal className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-sm font-black tracking-wider text-white uppercase font-mono">
@@ -739,10 +740,9 @@ export const SettingsPanel: React.FC<Props> = ({
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* ===== 1. USER PROFILE CARD ===== */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#0b0f19] border border-cyan-500/20 p-4 shadow-xl">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="relative overflow-hidden rounded-2xl bg-[#0e131d] border border-cyan-500/20 p-4 shadow-xl">
             <div className="flex items-center gap-3.5 mb-3.5 relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-blue-600 text-white font-mono font-bold text-lg flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-blue-600 text-white font-mono font-bold text-lg flex items-center justify-center shadow-lg">
                 {(session?.user.email || "U").charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
@@ -770,7 +770,7 @@ export const SettingsPanel: React.FC<Props> = ({
             </div>
 
             {profile?.referral_code && (
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#070a10]/80 border border-cyan-500/20 relative z-10">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#06080e] border border-cyan-500/20 relative z-10">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
                     PORTAL ID:
@@ -801,7 +801,7 @@ export const SettingsPanel: React.FC<Props> = ({
 
           {/* ===== 2. REFERRAL & INVITE ACCELERATOR ===== */}
           {profile?.referral_code && (
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#12122b] via-[#0f1523] to-[#0a0d18] border border-indigo-500/30 p-4 shadow-xl">
+            <div className="relative overflow-hidden rounded-2xl bg-[#0e131d] border border-indigo-500/30 p-4 shadow-xl">
               <div className="flex items-center gap-2.5 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center">
                   <Ticket className="w-3.5 h-3.5 text-indigo-400" />
@@ -817,7 +817,7 @@ export const SettingsPanel: React.FC<Props> = ({
               </div>
 
               <div className="flex items-center gap-2 mb-3">
-                <div className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-[#070a10] border border-indigo-500/20 flex items-center gap-2">
+                <div className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-[#06080e] border border-indigo-500/20 flex items-center gap-2">
                   <ExternalLink className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
                   <span className="text-xs font-mono text-slate-300 truncate">
                     {referralLink}
@@ -857,7 +857,7 @@ export const SettingsPanel: React.FC<Props> = ({
           )}
 
           {/* ===== 3. CYAN SKY PASS SHOWCASE ===== */}
-          <div className="rounded-2xl bg-gradient-to-br from-[#071924] via-[#0f172a] to-[#040d14] border border-cyan-500/30 p-4 shadow-xl">
+          <div className="rounded-2xl bg-[#0e131d] border border-cyan-500/30 p-4 shadow-xl">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -911,7 +911,7 @@ export const SettingsPanel: React.FC<Props> = ({
 
           {/* ===== 4. COSMIC DONOR CARD SHOWCASE ===== */}
           {donationOn && (
-            <div className="rounded-2xl bg-gradient-to-br from-[#1a0e28] via-[#0f1523] to-[#0a0714] border border-purple-500/30 p-4 shadow-xl">
+            <div className="rounded-2xl bg-[#0e131d] border border-purple-500/30 p-4 shadow-xl">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Bot className="w-4 h-4 text-purple-400 shrink-0" />
@@ -990,7 +990,7 @@ export const SettingsPanel: React.FC<Props> = ({
 
           {/* ===== 5. DEVELOPER ENERGY VAULT ===== */}
           {donationOn && (
-            <div className="rounded-2xl bg-gradient-to-br from-[#0c1824] via-[#0f1523] to-[#071018] border border-cyan-500/20 p-4 shadow-xl">
+            <div className="rounded-2xl bg-[#0e131d] border border-cyan-500/20 p-4 shadow-xl">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-xs font-bold text-white tracking-wide">
@@ -1011,7 +1011,7 @@ export const SettingsPanel: React.FC<Props> = ({
                     className={`py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer border ${
                       tip === v
                         ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-                        : "bg-[#070a10] text-slate-400 border-white/10 hover:border-cyan-500/40 hover:text-white"
+                        : "bg-[#06080e] text-slate-400 border-white/10 hover:border-cyan-500/40 hover:text-white"
                     }`}
                   >
                     ৳{v}
@@ -1019,7 +1019,7 @@ export const SettingsPanel: React.FC<Props> = ({
                 ))}
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#070a10] border border-pink-500/20 mb-2.5">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#06080e] border border-pink-500/20 mb-2.5">
                 <span className="text-[10px] font-mono text-slate-400">
                   bKash (Send Money):
                 </span>
@@ -1041,7 +1041,7 @@ export const SettingsPanel: React.FC<Props> = ({
                   value={tipTrx}
                   onChange={(e) => setTipTrx(e.target.value)}
                   placeholder="TrxID টাইপ করুন"
-                  className="flex-1 bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors"
+                  className="flex-1 bg-[#06080e] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors"
                 />
                 <button
                   onClick={sendTip}
@@ -1062,7 +1062,7 @@ export const SettingsPanel: React.FC<Props> = ({
 
           {/* ===== 6. COMMUNITY INSIGHTS ===== */}
           {contribOn && (
-            <div className="rounded-2xl bg-gradient-to-br from-[#062419] via-[#0f1523] to-[#04140e] border border-emerald-500/30 p-4 shadow-xl">
+            <div className="rounded-2xl bg-[#0e131d] border border-emerald-500/30 p-4 shadow-xl">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center">
                   <Users className="w-3.5 h-3.5 text-emerald-400" />
@@ -1082,12 +1082,12 @@ export const SettingsPanel: React.FC<Props> = ({
                   value={contribName}
                   onChange={(e) => setContribName(e.target.value)}
                   placeholder="আপনার নাম (ঐচ্ছিক)"
-                  className="w-full bg-[#070a10] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400 transition-colors"
+                  className="w-full bg-[#06080e] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400 transition-colors"
                 />
                 <select
                   value={contribUni}
                   onChange={(e) => setContribUni(e.target.value)}
-                  className="w-full bg-[#070a10] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400 transition-colors"
+                  className="w-full bg-[#06080e] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400 transition-colors"
                 >
                   <option value="">— বিশ্ববিদ্যালয় বাছুন —</option>
                   {initialUniversitiesData.map((u) => (
@@ -1105,13 +1105,13 @@ export const SettingsPanel: React.FC<Props> = ({
                   onChange={(e) => setContribInfo(e.target.value)}
                   rows={2}
                   placeholder="সঠিক তথ্যের সারসংক্ষেপ..."
-                  className="w-full bg-[#070a10] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none resize-none focus:border-emerald-400 transition-colors"
+                  className="w-full bg-[#06080e] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none resize-none focus:border-emerald-400 transition-colors"
                 />
                 <input
                   value={contribUrl}
                   onChange={(e) => setContribUrl(e.target.value)}
                   placeholder="অফিসিয়াল সার্কুলার লিংক (https://...)"
-                  className="w-full bg-[#070a10] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400 transition-colors font-mono"
+                  className="w-full bg-[#06080e] border border-emerald-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400 transition-colors font-mono"
                 />
                 <button
                   onClick={submitContribution}
@@ -1143,7 +1143,7 @@ export const SettingsPanel: React.FC<Props> = ({
           )}
 
           {/* ===== 8. DIRECT EXECUTIVE LINE ===== */}
-          <div className="rounded-2xl bg-gradient-to-br from-[#0c1f2e] via-[#0f1523] to-[#081520] border border-sky-500/30 p-4 shadow-xl">
+          <div className="rounded-2xl bg-[#0e131d] border border-sky-500/30 p-4 shadow-xl">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/40 flex items-center justify-center">
                 <HelpCircle className="w-3.5 h-3.5 text-sky-400" />
@@ -1180,8 +1180,8 @@ export const SettingsPanel: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* ===== 9. DIRECT FEEDBACK (FULLY FIXED) ===== */}
-          <div className="rounded-2xl bg-gradient-to-br from-[#240d18] via-[#150a18] to-[#0e0610] border border-rose-500/30 p-4 shadow-xl">
+          {/* ===== 9. DIRECT FEEDBACK ===== */}
+          <div className="rounded-2xl bg-[#0e131d] border border-rose-500/30 p-4 shadow-xl">
             <div className="flex items-center gap-2.5 mb-3">
               <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-400/40 flex items-center justify-center">
                 <MessageSquareHeart className="w-3.5 h-3.5 text-rose-400" />
@@ -1210,13 +1210,13 @@ export const SettingsPanel: React.FC<Props> = ({
                   }}
                   rows={2}
                   placeholder="আপনার মতামত বা সমস্যা লিখুন..."
-                  className="w-full bg-[#070a10] border border-rose-500/30 focus:border-rose-400 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none resize-none transition-colors"
+                  className="w-full bg-[#06080e] border border-rose-500/30 focus:border-rose-400 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none resize-none transition-colors"
                 />
                 <input
                   value={feedbackContact}
                   onChange={(e) => setFeedbackContact(e.target.value)}
                   placeholder="ফোন বা ইমেইল (ঐচ্ছিক — উত্তরের জন্য)"
-                  className="w-full bg-[#070a10] border border-rose-500/30 focus:border-rose-400 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none transition-colors"
+                  className="w-full bg-[#06080e] border border-rose-500/30 focus:border-rose-400 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none transition-colors"
                 />
 
                 {feedbackError && (
