@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "motion/react";
 import { User, Users, Check } from "lucide-react";
 import { toBanglaNum } from "../lib/banglaUtils";
 
@@ -19,16 +20,18 @@ export const AttemptToggle: React.FC<AttemptToggleProps> = ({
     {
       val: false,
       Icon: User,
-      label: "১ম বারের পরীক্ষার্থী",
-      count: totalUniversitiesCount, // ✅ ১ম বার = সব বিশ্ববিদ্যালয় (২১)
-      accent: "sky" as const,
+      bn: "১ম বারের পরীক্ষার্থী",
+      en: "1st Timer",
+      count: totalUniversitiesCount,
+      sky: true,
     },
     {
       val: true,
       Icon: Users,
-      label: "২য় বারের পরীক্ষার্থী",
-      count: secondTimerCount, // ✅ ২য় বার সুযোগ আছে এমন (১৪)
-      accent: "emerald" as const,
+      bn: "২য় বারের পরীক্ষার্থী",
+      en: "2nd Timer",
+      count: secondTimerCount,
+      sky: false,
     },
   ];
 
@@ -37,16 +40,16 @@ export const AttemptToggle: React.FC<AttemptToggleProps> = ({
       aria-label="পরীক্ষার সুযোগ"
       className="grid grid-cols-2 gap-2.5 sm:gap-3"
     >
-      {opts.map(({ val, Icon, label, count, accent }) => {
+      {opts.map(({ val, Icon, bn, en, count, sky }) => {
         const active = isSecondTimer === val;
-        const sky = accent === "sky";
         return (
-          <button
+          <motion.button
             key={String(val)}
             type="button"
             aria-pressed={active}
+            whileTap={{ scale: 0.97 }}
             onClick={() => onToggle(val)}
-            className={`relative flex items-center gap-2.5 sm:gap-3 rounded-2xl border-2 px-3 sm:px-4 py-3 sm:py-3.5 transition-all cursor-pointer active:scale-[0.98] ${
+            className={`relative flex flex-col gap-2 rounded-2xl border-2 p-3 sm:p-4 text-left transition-colors cursor-pointer ${
               active
                 ? sky
                   ? "border-sky-400/80 bg-sky-50 dark:bg-sky-950/30"
@@ -54,30 +57,59 @@ export const AttemptToggle: React.FC<AttemptToggleProps> = ({
                 : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#101828] hover:border-slate-300 dark:hover:border-white/25"
             }`}
           >
-            <span
-              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                active
-                  ? sky
-                    ? "bg-sky-500 text-white"
-                    : "bg-emerald-500 text-white"
-                  : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400"
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-            </span>
+            {/* ===== Top row: icon + radio check ===== */}
+            <div className="flex items-start justify-between">
+              <span
+                className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  active
+                    ? sky
+                      ? "bg-sky-500 text-white shadow-md shadow-sky-500/30"
+                      : "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
+                    : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400"
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+              </span>
+              <span
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                  active
+                    ? sky
+                      ? "border-sky-500 bg-sky-500"
+                      : "border-emerald-500 bg-emerald-500"
+                    : "border-slate-300 dark:border-slate-600"
+                }`}
+              >
+                {active && (
+                  <Check className="w-3 h-3 text-white" strokeWidth={4} />
+                )}
+              </span>
+            </div>
 
-            <span
-              className={`flex-1 min-w-0 text-left text-[12px] sm:text-[13px] font-black truncate ${
-                active
-                  ? "text-slate-900 dark:text-white"
-                  : "text-slate-600 dark:text-slate-300"
-              }`}
-            >
-              {label}
-            </span>
+            {/* ===== Labels — full width, কোনো truncate নেই ===== */}
+            <div className="min-w-0">
+              <div
+                className={`text-[12px] sm:text-[13px] font-black leading-snug ${
+                  active
+                    ? "text-slate-900 dark:text-white"
+                    : "text-slate-700 dark:text-slate-200"
+                }`}
+              >
+                {bn}
+              </div>
+              <div
+                className={`text-[10px] font-bold mt-0.5 uppercase tracking-wide ${
+                  sky
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                {en}
+              </div>
+            </div>
 
+            {/* ===== Count pill — full width ===== */}
             <span
-              className={`shrink-0 text-[10px] sm:text-[11px] font-black px-2 py-1 rounded-lg tabular-nums ${
+              className={`inline-flex items-center justify-center gap-1 text-[10px] sm:text-[11px] font-black px-2 py-1.5 rounded-xl tabular-nums ${
                 active
                   ? sky
                     ? "bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300"
@@ -85,19 +117,9 @@ export const AttemptToggle: React.FC<AttemptToggleProps> = ({
                   : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400"
               }`}
             >
-              {toBanglaNum(count)}টি
+              {toBanglaNum(count)}টি বিশ্ববিদ্যালয়
             </span>
-
-            {active && (
-              <span
-                className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-md ${
-                  sky ? "bg-sky-500" : "bg-emerald-500"
-                }`}
-              >
-                <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
-              </span>
-            )}
-          </button>
+          </motion.button>
         );
       })}
     </section>
