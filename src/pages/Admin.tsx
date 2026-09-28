@@ -86,7 +86,10 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const [q, setQ] = useState("");
   const [saved, setSaved] = useState("");
   const [selected, setSelected] = useState<AdminUser | null>(null);
-  const [events, setEvents] = useState<any[]>([]);
+  const [loadedEvents, setLoadedEvents] = useState<{
+    userId: string;
+    rows: any[];
+  } | null>(null);
   const [currentTab, setCurrentTab] = useState<"settings" | "updates">("settings");
 
   const load = useCallback(async () => {
@@ -121,18 +124,29 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   }, [load]);
 
   useEffect(() => {
-    if (!selected) {
-      setEvents([]);
-      return;
-    }
+    const userId = selected?.id;
+    if (!userId) return;
+    let stale = false;
     supabase
       .from("user_events")
       .select("*")
-      .eq("user_id", selected.id)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(40)
-      .then(({ data }) => setEvents(data || []));
+      .then(({ data }) => {
+        if (!stale) setLoadedEvents({ userId, rows: data || [] });
+      });
+    return () => {
+      stale = true;
+    };
   }, [selected?.id]);
+
+  /* শুধু এই moment-এর selected user-এর জন্য loaded events দেখাও —
+     নাহলে (selected নাই / অন্য user switch হয়েছে) derived empty list */
+  const events =
+    loadedEvents && loadedEvents.userId === selected?.id
+      ? loadedEvents.rows
+      : [];
 
   if (!profile || profile.role !== "admin") {
     return (
