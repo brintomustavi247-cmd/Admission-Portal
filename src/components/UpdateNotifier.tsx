@@ -1,216 +1,159 @@
 /**
- * UpdateNotifier v2 — Premium live-update toast
- * ✅ severity-colored gradient ring + glass card + progress bar
- * ✅ spring slide-in, auto-dismiss 14s, modal খুললে pause
- * ✅ mobile-light: কোনো blur orb / heavy shadow নেই
+ * UpdateNotifier v3 — "BREAKING NEWS STRIP"
+ * ✅ Top-center slim horizontal bar (TV breaking-news style)
+ * ✅ Severity rail (লাল/হলুদ/নীল) + ping dot + auto-hide progress line
+ * ✅ Tap strip বা "দেখুন" → detail modal; modal বন্ধ হলে seen mark
+ * ✅ Mobile-light: কোনো blur orb নেই, শুধু ১টা backdrop-blur bar
  */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { supabase } from "../lib/supabase";
-import { useAuth } from "../contexts/AuthContext";
-import { getSeen, markSeen } from "../lib/newsSeen";
-import { formatBanglaDate } from "../lib/banglaUtils";
+import { useUniversityUpdates } from "../hooks/useUniversityUpdates";
 import { UpdateDetailModal } from "./UpdateDetailModal";
+import { formatBanglaDate } from "../lib/banglaUtils";
 import {
   AlertTriangle,
-  ArrowRight,
+  ArrowUpRight,
   BellRing,
   CalendarDays,
   X,
   Zap,
 } from "lucide-react";
 
-const SHOW_MS = 14000;
+const SHOW_MS = 12000;
 
-const SEV = {
+const SEV: Record<
+  string,
+  { rail: string; chip: string; icon: React.ReactNode; label: string }
+> = {
   urgent: {
-    ring: "from-rose-500 via-red-500 to-orange-500",
-    chip: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+    rail: "from-rose-500 to-orange-500",
+    chip: "bg-rose-500/20 text-rose-300",
     icon: <Zap className="w-4 h-4" />,
-    label: "জরুরি আপডেট",
+    label: "ব্রেকিং",
   },
   important: {
-    ring: "from-amber-400 via-orange-400 to-yellow-400",
-    chip: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    rail: "from-amber-400 to-yellow-500",
+    chip: "bg-amber-500/20 text-amber-300",
     icon: <AlertTriangle className="w-4 h-4" />,
     label: "গুরুত্বপূর্ণ",
   },
   normal: {
-    ring: "from-sky-500 via-blue-500 to-indigo-500",
-    chip: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+    rail: "from-sky-500 to-indigo-500",
+    chip: "bg-sky-500/20 text-sky-300",
     icon: <BellRing className="w-4 h-4" />,
-    label: "নতুন তথ্য",
+    label: "নতুন",
   },
-} as const;
-type SevKey = keyof typeof SEV;
+};
 
 export const UpdateNotifier: React.FC = () => {
-  const { profile } = useAuth();
-  const uid = profile?.id || "guest";
-  const [all, setAll] = useState<any[]>([]);
-  const [seenTick, setSeenTick] = useState(0);
-  const [hiddenId, setHiddenId] = useState<string | null>(null);
+  const { latestUpdate, dismissUpdate } = useUniversityUpdates();
   const [modalOpen, setModalOpen] = useState(false);
 
-  /* live fetch + realtime INSERT subscribe */
+  /* auto-hide (modal খোলা থাকলে pause) */
   useEffect(() => {
-    let alive = true;
-    const load = () =>
-      supabase
-        .from("university_updates")
-        .select("*")
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(20)
-        .then(({ data }) => {
-          if (alive && data) setAll(data);
-        });
-    load();
-    const ch = supabase
-      .channel("notifier_live")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "university_updates" },
-        () => load(),
-      )
-      .subscribe();
-    return () => {
-      alive = false;
-      supabase.removeChannel(ch);
-    };
-  }, []);
-
-  /* সর্বশেষ UNSEEN update টাই toast হবে */
-  const latest = useMemo(() => {
-    const seen = new Set(getSeen(uid, "updates"));
-    return all.find((n) => !seen.has(n.id)) || null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [all, uid, seenTick]);
-
-  const show = latest && latest.id !== hiddenId ? latest : null;
-
-  const dismiss = useCallback(
-    (id: string) => {
-      markSeen(uid, "updates", [id]);
-      setHiddenId(id);
-      setSeenTick((t) => t + 1);
-    },
-    [uid],
-  );
-
-  /* auto-dismiss (modal খোলা থাকলে pause) */
-  useEffect(() => {
-    if (!show || modalOpen) return;
-    const t = setTimeout(() => dismiss(show.id), SHOW_MS);
+    if (!latestUpdate || modalOpen) return;
+    const t = setTimeout(() => dismissUpdate(latestUpdate.id), SHOW_MS);
     return () => clearTimeout(t);
-  }, [show, modalOpen, dismiss]);
+  }, [latestUpdate, modalOpen, dismissUpdate]);
 
-  const sevKey: SevKey =
-    show?.severity === "urgent" || show?.severity === "important"
-      ? show.severity
-      : "normal";
-  const sev = SEV[sevKey];
+  if (!latestUpdate) return null;
+
+  const sev = SEV[latestUpdate.severity] || SEV.normal;
+  const examDate = latestUpdate.extracted_data?.exam_date;
+
+  const closeDetail = () => {
+    setModalOpen(false);
+    dismissUpdate(latestUpdate.id);
+  };
 
   return (
     <>
       <AnimatePresence>
-        {show && (
+        {!modalOpen && (
           <motion.div
-            key={show.id}
-            initial={{ opacity: 0, y: -24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -16, scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            className="fixed top-3 left-3 right-3 sm:left-auto sm:right-5 sm:w-[400px] z-[95]"
+            key={latestUpdate.id}
+            initial={{ y: -90, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -90, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 340, damping: 30 }}
+            className="fixed top-2 left-2 right-2 sm:left-1/2 sm:-translate-x-1/2 sm:w-[560px] z-[95]"
           >
-            {/* gradient ring border */}
-            <div
-              className={`rounded-2xl p-[1.5px] bg-gradient-to-r ${sev.ring} shadow-2xl shadow-black/50`}
-            >
-              <div className="relative rounded-[15px] bg-[#0c1220]/95 backdrop-blur-xl overflow-hidden">
-                {/* auto-dismiss progress bar */}
-                {!modalOpen && (
-                  <motion.div
-                    className={`absolute top-0 left-0 h-0.5 bg-gradient-to-r ${sev.ring}`}
-                    initial={{ width: "100%" }}
-                    animate={{ width: "0%" }}
-                    transition={{ duration: SHOW_MS / 1000, ease: "linear" }}
-                  />
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl shadow-black/60">
+              {/* severity rail (বাঁয়ে) */}
+              <div
+                className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${sev.rail}`}
+              />
+
+              <div className="flex items-center gap-2.5 pl-4 pr-2 py-2.5">
+                {/* icon + ping */}
+                <div
+                  className={`relative w-9 h-9 rounded-xl bg-gradient-to-br ${sev.rail} flex items-center justify-center text-white shrink-0 shadow-lg`}
+                >
+                  {sev.icon}
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white animate-ping" />
+                </div>
+
+                {/* headline (tap = detail) */}
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(true)}
+                  className="flex-1 min-w-0 text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${sev.chip}`}
+                    >
+                      {sev.label}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 truncate">
+                      {latestUpdate.university_name}
+                    </span>
+                  </div>
+                  <p className="text-[12px] font-black text-white truncate mt-0.5">
+                    {latestUpdate.title}
+                  </p>
+                </button>
+
+                {/* date chip (desktop) */}
+                {examDate && (
+                  <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2 py-1 rounded-lg shrink-0">
+                    <CalendarDays className="w-3 h-3" />
+                    {formatBanglaDate(examDate)}
+                  </span>
                 )}
 
-                <div className="p-3.5 sm:p-4">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-xl bg-gradient-to-br ${sev.ring} flex items-center justify-center text-white shrink-0 shadow-lg`}
-                    >
-                      {sev.icon}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                        <span
-                          className={`text-[9px] font-black px-2 py-0.5 rounded-md border ${sev.chip} flex items-center gap-1`}
-                        >
-                          <span className="relative flex h-1.5 w-1.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-70" />
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-current" />
-                          </span>
-                          {sev.label}
-                        </span>
-                        <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-white/5 text-slate-300 border border-white/10 truncate max-w-[55%]">
-                          {show.university_name}
-                        </span>
-                      </div>
-
-                      <p className="text-[12px] sm:text-[13px] font-black text-white leading-snug line-clamp-2">
-                        {show.title}
-                      </p>
-
-                      {show.extracted_data?.exam_date && (
-                        <span className="inline-flex items-center gap-1.5 mt-1.5 text-[10px] font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-lg">
-                          <CalendarDays className="w-3 h-3" />
-                          পরীক্ষা:{" "}
-                          {formatBanglaDate(show.extracted_data.exam_date)}
-                        </span>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={() => dismiss(show.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition shrink-0 cursor-pointer"
-                      title="বন্ধ করো"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        markSeen(uid, "updates", [show.id]);
-                        setSeenTick((t) => t + 1);
-                        setModalOpen(true);
-                      }}
-                      className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-black flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/25 active:scale-95 transition cursor-pointer"
-                    >
-                      বিস্তারিত দেখুন <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => dismiss(show.id)}
-                      className="py-2.5 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-[11px] font-bold transition cursor-pointer"
-                    >
-                      পরে দেখব
-                    </button>
-                  </div>
-                </div>
+                {/* actions */}
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(true)}
+                  className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-white hover:bg-sky-100 text-slate-900 text-[10px] font-black cursor-pointer active:scale-95 transition-all"
+                >
+                  দেখুন <ArrowUpRight className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => dismissUpdate(latestUpdate.id)}
+                  className="shrink-0 p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 cursor-pointer transition-all"
+                  title="বন্ধ করো"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
+
+              {/* auto-hide progress line */}
+              <motion.div
+                className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r ${sev.rail}`}
+                initial={{ width: "100%" }}
+                animate={{ width: "0%" }}
+                transition={{ duration: SHOW_MS / 1000, ease: "linear" }}
+              />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {modalOpen && show && (
-        <UpdateDetailModal update={show} onClose={() => setModalOpen(false)} />
+      {modalOpen && (
+        <UpdateDetailModal update={latestUpdate} onClose={closeDetail} />
       )}
     </>
   );
