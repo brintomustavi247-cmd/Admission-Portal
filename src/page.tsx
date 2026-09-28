@@ -679,10 +679,9 @@ export default function AdmissionDashboard({
    SUB-COMPONENTS (অপরিবর্তিত)
    ============================================================ */
 /* ============================================================
-   HERO BANNER v2 — "Scoreboard" style
-   ✅ No blur-3xl, no backdrop-blur, no heavy shadows
-   ✅ Single thin gradient strip + flat divider stats
-   ✅ 60fps on low-end phones
+   HERO BANNER — PREMIUM RESTORED
+   Look: পুরনো dark glow hero (orbs + gradient cards)
+   Perf: blur-3xl filter-এর বদলে radial-gradient (GPU-cheap)
    ============================================================ */
 const HeroMetricsBanner: React.FC<{
   totalCount: number;
@@ -701,42 +700,48 @@ const HeroMetricsBanner: React.FC<{
 }) => (
   <section
     aria-label="Dashboard Overview"
-    className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#101828] text-slate-900 dark:text-white shadow-sm"
+    className="relative overflow-hidden rounded-3xl text-white shadow-xl shadow-sky-950/25 ring-1 ring-white/10"
   >
-    {/* Thin accent strip (cheap linear-gradient, no blur) */}
-    <div className="h-1.5 w-full bg-gradient-to-r from-sky-500 via-blue-500 to-violet-500" />
+    {/* Glow orbs — radial-gradient দিয়ে (blur filter ছাড়া, তাই mobile-এ fast) */}
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          "radial-gradient(560px 300px at 88% -12%, rgba(56,189,248,0.30), transparent 62%)," +
+          "radial-gradient(480px 280px at -8% 112%, rgba(99,102,241,0.28), transparent 62%)," +
+          "radial-gradient(360px 200px at 55% 45%, rgba(14,165,233,0.10), transparent 70%)," +
+          "linear-gradient(135deg, #0a1120 0%, #0d1a33 45%, #101c3d 72%, #0a1120 100%)",
+      }}
+    />
+    {/* Fine grid texture (premium depth, zero cost) */}
+    <div
+      className="absolute inset-0 opacity-[0.045] pointer-events-none"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+        backgroundSize: "44px 44px",
+      }}
+    />
 
-    {/* Subtle corner watermark (opacity only, no blur) */}
-    <GraduationCap className="absolute -right-8 -bottom-10 w-48 h-48 text-slate-900/[0.04] dark:text-white/[0.04] pointer-events-none hidden sm:block" />
-
-    <div className="relative p-5 sm:p-7">
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-        {/* Left: identity + CTA */}
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-2.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-[10px] font-black border border-sky-200 dark:border-sky-800">
-              <Sparkles className="w-3 h-3" />
-              ভর্তি সেশন ২০২৬–২৭
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-black border border-emerald-200 dark:border-emerald-800">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              লাইভ আপডেট চালু
-            </span>
+    <div className="relative z-10 p-5 sm:p-8 lg:p-10">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="max-w-xl">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/15 text-sky-300 text-[11px] font-bold mb-3 border border-sky-400/30">
+            <Sparkles className="w-3 h-3" />
+            <span>ভর্তি সেশন ২০২৬–২৭ • লাইভ আপডেট</span>
           </div>
-
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
             বিশ্ববিদ্যালয় ভর্তি পোর্টাল
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 leading-relaxed max-w-lg">
+          <p className="text-slate-300 text-sm mt-2 leading-relaxed">
             সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছভুক্ত বিশ্ববিদ্যালয়ের ভর্তি
             পরীক্ষার সময়সূচি, জিপিএ শর্ত ও ২য় বার সুযোগ।
           </p>
-
-          <div className="mt-4 flex items-center gap-2.5 flex-wrap">
+          <div className="mt-5 flex items-center gap-2.5 flex-wrap">
             <button
               type="button"
               onClick={onNavigateToEligibility}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-black transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-400 hover:to-violet-400 active:scale-95 text-slate-950 text-xs font-black shadow-lg shadow-indigo-500/40 transition-all cursor-pointer"
             >
               <Award className="w-4 h-4" />
               <span>যোগ্যতা যাচাই করুন</span>
@@ -744,70 +749,86 @@ const HeroMetricsBanner: React.FC<{
             <button
               type="button"
               onClick={onNavigateToCalendar}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-white/5 active:scale-95 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-bold border border-white/20 transition-all cursor-pointer"
             >
-              <CalendarIcon className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <CalendarIcon className="w-4 h-4 text-sky-300" />
               <span>ক্যালেন্ডার দেখুন</span>
             </button>
           </div>
         </div>
 
-        {/* Right: flat scoreboard (divider-based, zero blur) */}
-        <div className="grid grid-cols-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#0d1424] divide-x divide-slate-200 dark:divide-white/10 overflow-hidden w-full lg:w-auto lg:min-w-[420px]">
-          <StatCell
-            icon={<BookOpen className="w-3.5 h-3.5" />}
+        <div className="grid grid-cols-2 gap-3 lg:w-[380px]">
+          <MetricCard
+            icon={<BookOpen className="w-4 h-4" />}
+            label="মোট প্রতিষ্ঠান"
             value={toBanglaNum(totalCount)}
-            label="প্রতিষ্ঠান"
-            accent="text-sky-600 dark:text-sky-400"
+            color="sky"
           />
-          <StatCell
-            icon={<TrendingUp className="w-3.5 h-3.5" />}
+          <MetricCard
+            icon={<TrendingUp className="w-4 h-4" />}
+            label="২য় বার সুযোগ"
             value={toBanglaNum(secondTimerCount)}
-            label="২য় বার"
-            accent="text-emerald-600 dark:text-emerald-400"
+            color="emerald"
           />
-          <StatCell
-            icon={<Clock className="w-3.5 h-3.5" />}
+          <MetricCard
+            icon={<Clock className="w-4 h-4" />}
+            label="চলমান আবেদন"
             value={toBanglaNum(ongoingCount)}
-            label="চলমান"
-            accent="text-amber-600 dark:text-amber-400"
+            color="amber"
             pulse={ongoingCount > 0}
           />
-          <StatCell
-            icon={<CalendarIcon className="w-3.5 h-3.5" />}
+          <MetricCard
+            icon={<CalendarIcon className="w-4 h-4" />}
+            label="আসন্ন পরীক্ষা"
             value={toBanglaNum(upcomingCount)}
-            label="আসন্ন"
-            accent="text-violet-600 dark:text-violet-400"
+            color="indigo"
           />
         </div>
+      </div>
+
+      <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-[0.07] pointer-events-none hidden lg:flex items-center justify-end pr-10">
+        <GraduationCap className="w-64 h-64 text-sky-400" />
       </div>
     </div>
   </section>
 );
 
-/* Flat stat cell — no gradients, no blur, no shadows */
-const StatCell: React.FC<{
+const MetricCard: React.FC<{
   icon: React.ReactNode;
-  value: string;
   label: string;
-  accent: string;
+  value: string;
+  color: "sky" | "emerald" | "amber" | "indigo";
   pulse?: boolean;
-}> = ({ icon, value, label, accent, pulse }) => (
-  <div className="px-1.5 py-3 sm:px-4 sm:py-4 text-center">
-    <div className={`inline-flex items-center gap-1 ${accent}`}>
-      {icon}
+}> = ({ icon, label, value, color, pulse }) => {
+  const colorClasses = {
+    sky: "from-sky-500/25 to-cyan-500/10 border-sky-400/30 text-sky-200",
+    emerald:
+      "from-emerald-500/25 to-teal-500/10 border-emerald-400/30 text-emerald-200",
+    amber:
+      "from-amber-500/25 to-orange-500/10 border-amber-400/30 text-amber-200",
+    indigo:
+      "from-indigo-500/25 to-purple-500/10 border-indigo-400/30 text-indigo-200",
+  };
+  return (
+    <div
+      className={`relative p-4 rounded-2xl bg-gradient-to-br ${colorClasses[color]} border overflow-hidden`}
+    >
       {pulse && (
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+        <span className="absolute top-2.5 right-2.5 flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
+        </span>
       )}
+      <div className="flex items-center gap-1.5 text-white/70 text-[10px] font-semibold uppercase tracking-wider">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <div className="mt-1.5 text-2xl sm:text-3xl font-black text-white font-number tabular-nums">
+        {value}
+      </div>
     </div>
-    <div className="mt-1 text-xl sm:text-2xl font-black tabular-nums font-number text-slate-900 dark:text-white leading-none">
-      {value}
-    </div>
-    <div className="mt-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
-      {label}
-    </div>
-  </div>
-);
+  );
+};
 
 const EmptyState: React.FC<{ onReset: () => void }> = ({ onReset }) => (
   <motion.div
