@@ -37,58 +37,58 @@ const TIERS = [
     min: 500,
     name: "SUPERNOVA RUBY",
     icon: "🔥",
-    bgGrad: "linear-gradient(135deg, #1f0a12 0%, #2e0d1b 60%, #0d0408 100%)",
-    glow: "rgba(244,63,94,0.3)",
-    accent: "#f43f5e",
-    canvas: ["#1f0a12", "#2e0d1b", "#0d0408"],
-    cGlow: "rgba(244,63,94,0.35)",
-    btn: "linear-gradient(to right, #e11d48, #9f1239)",
+    bgGrad: "linear-gradient(135deg,#240c14 0%,#38101e 60%,#13040a 100%)",
+    glow: "rgba(251,113,133,0.35)",
+    accent: "#fb7185",
+    canvas: ["#240c14", "#38101e", "#13040a"],
+    cGlow: "rgba(251,113,133,0.4)",
+    btn: "linear-gradient(to right,#e11d48,#7f1d1d)",
   },
   {
     min: 100,
     name: "ASTRAL VIOLET",
     icon: "💫",
-    bgGrad: "linear-gradient(135deg, #130d24 0%, #1c1138 60%, #0a0714 100%)",
-    glow: "rgba(139,92,246,0.3)",
-    accent: "#8b5cf6",
-    canvas: ["#130d24", "#1c1138", "#0a0714"],
-    cGlow: "rgba(139,92,246,0.35)",
-    btn: "linear-gradient(to right, #7c3aed, #4c1d95)",
+    bgGrad: "linear-gradient(135deg,#16102e 0%,#201344 60%,#0c081d 100%)",
+    glow: "rgba(129,140,248,0.35)",
+    accent: "#a78bfa",
+    canvas: ["#16102e", "#201344", "#0c081d"],
+    cGlow: "rgba(129,140,248,0.4)",
+    btn: "linear-gradient(to right,#6366f1,#4c1d95)",
   },
   {
     min: 50,
     name: "COSMOS SAPPHIRE",
     icon: "🌊",
-    bgGrad: "linear-gradient(135deg, #081226 0%, #0d1e3d 60%, #050a17 100%)",
-    glow: "rgba(14,165,233,0.3)",
-    accent: "#0ea5e9",
-    canvas: ["#081226", "#0d1e3d", "#050a17"],
-    cGlow: "rgba(14,165,233,0.35)",
-    btn: "linear-gradient(to right, #0284c7, #1e3a8a)",
+    bgGrad: "linear-gradient(135deg,#0b1329 0%,#0d1e44 60%,#070d1f 100%)",
+    glow: "rgba(56,189,248,0.35)",
+    accent: "#38bdf8",
+    canvas: ["#0b1329", "#0d1e44", "#070d1f"],
+    cGlow: "rgba(56,189,248,0.4)",
+    btn: "linear-gradient(to right,#0ea5e9,#1e3a8a)",
   },
   {
     min: 0,
     name: "NEBULA MINT",
     icon: "🌿",
-    bgGrad: "linear-gradient(135deg, #071714 0%, #0c2621 60%, #030d0b 100%)",
-    glow: "rgba(16,185,129,0.25)",
-    accent: "#10b981",
-    canvas: ["#071714", "#0c2621", "#030d0b"],
-    cGlow: "rgba(16,185,129,0.3)",
-    btn: "linear-gradient(to right, #059669, #064e3b)",
+    bgGrad: "linear-gradient(135deg,#091a18 0%,#0c2b27 60%,#031412 100%)",
+    glow: "rgba(52,211,153,0.3)",
+    accent: "#34d399",
+    canvas: ["#091a18", "#0c2b27", "#031412"],
+    cGlow: "rgba(52,211,153,0.4)",
+    btn: "linear-gradient(to right,#10b981,#064e3b)",
   },
 ];
 const tierOf = (v: number) => TIERS.find((t) => v >= t.min) || TIERS[3];
 
 const CYAN = {
   name: "CYAN SKY ELITE",
-  bgGrad: "linear-gradient(135deg, #061924 0%, #0b2536 55%, #02090e 100%)",
-  glow: "rgba(6,182,212,0.25)",
+  bgGrad: "linear-gradient(135deg,#0c2438 0%,#071724 55%,#030910 100%)",
+  glow: "rgba(6,182,212,0.22)",
   accent: "#06b6d4",
   accentSoft: "rgba(6,182,212,0.4)",
-  canvas: ["#061924", "#0b2536", "#02090e"],
-  cGlow: "rgba(6,182,212,0.3)",
-  btn: "linear-gradient(to right, #0891b2, #0e7490)",
+  canvas: ["#0c2438", "#071724", "#030910"],
+  cGlow: "rgba(6,182,212,0.25)",
+  btn: "linear-gradient(to right,#0891b2,#0e7490)",
 };
 
 type Tier = (typeof TIERS)[number];
@@ -116,7 +116,7 @@ interface DonorCardProps {
 const Satin = () => (
   <>
     <div
-      className="absolute inset-0 opacity-[0.03]"
+      className="absolute inset-0 opacity-[0.04]"
       style={{
         backgroundImage:
           "repeating-linear-gradient(115deg,#fff 0 1px,transparent 1px 7px)",
@@ -126,7 +126,7 @@ const Satin = () => (
       className="absolute inset-x-0 top-0 h-1/2"
       style={{
         background:
-          "linear-gradient(180deg,rgba(255,255,255,0.05),transparent)",
+          "linear-gradient(180deg,rgba(255,255,255,0.06),transparent)",
       }}
     />
   </>
@@ -156,24 +156,24 @@ const PremiumCard = ({
     >
       <div
         className={`absolute inset-0 rounded-2xl overflow-hidden p-4 flex flex-col justify-between select-none ${
-          dim ? "opacity-30 blur-[1px]" : ""
+          dim ? "opacity-40 blur-[0.5px]" : ""
         }`}
         style={{
           backfaceVisibility: "hidden",
           WebkitBackfaceVisibility: "hidden",
           background: CYAN.bgGrad,
           boxShadow:
-            "0 25px 50px -12px rgba(0,0,0,0.9), 0 0 25px -5px rgba(6,182,212,0.25), 0 0 0 1px rgba(103,232,249,0.25) inset",
+            "0 20px 40px -15px rgba(0,0,0,0.8), 0 0 0 1px rgba(103,232,249,0.2) inset",
         }}
       >
         <Satin />
         <div className="relative z-10 flex items-start justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-cyan-950/80 border border-cyan-400/40 flex items-center justify-center shadow-inner">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-400/30 flex items-center justify-center">
               <span className="text-cyan-400 text-xs font-black">✦</span>
             </div>
             <div>
-              <span className="text-xs font-mono font-bold tracking-widest text-slate-100 uppercase block leading-none">
+              <span className="text-[11px] font-mono font-bold tracking-wider text-slate-100 uppercase block leading-none">
                 ADMISSION PORTAL
               </span>
               <span className="text-[8px] font-mono tracking-widest text-cyan-400 font-semibold uppercase block mt-1">
@@ -181,8 +181,8 @@ const PremiumCard = ({
               </span>
             </div>
           </div>
-          <div className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-400/30">
-            <span className="text-[8px] font-mono font-bold tracking-wider text-cyan-300 uppercase">
+          <div className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-400/20">
+            <span className="text-[8px] font-mono font-semibold tracking-wider text-cyan-300 uppercase">
               UNLIMITED
             </span>
           </div>
@@ -192,7 +192,7 @@ const PremiumCard = ({
             <span className="text-[8px] font-mono tracking-widest text-slate-400 uppercase block">
               PASS ID
             </span>
-            <div className="font-mono text-xs sm:text-sm tracking-widest text-slate-100 font-bold mt-0.5">
+            <div className="font-mono text-xs sm:text-sm tracking-widest text-slate-100 font-semibold mt-0.5">
               {passId}
             </div>
           </div>
@@ -200,7 +200,7 @@ const PremiumCard = ({
             <span className="text-[8px] font-mono tracking-widest text-slate-400 uppercase block">
               ACCESS
             </span>
-            <div className="font-mono text-xs font-bold text-cyan-400 tracking-wider mt-0.5">
+            <div className="font-mono text-[11px] font-bold text-cyan-400 tracking-wider mt-0.5">
               ALL PRIVILEGES
             </div>
           </div>
@@ -234,13 +234,13 @@ const PremiumCard = ({
           WebkitBackfaceVisibility: "hidden",
           transform: "rotateY(180deg)",
           background:
-            "linear-gradient(135deg,#06131c 0%,#030a0f 55%,#010406 100%)",
+            "linear-gradient(135deg,#091a29 0%,#05111c 55%,#02070c 100%)",
           boxShadow:
-            "0 25px 50px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(103,232,249,0.2) inset",
+            "0 20px 40px -15px rgba(0,0,0,0.8), 0 0 0 1px rgba(103,232,249,0.2) inset",
         }}
       >
         <Satin />
-        <div className="absolute left-0 right-0 top-6 h-8 bg-black/90 border-y border-cyan-500/20" />
+        <div className="absolute left-0 right-0 top-6 h-8 bg-black/80 border-y border-cyan-500/20" />
         <div className="relative z-10 mt-12 flex items-center">
           <div className="flex-1 h-7 rounded bg-slate-900/90 border border-cyan-500/30 flex items-center justify-end px-3">
             <span className="font-mono text-[10px] font-semibold text-cyan-300 tracking-widest">
@@ -251,10 +251,10 @@ const PremiumCard = ({
         <div className="relative z-10 flex items-center justify-between border-t border-cyan-500/20 pt-2">
           <div>
             <span className="text-[7px] font-mono tracking-wider text-slate-400 uppercase block">
-              SECURITY CORE
+              VERIFICATION
             </span>
             <span className="text-[9px] font-mono font-semibold text-slate-300 tracking-wider block mt-0.5">
-              POLISHED CYAN SKY
+              POLISHED CYAN CORE
             </span>
           </div>
           <div className="px-2.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-400/30">
@@ -294,13 +294,14 @@ const DonorCard = ({
     >
       <div
         className={`absolute inset-0 rounded-2xl overflow-hidden p-4 flex flex-col justify-between select-none ${
-          dim ? "opacity-30 blur-[1px]" : ""
+          dim ? "opacity-40 blur-[0.5px]" : ""
         }`}
         style={{
           backfaceVisibility: "hidden",
           WebkitBackfaceVisibility: "hidden",
           background: t.bgGrad,
-          boxShadow: `0 25px 50px -12px rgba(0,0,0,0.9), 0 0 25px -5px ${t.glow}, 0 0 0 1px rgba(255,255,255,0.15) inset`,
+          boxShadow:
+            "0 20px 40px -15px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1) inset",
         }}
       >
         <Satin />
@@ -365,7 +366,7 @@ const DonorCard = ({
           transform: "rotateY(180deg)",
           background: t.bgGrad,
           boxShadow:
-            "0 25px 50px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.15) inset",
+            "0 20px 40px -15px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1) inset",
         }}
       >
         <Satin />
@@ -681,95 +682,89 @@ export const SettingsPanel: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-[70] flex justify-end">
-      {/* Ultra-luxe Matte Dim Backdrop */}
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Main Million-Dollar Matte Drawer */}
-      <div className="relative w-full max-w-md bg-[#090d14]/95 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col h-full z-10 text-slate-200">
-        {/* Luxury Top Header Bar */}
-        <div className="relative px-6 py-5 border-b border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 border border-cyan-400/30 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.25)]">
-                <Sparkles className="w-4 h-4 text-cyan-400" />
-              </div>
-              <div>
-                <h2 className="text-sm font-black tracking-wider text-white uppercase font-mono">
-                  SETTINGS &amp; CORE
-                </h2>
-                <p className="text-[10px] text-slate-400 font-medium">
-                  Executive Preferences
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all cursor-pointer"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
+      {/* Main Drawer */}
+      <div className="relative w-full max-w-md bg-slate-50 dark:bg-[#0c1017] border-l border-slate-200 dark:border-white/10 shadow-2xl flex flex-col h-full z-10">
+        {/* Minimal Clean Header */}
+        <div className="flex items-center justify-between px-6 py-4.5 bg-white dark:bg-[#111722] border-b border-slate-200 dark:border-white/10">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              সেটিংস
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              অ্যাকাউন্ট ও কনফিগারেশন
+            </p>
           </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Scrollable Workspace */}
+        {/* Scrollable Content Body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {/* ===== 1. MATTE OBSIDIAN USER CARD ===== */}
-          <div className="relative overflow-hidden rounded-2xl bg-[#0f1523]/80 border border-white/10 p-4 shadow-xl">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center gap-3.5 mb-3.5 relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 via-slate-800 to-indigo-500/20 border border-white/20 text-white font-mono font-bold text-lg flex items-center justify-center shadow-lg">
+          {/* ===== 1. USER PROFILE CARD ===== */}
+          <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
+            <div className="flex items-center gap-3.5 mb-3.5">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 dark:bg-white/10 text-white font-bold text-lg flex items-center justify-center shrink-0">
                 {(session?.user.email || "U").charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-white truncate font-mono">
+                <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                   {session?.user.email}
                 </div>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-white/10 text-slate-300 border border-white/10">
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10">
                     {profile?.role === "admin" ? "ADMIN" : "USER"}
                   </span>
                   <span
-                    className={`px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold flex items-center gap-1 ${
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-semibold flex items-center gap-1 ${
                       isPremium
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                        : "bg-white/5 text-slate-400 border border-white/10"
+                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                        : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10"
                     }`}
                   >
                     {isPremium && <Crown className="w-2.5 h-2.5" />}
-                    {isPremium ? "PREMIUM VIP" : "FREE MEMBER"}
+                    {isPremium ? "PREMIUM" : "FREE"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Polished User ID Slate */}
+            {/* Minimal User ID Banner */}
             {profile?.referral_code && (
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#070a10] border border-white/10 relative z-10">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-[#0a0d14] border border-slate-200/80 dark:border-white/5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                    PORTAL ID:
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                    User ID:
                   </span>
-                  <span className="font-mono text-xs font-bold text-cyan-300 tracking-widest">
+                  <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 tracking-wider">
                     {profile.referral_code}
                   </span>
                 </div>
                 <button
                   onClick={copyCode}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-medium text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-white/10 border border-transparent hover:border-slate-200 dark:hover:border-white/10 transition-all cursor-pointer"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-cyan-400" />
-                      <span className="text-cyan-400 text-[11px]">COPIED</span>
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-emerald-500 text-[11px]">
+                        কপি হয়েছে
+                      </span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-[11px]">COPY</span>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span className="text-[11px]">কপি</span>
                     </>
                   )}
                 </button>
@@ -777,35 +772,33 @@ export const SettingsPanel: React.FC<Props> = ({
             )}
           </div>
 
-          {/* ===== 2. REFERRAL & INVITE ACCELERATOR ===== */}
+          {/* ===== 2. REFERRAL & INVITE ===== */}
           {profile?.referral_code && (
-            <div className="relative overflow-hidden rounded-2xl bg-[#0f1523]/80 border border-indigo-500/20 p-4 shadow-xl">
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center">
-                  <Ticket className="w-3.5 h-3.5 text-indigo-400" />
-                </div>
+            <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <Ticket className="w-4 h-4 text-indigo-500 shrink-0" />
                 <div>
-                  <h3 className="text-xs font-bold text-white tracking-wide">
-                    রেফারেল লিংক ও শেয়ার
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                    রেফারেল লিংক
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-medium">
-                    বন্ধুদের শেয়ার করুন — বিশেষ ডিসকাউন্ট আনলক করুন
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    বন্ধুদের সাথে শেয়ার করে ডিসকাউন্ট আনলক করুন
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 mb-3">
-                <div className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-[#070a10] border border-white/10 flex items-center gap-2">
-                  <ExternalLink className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                  <span className="text-xs font-mono text-slate-400 truncate">
+                <div className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 flex items-center gap-2">
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="text-xs font-mono text-slate-600 dark:text-slate-400 truncate">
                     {referralLink}
                   </span>
                 </div>
                 <button
                   onClick={copyLink}
-                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-mono font-bold tracking-wider transition-colors cursor-pointer shrink-0 shadow-lg shadow-indigo-600/30"
+                  className="px-3 py-2 rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
                 >
-                  {linkCopied ? "DONE" : "COPY"}
+                  {linkCopied ? "কপিকৃত" : "কপি"}
                 </button>
               </div>
 
@@ -814,7 +807,7 @@ export const SettingsPanel: React.FC<Props> = ({
                   href={`https://wa.me/?text=${shareText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#072418] hover:bg-[#0b3826] text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all shadow-md"
+                  className="flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 text-xs font-semibold hover:bg-emerald-100 transition-colors"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
                   WhatsApp
@@ -825,7 +818,7 @@ export const SettingsPanel: React.FC<Props> = ({
                   )}&text=${shareText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#081a2e] hover:bg-[#0c2a4a] text-sky-400 border border-sky-500/30 text-xs font-bold transition-all shadow-md"
+                  className="flex items-center justify-center gap-2 py-2 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200/60 dark:border-sky-500/20 text-xs font-semibold hover:bg-sky-100 transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
                   Telegram
@@ -834,17 +827,17 @@ export const SettingsPanel: React.FC<Props> = ({
             </div>
           )}
 
-          {/* ===== 3. CYAN SKY PASS SHOWCASE ===== */}
-          <div className="rounded-2xl bg-[#0f1523]/80 border border-cyan-500/20 p-4 shadow-xl">
+          {/* ===== 3. PREMIUM PASS SHOWCASE ===== */}
+          <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Crown className="w-4 h-4 text-cyan-400 shrink-0" />
-                <h3 className="text-xs font-bold text-white tracking-wide">
+                <Crown className="w-4 h-4 text-cyan-500 shrink-0" />
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white">
                   Cyan Sky Pass
                 </h3>
               </div>
-              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-400/30">
-                {isPremium ? "ACTIVE" : "LOCKED"}
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10">
+                {isPremium ? "Active" : "Locked"}
               </span>
             </div>
 
@@ -859,13 +852,13 @@ export const SettingsPanel: React.FC<Props> = ({
                 />
                 <button
                   onClick={() => downloadCard("premium")}
-                  className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-cyan-600/20 transition-all cursor-pointer"
+                  className="w-full mt-3 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" /> DOWNLOAD PASS (PNG)
+                  <Download className="w-3.5 h-3.5" /> কার্ড ডাউনলোড (PNG)
                 </button>
               </>
             ) : (
-              <div className="relative rounded-2xl overflow-hidden border border-white/5">
+              <div className="relative rounded-2xl overflow-hidden">
                 <PremiumCard
                   dim
                   flipped={premiumFlipped}
@@ -874,36 +867,33 @@ export const SettingsPanel: React.FC<Props> = ({
                   name={name}
                   referralCode={profile?.referral_code}
                 />
-                <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
-                  <Lock className="w-5 h-5 text-cyan-400 mb-1.5 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                  <p className="text-xs font-bold text-white">
-                    প্রিমিয়াম পাস অ্যাক্সেস লকড
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
-                    সাবস্ক্রাইব করে ফুল প্রিভিলেজ আনলক করুন
+                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
+                  <Lock className="w-5 h-5 text-slate-300 mb-1.5" />
+                  <p className="text-xs font-semibold text-white">
+                    প্রিমিয়াম সাবস্ক্রিপশনে আনলক হবে
                   </p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* ===== 4. COSMIC DONOR CARD SHOWCASE ===== */}
+          {/* ===== 4. DONOR CARD SHOWCASE ===== */}
           {donationOn && (
-            <div className="rounded-2xl bg-[#0f1523]/80 border border-purple-500/20 p-4 shadow-xl">
+            <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Bot className="w-4 h-4 text-purple-400 shrink-0" />
-                  <h3 className="text-xs font-bold text-white tracking-wide">
-                    Cosmic Supporter Card
+                  <Bot className="w-4 h-4 text-purple-500 shrink-0" />
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                    Cosmic Donor Card
                   </h3>
                 </div>
-                <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-950/60 text-purple-300 border border-purple-400/30">
-                  {hasDonation ? `৳${total} SUPPORTER` : "LOCKED"}
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10">
+                  {hasDonation ? `৳${total} Donated` : "Support to Unlock"}
                 </span>
               </div>
 
               {!hasDonation ? (
-                <div className="relative rounded-2xl overflow-hidden border border-white/5">
+                <div className="relative rounded-2xl overflow-hidden">
                   <DonorCard
                     dim
                     flipped={flipped}
@@ -914,9 +904,9 @@ export const SettingsPanel: React.FC<Props> = ({
                     name={name}
                     referralCode={profile?.referral_code}
                   />
-                  <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
-                    <Lock className="w-5 h-5 text-purple-400 mb-1.5 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
-                    <p className="text-xs font-bold text-white">
+                  <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
+                    <Lock className="w-5 h-5 text-slate-300 mb-1.5" />
+                    <p className="text-xs font-semibold text-white">
                       ৳২০+ অনুদানে বিশেষ কার্ড আনলক হবে
                     </p>
                   </div>
@@ -933,13 +923,13 @@ export const SettingsPanel: React.FC<Props> = ({
                     name={name}
                     referralCode={profile?.referral_code}
                   />
-                  <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-                    <Gift className="w-8 h-8 text-amber-400 mb-2 animate-bounce" />
+                  <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+                    <Gift className="w-7 h-7 text-amber-300 mb-2 animate-bounce" />
                     <button
                       onClick={claim}
-                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-black tracking-wider transition-all shadow-lg shadow-amber-500/25 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold transition-colors cursor-pointer"
                     >
-                      CLAIM CARD NOW
+                      ক্লেম করুন
                     </button>
                   </div>
                 </div>
@@ -956,40 +946,39 @@ export const SettingsPanel: React.FC<Props> = ({
                   />
                   <button
                     onClick={() => downloadCard("donor")}
-                    className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-purple-600/20 transition-all cursor-pointer"
+                    className="w-full mt-3 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> DOWNLOAD SUPPORTER CARD
-                    (PNG)
+                    <Download className="w-3.5 h-3.5" /> কার্ড ডাউনলোড (PNG)
                   </button>
                 </>
               )}
             </div>
           )}
 
-          {/* ===== 5. DEVELOPER ENERGY VAULT ===== */}
+          {/* ===== 5. DONATION BOX ===== */}
           {donationOn && (
-            <div className="rounded-2xl bg-[#0f1523]/80 border border-white/10 p-4 shadow-xl">
+            <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-xs font-bold text-white tracking-wide">
-                    ডেভেলপার এনার্জি সাপোর্ট
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                    ডেভেলপার সাপোর্ট
                   </h3>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     সার্ভার মেইনটেন্যান্স অনুদান (ঐচ্ছিক)
                   </p>
                 </div>
-                <Bot className="w-4 h-4 text-cyan-400" />
+                <Bot className="w-4 h-4 text-slate-400" />
               </div>
 
-              <div className="grid grid-cols-4 gap-2 mb-3">
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
                 {[20, 50, 100, 500].map((v) => (
                   <button
                     key={v}
                     onClick={() => setTip(v)}
-                    className={`py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer border ${
+                    className={`py-1.5 rounded-lg text-xs font-semibold font-mono border transition-all cursor-pointer ${
                       tip === v
-                        ? "bg-cyan-500/20 text-cyan-300 border-cyan-400/60 shadow-[0_0_12px_rgba(6,182,212,0.3)]"
-                        : "bg-[#070a10] text-slate-400 border-white/10 hover:border-white/20"
+                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-transparent"
+                        : "bg-slate-50 dark:bg-[#0a0d14] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:bg-slate-100"
                     }`}
                   >
                     ৳{v}
@@ -997,18 +986,18 @@ export const SettingsPanel: React.FC<Props> = ({
                 ))}
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#070a10] border border-white/10 mb-2.5">
-                <span className="text-[10px] font-mono text-slate-400">
-                  bKash (Send Money):
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 mb-2.5">
+                <span className="text-[11px] text-slate-500 font-medium">
+                  bKash (Personal):
                 </span>
                 <button
                   onClick={copyNum}
-                  className="flex items-center gap-1.5 text-xs font-mono font-bold text-pink-400 hover:text-pink-300 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition-colors cursor-pointer"
                 >
                   {numCopied ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5 text-slate-500" />
+                    <Copy className="w-3.5 h-3.5 text-slate-400" />
                   )}
                   {BKASH_NUMBER}
                 </button>
@@ -1018,39 +1007,37 @@ export const SettingsPanel: React.FC<Props> = ({
                 <input
                   value={tipTrx}
                   onChange={(e) => setTipTrx(e.target.value)}
-                  placeholder="TrxID টাইপ করুন"
-                  className="flex-1 bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors"
+                  placeholder="TrxID লিখুন"
+                  className="flex-1 bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
                 <button
                   onClick={sendTip}
                   disabled={tipBusy}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-bold disabled:opacity-50 transition-all cursor-pointer shrink-0 shadow-md"
+                  className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold disabled:opacity-50 transition-opacity cursor-pointer shrink-0"
                 >
-                  সাবমিট
+                  পাঠান
                 </button>
               </div>
 
               {tipMsg && (
-                <p className="text-[11px] text-cyan-300 mt-2 text-center font-mono">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-2 text-center">
                   {tipMsg}
                 </p>
               )}
             </div>
           )}
 
-          {/* ===== 6. COMMUNITY INSIGHTS ===== */}
+          {/* ===== 6. COMMUNITY CONTRIBUTION ===== */}
           {contribOn && (
-            <div className="rounded-2xl bg-[#0f1523]/80 border border-emerald-500/20 p-4 shadow-xl">
+            <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center">
-                  <Users className="w-3.5 h-3.5 text-emerald-400" />
-                </div>
+                <Users className="w-4 h-4 text-emerald-500 shrink-0" />
                 <div>
-                  <h3 className="text-xs font-bold text-white tracking-wide">
-                    ভর্তি তথ্য অবদান রাখুন
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                    তথ্য আপডেট পাঠান
                   </h3>
-                  <p className="text-[10px] text-slate-400">
-                    কোনো গুরুত্বপূর্ণ সার্কুলার জানা থাকলে আপডেট করুন
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    ভর্তি সংক্রান্ত কোনো তথ্য জানা থাকলে জমা দিন
                   </p>
                 </div>
               </div>
@@ -1060,20 +1047,16 @@ export const SettingsPanel: React.FC<Props> = ({
                   value={contribName}
                   onChange={(e) => setContribName(e.target.value)}
                   placeholder="আপনার নাম (ঐচ্ছিক)"
-                  className="w-full bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400 transition-colors"
+                  className="w-full bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
                 <select
                   value={contribUni}
                   onChange={(e) => setContribUni(e.target.value)}
-                  className="w-full bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400 transition-colors"
+                  className="w-full bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-slate-400"
                 >
-                  <option value="">— বিশ্ববিদ্যালয় বাছুন —</option>
+                  <option value="">— বিশ্ববিদ্যালয় নির্বাচন করুন —</option>
                   {initialUniversitiesData.map((u) => (
-                    <option
-                      key={u.id}
-                      value={u.id}
-                      className="bg-slate-900 text-white"
-                    >
+                    <option key={u.id} value={u.id}>
                       {u.name}
                     </option>
                   ))}
@@ -1082,56 +1065,54 @@ export const SettingsPanel: React.FC<Props> = ({
                   value={contribInfo}
                   onChange={(e) => setContribInfo(e.target.value)}
                   rows={2}
-                  placeholder="সঠিক তথ্যের সারসংক্ষেপ..."
-                  className="w-full bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none resize-none focus:border-emerald-400 transition-colors"
+                  placeholder="তথ্য বিস্তারিত লিখুন..."
+                  className="w-full bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none resize-none focus:ring-1 focus:ring-slate-400"
                 />
                 <input
                   value={contribUrl}
                   onChange={(e) => setContribUrl(e.target.value)}
-                  placeholder="অফিসিয়াল সার্কুলার লিংক (https://...)"
-                  className="w-full bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400 transition-colors font-mono"
+                  placeholder="অফিসিয়াল নোটিশের লিংক (https://...)"
+                  className="w-full bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
                 <button
                   onClick={submitContribution}
                   disabled={contribBusy}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                  className="w-full py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  {contribBusy ? "জমা হচ্ছে..." : "তথ্য জমা দিন"}
+                  {contribBusy ? "পাঠানো হচ্ছে..." : "জমা দিন"}
                 </button>
               </div>
 
               {contribMsg && (
-                <p className="text-[11px] text-emerald-300 mt-2 text-center font-mono">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-2 text-center">
                   {contribMsg}
                 </p>
               )}
             </div>
           )}
 
-          {/* ===== 7. ADMIN PRIVILEGE ===== */}
+          {/* ===== 7. ADMIN BUTTON (IF APPLICABLE) ===== */}
           {profile?.role === "admin" && onOpenAdmin && (
             <button
               onClick={() => onOpenAdmin?.()}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-900/60 to-purple-900/60 hover:from-indigo-800/80 hover:to-purple-800/80 border border-indigo-400/40 text-indigo-300 text-xs font-mono font-bold tracking-wider shadow-lg shadow-indigo-950/50 transition-all cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20 text-xs font-bold hover:bg-indigo-100 transition-colors cursor-pointer"
             >
-              <ShieldCheck className="w-4 h-4 text-indigo-400" />
-              SUPER ADMIN CONSOLE
+              <ShieldCheck className="w-4 h-4" />
+              সুপার অ্যাডমিন ড্যাশবোর্ড
             </button>
           )}
 
-          {/* ===== 8. DIRECT EXECUTIVE LINE ===== */}
-          <div className="rounded-2xl bg-[#0f1523]/80 border border-white/10 p-4 shadow-xl">
+          {/* ===== 8. HELPLINE & SUPPORT ===== */}
+          <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-                <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
-              </div>
+              <HelpCircle className="w-4 h-4 text-slate-500 shrink-0" />
               <div>
-                <h3 className="text-xs font-bold text-white tracking-wide">
-                  জরুরি হেল্পলাইন
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                  সরাসরি সহায়তা
                 </h3>
-                <p className="text-[10px] text-slate-400">
-                  সরাসরি ডেভেলপারের সাথে যোগাযোগ
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  যেকোনো প্রয়োজনে মেসেজ দিন
                 </p>
               </div>
             </div>
@@ -1141,42 +1122,40 @@ export const SettingsPanel: React.FC<Props> = ({
                 href={WHATSAPP}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#072418] hover:bg-[#0b3826] text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all shadow-md"
+                className="flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-medium hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
               >
-                <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                <Phone className="w-3.5 h-3.5 text-emerald-500" />
                 WhatsApp
               </a>
               <a
                 href={TELEGRAM}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#081a2e] hover:bg-[#0c2a4a] text-sky-400 border border-sky-500/30 text-xs font-bold transition-all shadow-md"
+                className="flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-medium hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
               >
-                <Send className="w-3.5 h-3.5 text-sky-400" />
+                <Send className="w-3.5 h-3.5 text-sky-500" />
                 Telegram
               </a>
             </div>
           </div>
 
-          {/* ===== 9. DIRECT FEEDBACK ===== */}
-          <div className="rounded-2xl bg-[#0f1523]/80 border border-rose-500/20 p-4 shadow-xl">
+          {/* ===== 9. FEEDBACK ===== */}
+          <div className="bg-white dark:bg-[#111722] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded-lg bg-rose-500/15 border border-rose-400/30 flex items-center justify-center">
-                <MessageSquareHeart className="w-3.5 h-3.5 text-rose-400" />
-              </div>
+              <MessageSquareHeart className="w-4 h-4 text-rose-500 shrink-0" />
               <div>
-                <h3 className="text-xs font-bold text-white tracking-wide">
-                  মতামত ও ফিডব্যাক
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                  মতামত ও পরামর্শ
                 </h3>
-                <p className="text-[10px] text-slate-400">
-                  সিস্টেমের যেকোনো ত্রুটি বা নতুন ফিচারের অনুরোধ
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  অ্যাপটি আরও উন্নত করতে ফিডব্যাক দিন
                 </p>
               </div>
             </div>
 
             {feedbackSent ? (
-              <div className="p-3 text-center rounded-xl bg-[#070a10] border border-emerald-500/30 text-xs font-medium text-emerald-400">
-                ধন্যবাদ! আপনার ফিডব্যাক গৃহীত হয়েছে।
+              <div className="p-3 text-center rounded-xl bg-slate-50 dark:bg-[#0a0d14] text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                ধন্যবাদ! আপনার বার্তা পৌঁছে গেছে।
               </div>
             ) : (
               <div className="space-y-2">
@@ -1184,41 +1163,41 @@ export const SettingsPanel: React.FC<Props> = ({
                   value={feedbackMsg}
                   onChange={(e) => setFeedbackMsg(e.target.value)}
                   rows={2}
-                  placeholder="আপনার অভিজ্ঞতা শেয়ার করুন..."
-                  className="w-full bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none resize-none focus:border-rose-400 transition-colors"
+                  placeholder="আপনার মতামত লিখুন..."
+                  className="w-full bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none resize-none focus:ring-1 focus:ring-slate-400"
                 />
                 <input
                   value={feedbackContact}
                   onChange={(e) => setFeedbackContact(e.target.value)}
                   placeholder="ফোন বা ইমেইল (ঐচ্ছিক)"
-                  className="w-full bg-[#070a10] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-400 transition-colors"
+                  className="w-full bg-slate-50 dark:bg-[#0a0d14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
                 <button
                   onClick={submitFeedback}
                   disabled={feedbackBusy || feedbackMsg.trim().length < 5}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white text-xs font-bold disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                  className="w-full py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Heart className="w-3.5 h-3.5" />
-                  {feedbackBusy ? "পাঠানো হচ্ছে..." : "ফিডব্যাক সাবমিট করুন"}
+                  {feedbackBusy ? "পাঠানো হচ্ছে..." : "ফিডব্যাক পাঠান"}
                 </button>
               </div>
             )}
           </div>
 
-          {/* ===== 10. SYSTEM LOGOUT & TERMINAL FOOTER ===== */}
+          {/* ===== 10. LOGOUT & FOOTER ===== */}
           <div className="pt-2 pb-6 space-y-3">
             <button
               onClick={async () => {
                 await signOut();
                 onClose();
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-red-500/30 bg-red-950/20 hover:bg-red-950/40 text-red-400 text-xs font-bold tracking-wider transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 text-xs font-semibold hover:bg-rose-100/60 dark:hover:bg-rose-900/40 transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-              TERMINATE SESSION (LOGOUT)
+              লগআউট করুন
             </button>
-            <p className="text-center text-[10px] text-slate-500 font-mono tracking-widest uppercase">
-              PORTAL 2026-27 • EXECUTIVE SUITE
+            <p className="text-center text-[10px] text-slate-400 dark:text-slate-600 font-mono tracking-wider">
+              PORTAL 2026-27 • VERSION 2.0
             </p>
           </div>
         </div>
