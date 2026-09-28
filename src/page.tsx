@@ -1,9 +1,7 @@
 /**
  * Bangladesh University Admission 2026-27 - Main Dashboard
- * v3: HASH ROUTER — phone back button = tab/panel navigation
- *     #/home #/eligibility #/calendar #/admin #/news #/settings #/search #/uni/<id>
+ * v4: LINT-CLEAN (react-hooks/refs, set-state-in-effect, purity, exhaustive-deps)
  */
-
 import React, {
   lazy,
   Suspense,
@@ -11,7 +9,6 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
-  useRef,
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { supabase } from "./lib/supabase";
@@ -63,12 +60,10 @@ const FONT_STORAGE_KEY = "admission_font_pref";
 const THEME_STORAGE_KEY = "varsity_theme";
 const THEME_RESET_KEY = "theme_reset_v2";
 
-/* Admin bundle শুধু admin view খুললে load হয় (App.tsx-ও lazy import করে) */
 const Admin = lazy(() =>
   import("./pages/Admin").then((m) => ({ default: m.Admin })),
 );
 
-/* ---------- hash parse ---------- */
 function readRoute(): {
   view: RouteView | "keep";
   overlay: RouteOverlay;
@@ -85,18 +80,27 @@ function readRoute(): {
   return { view: "home", overlay: null, uniId: "" };
 }
 
+const initialTab = (): TabKey => {
+  const v = readRoute().view;
+  return v === "keep" || v === "admin" ? "home" : (v as TabKey);
+};
+
 export default function AdmissionDashboard() {
   const { profile } = useAuth();
   const newsUid = profile?.id || "guest";
-  const [newsUnread, setNewsUnread] = useState(0);
 
-  /* ---------- ROUTER STATE ---------- */
+  /* ---------- ROUTER STATE (no refs — state only) ---------- */
   const [route, setRoute] = useState(readRoute);
-  const lastTab = useRef<TabKey>("home");
+  const [lastTab, setLastTab] = useState<TabKey>(initialTab);
 
   useEffect(() => {
     if (!window.location.hash) window.history.replaceState(null, "", "#/home");
-    const onHash = () => setRoute(readRoute());
+    const onHash = () => {
+      const r = readRoute();
+      setRoute(r);
+      /* event handler-এ setState = allowed (sync effect-body না) */
+      if (r.view !== "keep" && r.view !== "admin") setLastTab(r.view as TabKey);
+    };
     window.addEventListener("hashchange", onHash);
     window.addEventListener("popstate", onHash);
     return () => {
@@ -110,18 +114,11 @@ export default function AdmissionDashboard() {
   }, []);
   const goBack = useCallback(() => {
     if (window.history.length > 1) window.history.back();
-    else go("/" + lastTab.current);
-  }, [go]);
-
-  useEffect(() => {
-    if (route.view !== "keep" && route.view !== "admin")
-      lastTab.current = route.view;
-  }, [route]);
+    else go("/" + lastTab);
+  }, [go, lastTab]);
 
   const activeTab: TabKey =
-    route.view === "keep" || route.view === "admin"
-      ? lastTab.current
-      : route.view;
+    route.view === "keep" || route.view === "admin" ? lastTab : route.view;
   const showAdmin = route.view === "admin";
   const isNewsOpen = route.overlay === "news";
   const isSettingsOpen = route.overlay === "settings";
@@ -135,29 +132,69 @@ export default function AdmissionDashboard() {
     useState<string>(DEFAULT_SHEET_ID);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
 
-  /* ---------- 2. Live Updates + Overrides ---------- */
+  /* stable reference — exhaustive-deps warning fix */
+  const rawUniversities = useMemo(
+    () => sheetData?.universities ?? [],
+    [sheetData],
+  );
+
+  const loadData = useCallback(
+    (urlOrId?: string) => {
+      /* event-handler context — sync setState এখানে OK */
+      setIsLoading(true);
+      fetchAdmissionData(urlOrId || customSheetUrl)
+        .then((d) => {
+          setSheetData(d);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load admission data:", err);
+          setIsLoading(false);
+        });
+    },
+    [customSheetUrl],
+  );
+
+  useEffect(() => {
+    let alive = true;
+    /* mount: initial isLoading=true already — এখানে sync setState নেই */
+    fetchAdmissionData(customSheetUrl)
+      .then((d) => {
+        if (!alive) return;
+        setSheetData(d);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to load admission data:", err);
+        if (alive) setIsLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [customSheetUrl]);
+
+  /* ---------- 2. Live Updates + Overrides (all setState inside .then) ---------- */
   const [liveUpdates, setLiveUpdates] = useState<any[]>([]);
   const [overrides, setOverrides] = useState<Record<string, any>>({});
 
-  const fetchLiveUpdates = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
+  useEffect(() => {
+    let alive = true;
+    const refetch = () => {
+      supabase
         .from("university_updates")
         .select("*")
         .eq("status", "published")
-        .order("published_at", { ascending: false });
-      if (!error && data) setLiveUpdates(data);
-    } catch (e) {
-      console.error("Live updates fetch failed:", e);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchLiveUpdates();
+        .order("published_at", { ascending: false })
+        .then(({ data, error }) => {
+          if (alive && !error && data) setLiveUpdates(data);
+        });
+    };
+    refetch();
     supabase
       .from("university_overrides")
       .select("*")
       .then(({ data }) => {
+        if (!alive) return;
         const map: Record<string, any> = {};
         (data || []).forEach((o: any) => {
           map[o.university_id] = o.data || {};
@@ -169,23 +206,28 @@ export default function AdmissionDashboard() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "university_updates" },
-        () => fetchLiveUpdates(),
+        () => refetch(),
       )
       .subscribe();
     return () => {
+      alive = false;
       supabase.removeChannel(channel);
     };
-  }, [fetchLiveUpdates]);
+  }, []);
 
+  /* unread badge — derived, no sync setState in effect */
+  const [seenTick, setSeenTick] = useState(0);
   useEffect(() => {
-    const recompute = () =>
-      setNewsUnread(unreadUpdates(newsUid, liveUpdates).length);
-    recompute();
-    window.addEventListener("news-seen-changed", recompute);
-    return () => window.removeEventListener("news-seen-changed", recompute);
-  }, [liveUpdates, newsUid]);
+    const h = () => setSeenTick((t) => t + 1);
+    window.addEventListener("news-seen-changed", h);
+    return () => window.removeEventListener("news-seen-changed", h);
+  }, []);
+  const newsUnread = useMemo(
+    () => unreadUpdates(newsUid, liveUpdates).length,
+    [newsUid, liveUpdates, seenTick],
+  );
 
-  /* ---------- 4. Preferences ---------- */
+  /* ---------- Preferences ---------- */
   const [isSecondTimer, setIsSecondTimer] = useState<boolean>(false);
   const [fontPreference, setFontPreference] = useState<FontKey>(() => {
     try {
@@ -196,49 +238,26 @@ export default function AdmissionDashboard() {
     return "noto";
   });
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    // render-এ শুধু read — কোনো write/setItem নেই (StrictMode-safe)
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
-      if (saved === "dark") {
-        // reset-এর আগের auto-saved dark হলে white দিয়ে শুরু (নিচের effect reset করে দেবে)
-        return !!localStorage.getItem(THEME_RESET_KEY);
-      }
+      if (saved === "dark") return !!localStorage.getItem(THEME_RESET_KEY);
       if (saved === "light") return false;
     } catch {}
-    return false; // ✅ DEFAULT: White/Light mode (system dark follow করবে না)
+    return false;
   });
 
-  /* ---------- 5. Filters ---------- */
+  /* ---------- Filters / Eligibility ---------- */
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [timeFilter, setTimeFilter] = useState<TimeFilterOption>("all");
   const [categoryFilter, setCategoryFilter] =
     useState<CategoryFilterOption>("all");
-
-  /* ---------- 6. Eligibility ---------- */
   const [eligibilityResults, setEligibilityResults] = useState<Record<
     string,
     EligibilityEvaluation
   > | null>(null);
   const [onlyShowEligible, setOnlyShowEligible] = useState<boolean>(false);
 
-  /* ---------- 7. Selected university (modal) ---------- */
-  const [selectedUniversity, setSelectedUniversity] =
-    useState<University | null>(null);
-
-  /* sync modal selection with #/uni/<id> */
-  const rawUniversities = sheetData?.universities || [];
-  useEffect(() => {
-    if (isUniModal && route.uniId) {
-      const found = rawUniversities.find((u) => u.id === route.uniId);
-      if (found && selectedUniversity?.id !== found.id)
-        setSelectedUniversity(found);
-    }
-    if (!isUniModal && selectedUniversity) setSelectedUniversity(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUniModal, route.uniId, rawUniversities.length]);
-
-  /* ---------- Side Effects ---------- */
-  /* One-time migration (শুধু first mount-এ, effect-এ — render-এ write নয়) */
+  /* ---------- Theme effects (localStorage write = OK, setState নেই) ---------- */
   useEffect(() => {
     try {
       if (!localStorage.getItem(THEME_RESET_KEY)) {
@@ -270,25 +289,6 @@ export default function AdmissionDashboard() {
       localStorage.setItem(FONT_STORAGE_KEY, font);
     } catch {}
   }, []);
-
-  /* ---------- Data Loading ---------- */
-  const loadData = useCallback(
-    async (urlOrId?: string) => {
-      setIsLoading(true);
-      try {
-        setSheetData(await fetchAdmissionData(urlOrId || customSheetUrl));
-      } catch (err) {
-        console.error("Failed to load admission data:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [customSheetUrl],
-  );
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   /* ---------- POWER-MATCHER v2 + OVERRIDES ---------- */
   const universities = useMemo(() => {
@@ -389,13 +389,11 @@ export default function AdmissionDashboard() {
     });
   }, [rawUniversities, liveUpdates, overrides]);
 
+  /* ---------- Modal selection: DERIVED (no state, no sync effect) ---------- */
   const currentSelectedUniversity = useMemo(() => {
-    if (!selectedUniversity) return null;
-    return (
-      universities.find((u: any) => u.id === selectedUniversity.id) ||
-      selectedUniversity
-    );
-  }, [selectedUniversity, universities]);
+    if (!isUniModal || !route.uniId) return null;
+    return universities.find((u: any) => u.id === route.uniId) || null;
+  }, [isUniModal, route.uniId, universities]);
 
   /* ---------- Metrics ---------- */
   const metrics = useMemo(() => {
@@ -458,13 +456,10 @@ export default function AdmissionDashboard() {
     (uni: University) => go("/uni/" + uni.id),
     [go],
   );
-  /* Search থেকে select করলে /search entry-টা replace করি —
-      যাতে back চাপলে search আবার না খোলে, সরাসরি আগের page-এ যায় */
   const handleSelectFromSearch = useCallback((uni: University) => {
     window.history.replaceState(null, "", "#/uni/" + uni.id);
     setRoute(readRoute());
   }, []);
-
   const handleEligibilityEvaluations = useCallback(
     (
       results: Record<string, EligibilityEvaluation> | null,
@@ -512,7 +507,6 @@ export default function AdmissionDashboard() {
       className={`min-h-screen ${fontClass} transition-colors duration-300 ${isDarkMode ? "dark text-slate-100" : "text-slate-900"}`}
     >
       <AppUpdateBanner />
-
       <Header
         universities={universities}
         onSelectUniversity={handleSelectFromSearch}
@@ -531,7 +525,6 @@ export default function AdmissionDashboard() {
         onOpenNews={() => go("/news")}
         newsCount={newsUnread}
       />
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 sm:pb-16">
         <AnimatePresence mode="wait">
           {activeTab === "home" && (
@@ -558,7 +551,6 @@ export default function AdmissionDashboard() {
                 totalUniversitiesCount={universities.length}
                 secondTimerCount={metrics.secondTimerCount}
               />
-
               {!isLoading && filteredUniversities.length > 0 && (
                 <div className="flex items-center justify-between px-1">
                   <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
@@ -578,7 +570,6 @@ export default function AdmissionDashboard() {
                   )}
                 </div>
               )}
-
               {isLoading && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                   {Array.from({ length: 6 }).map((_, i) => (
@@ -586,7 +577,6 @@ export default function AdmissionDashboard() {
                   ))}
                 </div>
               )}
-
               {!isLoading && filteredUniversities.length > 0 && (
                 <motion.div
                   layout
@@ -620,13 +610,11 @@ export default function AdmissionDashboard() {
                   </AnimatePresence>
                 </motion.div>
               )}
-
               {!isLoading && filteredUniversities.length === 0 && (
                 <EmptyState onReset={handleResetFilters} />
               )}
             </motion.div>
           )}
-
           {activeTab === "eligibility" && (
             <motion.div
               key="eligibility"
@@ -644,7 +632,6 @@ export default function AdmissionDashboard() {
               />
             </motion.div>
           )}
-
           {activeTab === "calendar" && (
             <motion.div
               key="calendar"
@@ -658,7 +645,6 @@ export default function AdmissionDashboard() {
           )}
         </AnimatePresence>
       </main>
-
       <SettingsPanel
         open={isSettingsOpen}
         onClose={goBack}
@@ -693,7 +679,6 @@ export default function AdmissionDashboard() {
         onOpenSearch={() => go("/search")}
         onOpenSettings={() => go("/settings")}
       />
-
       <NewsPanel open={isNewsOpen} onClose={goBack} />
       <UpdateNotifier />
       <FeedbackPopup />
@@ -702,12 +687,7 @@ export default function AdmissionDashboard() {
 }
 
 /* ============================================================
-   SUB-COMPONENTS (অপরিবর্তিত)
-   ============================================================ */
-/* ============================================================
-   HERO v3 — BENTO GRID (নতুন layout, premium, mobile-light)
-   ✅ কোনো blur-3xl/backdrop-blur নেই — শুধু static radial-gradient
-   ✅ ১টা ছোট ping dot ছাড়া কোনো continuous animation নেই
+   HERO v3 — BENTO GRID (mobile-light, zero blur filters)
    ============================================================ */
 const HeroMetricsBanner: React.FC<{
   totalCount: number;
@@ -730,9 +710,7 @@ const HeroMetricsBanner: React.FC<{
     aria-label="Dashboard Overview"
     className="grid grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-3 sm:gap-4"
   >
-    {/* ===== MAIN SPOTLIGHT TILE ===== */}
     <div className="col-span-2 lg:row-span-2 relative overflow-hidden rounded-3xl p-5 sm:p-7 text-white bg-[#0b1220] border border-white/10 shadow-xl shadow-sky-950/20">
-      {/* static aurora (gradient only — no blur filter) */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -740,7 +718,6 @@ const HeroMetricsBanner: React.FC<{
             "radial-gradient(420px 240px at 88% -12%, rgba(56,189,248,0.28), transparent 62%), radial-gradient(380px 220px at -8% 112%, rgba(139,92,246,0.25), transparent 62%)",
         }}
       />
-      {/* fine grid texture */}
       <div
         className="absolute inset-0 opacity-[0.05] pointer-events-none"
         style={{
@@ -750,7 +727,6 @@ const HeroMetricsBanner: React.FC<{
         }}
       />
       <GraduationCap className="absolute -right-6 -bottom-8 w-40 h-40 text-white/[0.05] pointer-events-none" />
-
       <div className="relative">
         <div className="flex items-center gap-2 flex-wrap mb-3">
           <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/10 text-sky-200 text-[10px] font-black border border-white/15 tracking-wide uppercase">
@@ -766,7 +742,6 @@ const HeroMetricsBanner: React.FC<{
             </span>
           )}
         </div>
-
         <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-tight leading-tight">
           বিশ্ববিদ্যালয় ভর্তি পোর্টাল
         </h1>
@@ -774,7 +749,6 @@ const HeroMetricsBanner: React.FC<{
           সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছভুক্ত বিশ্ববিদ্যালয়ের ভর্তি
           পরীক্ষার সময়সূচি, জিপিএ শর্ত ও ২য় বার সুযোগ।
         </p>
-
         <div className="mt-5 flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
@@ -793,7 +767,6 @@ const HeroMetricsBanner: React.FC<{
             <span>ক্যালেন্ডার দেখুন</span>
           </button>
         </div>
-
         {liveHeadline && (
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2">
             <Zap className="w-3.5 h-3.5 text-amber-300 shrink-0" />
@@ -804,8 +777,6 @@ const HeroMetricsBanner: React.FC<{
         )}
       </div>
     </div>
-
-    {/* ===== 4 BENTO STAT TILES ===== */}
     <BentoStat
       icon={<BookOpen className="w-4 h-4" />}
       label="মোট প্রতিষ্ঠান"
@@ -838,7 +809,6 @@ const HeroMetricsBanner: React.FC<{
   </section>
 );
 
-/* Bento stat tile — flat, crisp, zero blur */
 const BentoStat: React.FC<{
   icon: React.ReactNode;
   label: string;
@@ -848,12 +818,16 @@ const BentoStat: React.FC<{
   pulse?: boolean;
 }> = ({ icon, label, value, iconBox, topLine, pulse }) => (
   <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-[#101828] border border-slate-200/90 dark:border-white/10 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-    <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${topLine} to-transparent`} />
+    <div
+      className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${topLine} to-transparent`}
+    />
     <div className="flex items-start justify-between gap-2">
       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
         {label}
       </span>
-      <span className={`relative w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${iconBox}`}>
+      <span
+        className={`relative w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${iconBox}`}
+      >
         {icon}
         {pulse && (
           <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse" />

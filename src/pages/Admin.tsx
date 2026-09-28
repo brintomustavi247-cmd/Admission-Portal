@@ -20,6 +20,7 @@ import {
   Megaphone,
   Banknote,
   Radio,
+  Trash2,
 } from "lucide-react";
 
 interface AdminUser {
@@ -51,6 +52,33 @@ interface Payment {
   profiles?: { full_name: string | null; phone: string | null } | null;
 }
 
+interface FeedbackRow {
+  id: string;
+  message: string;
+  contact: string | null;
+  created_at: string;
+}
+
+/* module-level pure fetch — কোনো setState নেই */
+function fetchAll() {
+  return Promise.all([
+    supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("payment_requests")
+      .select("*, profiles(full_name, phone)")
+      .order("created_at", { ascending: false }),
+    supabase.from("app_settings").select("*").eq("id", 1).single(),
+    supabase
+      .from("app_feedback")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
+}
+
 const Switch: React.FC<{ on: boolean; onChange: () => void }> = ({
   on,
   onChange,
@@ -74,6 +102,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const { profile } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [feedbacks, setFeedbacks] = useState<FeedbackRow[]>([]);
   const [subEnabled, setSubEnabled] = useState(false);
   const [referralOn, setReferralOn] = useState(true);
   const [donationOn, setDonationOn] = useState(true);
@@ -90,38 +119,50 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     userId: string;
     rows: any[];
   } | null>(null);
-  const [currentTab, setCurrentTab] = useState<"settings" | "updates">("settings");
+  const [currentTab, setCurrentTab] = useState<
+    "settings" | "updates" | "feedback"
+  >("settings");
 
-  const load = useCallback(async () => {
-    const [{ data: u }, { data: p }, { data: s }] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("payment_requests")
-        .select("*, profiles(full_name, phone)")
-        .order("created_at", { ascending: false }),
-      supabase.from("app_settings").select("*").eq("id", 1).single(),
-    ]);
-    setUsers((u as AdminUser[]) || []);
-    setPayments((p as Payment[]) || []);
-    if (s) {
-      setSubEnabled(s.subscription_enabled);
-      setReferralOn(s.referral_discount_enabled);
-      setDonationOn(s.donation_enabled !== false);
-      setFreeUntil(s.free_until ? s.free_until.slice(0, 10) : "");
-      setBasePrice(s.base_price ?? 99);
-      setReferralPrice(s.referral_price ?? 49);
-      setAnnouncement(s.announcement_text || "");
-      setContribOn(s.contribution_enabled !== false);
-      setFeedbackOn(s.feedback_popup_enabled !== false);
-    }
+  /* purity fix: Date.now() render-এ নয় — tick state */
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    const tick = () => setNow(Date.now());
+    const raf = requestAnimationFrame(tick);
+    const iv = setInterval(tick, 60000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(iv);
+    };
   }, []);
+  const isOnline = (u: AdminUser) =>
+    !!u.last_seen && now > 0 && now - new Date(u.last_seen).getTime() < 300000;
+
+  /* setState শুধু .then callback-এ — set-state-in-effect clean */
+  const applyData = useCallback(
+    ([{ data: u }, { data: p }, { data: s }, { data: f }]: any[]) => {
+      setUsers((u as AdminUser[]) || []);
+      setPayments((p as Payment[]) || []);
+      setFeedbacks((f as FeedbackRow[]) || []);
+      if (s) {
+        setSubEnabled(s.subscription_enabled);
+        setReferralOn(s.referral_discount_enabled);
+        setDonationOn(s.donation_enabled !== false);
+        setFreeUntil(s.free_until ? s.free_until.slice(0, 10) : "");
+        setBasePrice(s.base_price ?? 99);
+        setReferralPrice(s.referral_price ?? 49);
+        setAnnouncement(s.announcement_text || "");
+        setContribOn(s.contribution_enabled !== false);
+        setFeedbackOn(s.feedback_popup_enabled !== false);
+      }
+    },
+    [],
+  );
+
+  const load = useCallback(() => fetchAll().then(applyData), [applyData]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    fetchAll().then(applyData);
+  }, [applyData]);
 
   useEffect(() => {
     const userId = selected?.id;
@@ -141,8 +182,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     };
   }, [selected?.id]);
 
-  /* শুধু এই moment-এর selected user-এর জন্য loaded events দেখাও —
-     নাহলে (selected নাই / অন্য user switch হয়েছে) derived empty list */
   const events =
     loadedEvents && loadedEvents.userId === selected?.id
       ? loadedEvents.rows
@@ -175,7 +214,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       })
       .eq("id", 1)
       .select();
-
     if (error) {
       console.error("settings save failed:", error);
       setSaved("❌ Save failed: " + error.message);
@@ -189,11 +227,11 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
 
   const toggleUser = async (
     u: AdminUser,
-    field: "access_enabled" | "is_premium"
+    field: "access_enabled" | "is_premium",
   ) => {
     const val = !u[field];
     setUsers((prev) =>
-      prev.map((x) => (x.id === u.id ? { ...x, [field]: val } : x))
+      prev.map((x) => (x.id === u.id ? { ...x, [field]: val } : x)),
     );
     const { error } = await supabase
       .from("profiles")
@@ -206,13 +244,17 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   };
 
   const decidePayment = async (p: Payment, approve: boolean) => {
-    /* ✅ ATOMIC: row-lock + status check + profile update সব একসাথে DB-তে (RPC)
-       ২বার দ্রুত click করলেও double-count হবে না — ২য় call 'already decided' throw করবে */
     const { error } = await supabase.rpc("admin_process_payment", {
       p_payment_id: p.id,
       p_approve: approve,
     });
     if (error) alert("❌ Payment update failed: " + error.message);
+    load();
+  };
+
+  const deleteFeedback = async (id: string) => {
+    if (!confirm("মতামতটা মুছবে?")) return;
+    await supabase.from("app_feedback").delete().eq("id", id);
     load();
   };
 
@@ -222,7 +264,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       (u.full_name || "").toLowerCase().includes(q.toLowerCase()) ||
       (u.phone || "").includes(q) ||
       (u.referral_code || "").toLowerCase().includes(q.toLowerCase()) ||
-      u.id.toLowerCase().includes(q.toLowerCase())
+      u.id.toLowerCase().includes(q.toLowerCase()),
   );
   const premiumCount = users.filter((u) => u.is_premium).length;
   const pending = payments.filter((p) => p.status === "pending");
@@ -252,7 +294,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 <X className="w-4 h-4" />
               </button>
             </div>
-
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-violet-500 flex items-center justify-center text-white font-black shrink-0">
                 {(selected.full_name || selected.email || "U")
@@ -268,7 +309,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 </div>
               </div>
             </div>
-
             <div className="space-y-2 text-[11px]">
               {[
                 ["User ID", selected.id],
@@ -279,11 +319,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 [
                   "প্রিমিয়াম",
                   selected.is_premium
-                    ? `✅ ${
-                        selected.premium_expires_at
-                          ? selected.premium_expires_at.slice(0, 10)
-                          : ""
-                      }`
+                    ? `✅ ${selected.premium_expires_at ? selected.premium_expires_at.slice(0, 10) : ""}`
                     : "❌ নেই",
                 ],
                 ["মোট ডোনেশন", `৳${toBanglaNum(selected.total_donated || 0)}`],
@@ -300,12 +336,12 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 </div>
               ))}
             </div>
-
             <div className="mt-4">
               <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">
                 পেমেন্ট হিস্টরি (TrxID + bKash)
               </div>
-              {payments.filter((p) => p.user_id === selected.id).length === 0 ? (
+              {payments.filter((p) => p.user_id === selected.id).length ===
+              0 ? (
                 <div className="text-[10px] text-slate-500 text-center py-3 rounded-xl bg-[#0f141d] border border-white/5">
                   কোনো পেমেন্ট নেই
                 </div>
@@ -327,8 +363,8 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                               p.status === "approved"
                                 ? "bg-emerald-500/20 text-emerald-300"
                                 : p.status === "pending"
-                                ? "bg-amber-500/20 text-amber-300"
-                                : "bg-red-500/20 text-red-300"
+                                  ? "bg-amber-500/20 text-amber-300"
+                                  : "bg-red-500/20 text-red-300"
                             }`}
                           >
                             {p.status}
@@ -350,7 +386,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 </div>
               )}
             </div>
-
             <div className="mt-4">
               <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">
                 সাম্প্রতিক অ্যাক্টিভিটি (ট্যাপ লগ)
@@ -383,7 +418,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 </div>
               )}
             </div>
-
             <div className="grid grid-cols-2 gap-2 mt-4">
               <button
                 onClick={() => {
@@ -444,8 +478,8 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         </div>
       </div>
 
-      {/* ===== TABS NAV ===== */}
-      <div className="max-w-6xl mx-auto px-4 pt-4 flex gap-2">
+      {/* ===== TABS ===== */}
+      <div className="max-w-6xl mx-auto px-4 pt-4 flex gap-2 flex-wrap">
         <button
           onClick={() => setCurrentTab("settings")}
           className={`px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition ${
@@ -467,11 +501,74 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
           <Radio className="w-3.5 h-3.5 text-emerald-400" />
           আপডেট কিউ (AI & Realtime)
         </button>
+        <button
+          onClick={() => setCurrentTab("feedback")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition ${
+            currentTab === "feedback"
+              ? "bg-blue-600 text-white"
+              : "bg-[#151b27] text-slate-400 hover:text-white"
+          }`}
+        >
+          <MessageSquareHeart className="w-3.5 h-3.5 text-pink-400" />
+          মতামত ({feedbacks.length})
+        </button>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 pt-5 space-y-5">
         {currentTab === "updates" ? (
           <UpdateQueueTab />
+        ) : currentTab === "feedback" ? (
+          /* ===== FEEDBACK MANAGEMENT ===== */
+          <div className="bg-[#151b27] border border-white/10 rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <MessageSquareHeart className="w-4 h-4 text-pink-400" />
+                ইউজার মতামত ও সমস্যা ({feedbacks.length})
+              </h2>
+              <button
+                onClick={load}
+                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 cursor-pointer"
+                title="রিফ্রেশ"
+              >
+                <Radio className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {feedbacks.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-500">
+                কোনো মতামত এখনো আসেনি।
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {feedbacks.map((fb) => (
+                  <div
+                    key={fb.id}
+                    className="p-4 rounded-xl bg-[#0f141d] border border-white/5 flex items-start justify-between gap-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-slate-200 leading-relaxed">
+                        {fb.message}
+                      </p>
+                      {fb.contact && (
+                        <div className="text-[10px] text-sky-300 mt-1.5">
+                          📞 {fb.contact}
+                        </div>
+                      )}
+                      <div className="text-[9px] text-slate-500 mt-1.5">
+                        {new Date(fb.created_at).toLocaleString("bn-BD")}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => deleteFeedback(fb.id)}
+                      className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 cursor-pointer shrink-0"
+                      title="মুছে ফেলুন"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           <>
             {/* ===== MASTER CONTROLS ===== */}
@@ -479,11 +576,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                      subEnabled
-                        ? "bg-emerald-500/15 text-emerald-400"
-                        : "bg-slate-500/15 text-slate-400"
-                    }`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${subEnabled ? "bg-emerald-500/15 text-emerald-400" : "bg-slate-500/15 text-slate-400"}`}
                   >
                     <Power className="w-5 h-5" />
                   </div>
@@ -503,15 +596,10 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   onChange={() => setSubEnabled(!subEnabled)}
                 />
               </div>
-
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                      referralOn
-                        ? "bg-blue-500/15 text-blue-400"
-                        : "bg-slate-500/15 text-slate-400"
-                    }`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${referralOn ? "bg-blue-500/15 text-blue-400" : "bg-slate-500/15 text-slate-400"}`}
                   >
                     <Ticket className="w-5 h-5" />
                   </div>
@@ -531,15 +619,10 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   onChange={() => setReferralOn(!referralOn)}
                 />
               </div>
-
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                      donationOn
-                        ? "bg-violet-500/15 text-violet-400"
-                        : "bg-slate-500/15 text-slate-400"
-                    }`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${donationOn ? "bg-violet-500/15 text-violet-400" : "bg-slate-500/15 text-slate-400"}`}
                   >
                     <Heart className="w-5 h-5" />
                   </div>
@@ -559,15 +642,10 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   onChange={() => setDonationOn(!donationOn)}
                 />
               </div>
-
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                      contribOn
-                        ? "bg-violet-500/15 text-violet-400"
-                        : "bg-slate-500/15 text-slate-400"
-                    }`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${contribOn ? "bg-violet-500/15 text-violet-400" : "bg-slate-500/15 text-slate-400"}`}
                   >
                     <Users className="w-5 h-5" />
                   </div>
@@ -587,15 +665,10 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   onChange={() => setContribOn(!contribOn)}
                 />
               </div>
-
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                      feedbackOn
-                        ? "bg-pink-500/15 text-pink-400"
-                        : "bg-slate-500/15 text-slate-400"
-                    }`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center ${feedbackOn ? "bg-pink-500/15 text-pink-400" : "bg-slate-500/15 text-slate-400"}`}
                   >
                     <MessageSquareHeart className="w-5 h-5" />
                   </div>
@@ -613,7 +686,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   onChange={() => setFeedbackOn(!feedbackOn)}
                 />
               </div>
-
               <div className="grid sm:grid-cols-3 gap-3">
                 <div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">
@@ -653,7 +725,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   />
                 </div>
               </div>
-
               <div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">
                   <Megaphone className="w-3 h-3" /> Announcement (সব user-এর
@@ -667,7 +738,6 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                   className="w-full bg-[#0f141d] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none resize-none"
                 />
               </div>
-
               <div className="flex items-center gap-3">
                 <button
                   onClick={saveSettings}
@@ -689,13 +759,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                 {
                   icon: <Users className="w-4 h-4" />,
                   l: "অনলাইন এখন",
-                  v: String(
-                    users.filter(
-                      (u) =>
-                        u.last_seen &&
-                        Date.now() - new Date(u.last_seen).getTime() < 300000
-                    ).length
-                  ),
+                  v: String(users.filter((u) => isOnline(u)).length),
                 },
                 {
                   icon: <Users className="w-4 h-4" />,
@@ -824,9 +888,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                           <div className="font-bold text-white flex items-center gap-1.5">
                             <span
                               className={`w-2 h-2 rounded-full shrink-0 ${
-                                u.last_seen &&
-                                Date.now() - new Date(u.last_seen).getTime() <
-                                  300000
+                                isOnline(u)
                                   ? "bg-emerald-400 animate-pulse"
                                   : "bg-slate-600"
                               }`}
@@ -841,9 +903,7 @@ export const Admin: React.FC<{ onExit: () => void }> = ({ onExit }) => {
                           <div className="text-[9px] text-slate-500 truncate max-w-[140px]">
                             {u.email || "—"}
                           </div>
-                          <div className="text-slate-500">
-                            {u.phone || "—"}
-                          </div>
+                          <div className="text-slate-500">{u.phone || "—"}</div>
                           <div className="text-[9px] text-slate-600 font-mono mt-0.5">
                             ID: {u.id.slice(0, 8)}…
                           </div>
