@@ -190,15 +190,20 @@ export default function AdmissionDashboard({
     } catch {}
     return "noto";
   });
+  // One-time: পুরনো saved dark preference reset (সবাই white দিয়ে শুরু করবে)
+  try {
+    if (!localStorage.getItem("theme_reset_v2")) {
+      localStorage.removeItem(THEME_STORAGE_KEY);
+      localStorage.setItem("theme_reset_v2", "1");
+    }
+  } catch {}
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
       if (saved === "dark") return true;
       if (saved === "light") return false;
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
-    } catch {
-      return false;
-    }
+    } catch {}
+    return false; // ✅ DEFAULT: White/Light mode (system dark follow করবে না)
   });
 
   /* ---------- 5. Filters ---------- */
