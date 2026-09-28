@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { useEscapeClose } from "../hooks/useEscapeClose";
+import { initialUniversitiesData } from "../data/mockUniversities";
+import { safeUrl } from "../lib/newsSeen";
 import {
   X,
   Crown,
@@ -17,6 +19,11 @@ import {
   Lock,
   Gift,
   Download,
+  ExternalLink,
+  Users,
+  Heart,
+  MessageSquareHeart,
+  Share2,
 } from "lucide-react";
 
 const BKASH_NUMBER = "01XXXXXXXXX";
@@ -96,34 +103,46 @@ export const SettingsPanel: React.FC<Props> = ({
 }) => {
   const { session, profile, signOut, refreshProfile } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [numCopied, setNumCopied] = useState(false);
   const [donationOn, setDonationOn] = useState(false);
+  const [contribOn, setContribOn] = useState(true);
   const [tip, setTip] = useState(20);
   const [tipTrx, setTipTrx] = useState("");
   const [tipBusy, setTipBusy] = useState(false);
   const [tipMsg, setTipMsg] = useState("");
   const [flipped, setFlipped] = useState(false);
   const [premiumFlipped, setPremiumFlipped] = useState(false);
-  const [cardName, setCardName] = useState("");
+
+  // ========== COMMUNITY CONTRIBUTION STATE ==========
+  const [contribName, setContribName] = useState("");
+  const [contribUni, setContribUni] = useState("");
+  const [contribInfo, setContribInfo] = useState("");
+  const [contribUrl, setContribUrl] = useState("");
+  const [contribBusy, setContribBusy] = useState(false);
+  const [contribMsg, setContribMsg] = useState("");
+
+  // ========== DIRECT FEEDBACK STATE ==========
+  const [feedbackMsg, setFeedbackMsg] = useState("");
+  const [feedbackContact, setFeedbackContact] = useState("");
+  const [feedbackBusy, setFeedbackBusy] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     supabase
       .from("app_settings")
-      .select("donation_enabled")
+      .select("donation_enabled, contribution_enabled")
       .eq("id", 1)
       .single()
-      .then(
-        ({ data }) => data && setDonationOn(data.donation_enabled !== false),
-      );
+      .then(({ data }) => {
+        if (data) {
+          setDonationOn(data.donation_enabled !== false);
+          setContribOn(data.contribution_enabled !== false);
+        }
+      });
   }, [open]);
 
-  useEffect(() => {
-    if (profile && !cardName)
-      setCardName(profile.full_name || session?.user.email || "DEV SUPPORTER");
-  }, [profile, cardName, session]);
-
-  // Escape key → panel close
   useEscapeClose(open, onClose);
 
   if (!open) return null;
@@ -133,9 +152,16 @@ export const SettingsPanel: React.FC<Props> = ({
   const claimed = !!profile?.donor_card;
   const isPremium = !!profile?.is_premium;
   const t = tierOf(total);
+  const cardName = profile
+    ? profile.full_name || session?.user.email || "DEV SUPPORTER"
+    : "";
   const name = (cardName || "DEV SUPPORTER").toUpperCase();
   const last4 = String(total).padStart(4, "0");
   const passId = `VIP  ••••  ••••  ${profile?.referral_code || "0000"}`;
+
+  const referralLink = profile?.referral_code
+    ? `${APP_URL}/?ref=${profile.referral_code}`
+    : "";
 
   const copyCode = async () => {
     try {
@@ -144,6 +170,16 @@ export const SettingsPanel: React.FC<Props> = ({
       setTimeout(() => setCopied(false), 1500);
     } catch {}
   };
+
+  const copyLink = async () => {
+    if (!referralLink) return;
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 1500);
+    } catch {}
+  };
+
   const copyNum = async () => {
     try {
       await navigator.clipboard.writeText(BKASH_NUMBER);
@@ -156,7 +192,7 @@ export const SettingsPanel: React.FC<Props> = ({
     `🎓 বিশ্ববিদ্যালয় ভর্তি পোর্টাল ২০২৬-২৭\n` +
       `সকল পাবলিক, প্রকৌশল, মেডিকেল ও গুচ্ছ ভর্তির সময়সূচি, জিপিএ যোগ্যতা যাচাই, মাস্টার ক্যালেন্ডার ও লাইভ আপডেট — সব এক অ্যাপে।\n` +
       `📌 ফিচার: প্রিন্ট/PDF • ২য় বার ফিল্টার • যোগ্যতা চেক\n` +
-      `🔗 অ্যাপ: ${APP_URL}/?ref=${profile?.referral_code}\n` +
+      `🔗 অ্যাপ: ${referralLink}\n` +
       `🆔 আমার User ID (${profile?.referral_code}) দিয়ে register করলে subscription-এ ছাড় পাবেন।`,
   );
 
@@ -186,6 +222,64 @@ export const SettingsPanel: React.FC<Props> = ({
   const claim = async () => {
     await supabase.rpc("claim_donor_card");
     await refreshProfile();
+  };
+
+  // ========== COMMUNITY CONTRIBUTION SUBMIT ==========
+  const submitContribution = async () => {
+    if (contribInfo.trim().length < 10) {
+      setContribMsg("❌ কমপক্ষে ১০ অক্ষরের তথ্য লিখো");
+      return;
+    }
+    const cleanUrl = contribUrl.trim() ? safeUrl(contribUrl) : "";
+    if (contribUrl.trim() && !cleanUrl) {
+      setContribMsg("❌ সূত্র URL ঠিক না (https://... দিয়ে লেখো)");
+      return;
+    }
+    setContribBusy(true);
+    setContribMsg("");
+    const uni = initialUniversitiesData.find((u) => u.id === contribUni);
+    const { error } = await supabase.from("user_contributions").insert({
+      user_id: profile?.id || null,
+      contributor_name:
+        contribName.trim() ||
+        profile?.full_name ||
+        `User-${profile?.referral_code || "ANON"}`,
+      university_id: contribUni || null,
+      university_name: uni?.name || "সাধারণ",
+      info_text: contribInfo.trim(),
+      source_url: cleanUrl || null,
+      status: "pending",
+    });
+    setContribBusy(false);
+    setContribMsg(
+      error
+        ? "❌ " + error.message
+        : "✅ ধন্যবাদ! Authority verify করলে News-এ তোমার নামসহ দেখাবে 🎉",
+    );
+    setContribInfo("");
+    setContribUrl("");
+    setContribName("");
+    setTimeout(() => setContribMsg(""), 5000);
+  };
+
+  // ========== DIRECT FEEDBACK SUBMIT ==========
+  const submitFeedback = async () => {
+    if (feedbackMsg.trim().length < 5) {
+      return;
+    }
+    setFeedbackBusy(true);
+    await supabase.from("app_feedback").insert({
+      user_id: profile?.id || null,
+      message: feedbackMsg.trim(),
+      contact: feedbackContact.trim() || null,
+    });
+    setFeedbackBusy(false);
+    setFeedbackSent(true);
+    setTimeout(() => {
+      setFeedbackSent(false);
+      setFeedbackMsg("");
+      setFeedbackContact("");
+    }, 3000);
   };
 
   const Satin = () => (
@@ -598,7 +692,7 @@ export const SettingsPanel: React.FC<Props> = ({
           <div>
             <h2 className="text-lg font-black">সেটিংস</h2>
             <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">
-              অ্যাকাউন্ট • পাস • সাপোর্ট
+              অ্যাকাউন্ট • পাস • সাপোর্ট • কন্ট্রিবিউট
             </p>
           </div>
           <button
@@ -656,19 +750,22 @@ export const SettingsPanel: React.FC<Props> = ({
             </div>
           </section>
 
-          {/* ===== REFERRAL ===== */}
+          {/* ===== REFERRAL — ENHANCED WITH LINK + SHARE ===== */}
           {profile?.referral_code && (
             <section className="rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-[#0f141d] dark:to-[#0f141d] border-2 border-indigo-300 dark:border-white/10 p-4 shadow-lg">
               <div className="flex items-center gap-1.5 text-[11px] font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-3">
-                <Ticket className="w-4 h-4" /> তোমার রেফারেল কোড
+                <Ticket className="w-4 h-4" /> রেফারেল কোড ও লিংক
               </div>
-              <div className="flex items-center gap-2">
+
+              {/* Code */}
+              <div className="flex items-center gap-2 mb-2">
                 <code className="flex-1 text-center py-3.5 rounded-xl bg-white dark:bg-[#151b27] border-2 border-indigo-400 dark:border-indigo-500/40 text-indigo-700 dark:text-indigo-300 font-black tracking-[0.2em] text-lg font-gaming shadow-inner">
                   {profile.referral_code}
                 </code>
                 <button
                   onClick={copyCode}
                   className="p-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg cursor-pointer active:scale-95"
+                  title="কোড কপি"
                 >
                   {copied ? (
                     <Check className="w-4 h-4" />
@@ -676,22 +773,65 @@ export const SettingsPanel: React.FC<Props> = ({
                     <Copy className="w-4 h-4" />
                   )}
                 </button>
+              </div>
+
+              {/* Link (NEW!) */}
+              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 block">
+                রেফারেল লিংক (ডিরেক্ট কপি)
+              </label>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white dark:bg-[#151b27] border-2 border-indigo-300 dark:border-indigo-500/40 flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                  <span className="text-[11px] text-indigo-700 dark:text-indigo-300 font-mono truncate">
+                    {referralLink}
+                  </span>
+                </div>
+                <button
+                  onClick={copyLink}
+                  className="p-3 rounded-xl bg-gradient-to-r from-violet-600 to-pink-600 hover:from-violet-700 hover:to-pink-700 text-white shadow-lg cursor-pointer active:scale-95 shrink-0"
+                  title="লিংক কপি"
+                >
+                  {linkCopied ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <Share2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+
+              {/* Share buttons */}
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 <a
                   href={`https://wa.me/?text=${shareText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg cursor-pointer active:scale-95"
+                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-[11px] font-black shadow-md cursor-pointer active:scale-95"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  WhatsApp
+                </a>
+                <a
+                  href={`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${shareText}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white text-[11px] font-black shadow-md cursor-pointer active:scale-95"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  Telegram
                 </a>
               </div>
-              <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-3 font-semibold leading-relaxed">
-                বন্ধুকে এই কোড দাও — সে ছাড় পাবে, তুমিও!
+
+              <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-1 font-semibold leading-relaxed">
+                💡 বন্ধুকে এই লিংক দাও — সে ছাড় পাবে, তুমিও{" "}
+                <strong className="text-emerald-600 dark:text-emerald-400">
+                  discount unlock
+                </strong>{" "}
+                পাবে!
               </p>
             </section>
           )}
 
-          {/* ===== PREMIUM PASS (dark showcase) ===== */}
+          {/* ===== PREMIUM PASS ===== */}
           <section>
             <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider mb-2 text-cyan-700 dark:text-cyan-300">
               <Crown className="w-4 h-4" /> Premium Pass
@@ -739,7 +879,7 @@ export const SettingsPanel: React.FC<Props> = ({
             </div>
           </section>
 
-          {/* ===== DONOR CARD (dark showcase) ===== */}
+          {/* ===== DONOR CARD ===== */}
           {donationOn && (
             <section>
               <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider mb-2 text-slate-800 dark:text-slate-200">
@@ -809,7 +949,7 @@ export const SettingsPanel: React.FC<Props> = ({
             </section>
           )}
 
-          {/* ===== DONATION BOX (always dark) ===== */}
+          {/* ===== DONATION BOX ===== */}
           {donationOn && (
             <section className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 dark:from-[#0f141d] dark:to-[#0f141d] border-2 border-slate-700 dark:border-white/10 p-4 text-white shadow-xl">
               <div className="flex items-center gap-2.5 mb-3">
@@ -883,6 +1023,72 @@ export const SettingsPanel: React.FC<Props> = ({
             </section>
           )}
 
+          {/* ===== COMMUNITY CONTRIBUTION (NEW!) ===== */}
+          {contribOn && (
+            <section className="rounded-2xl bg-gradient-to-br from-violet-50 to-pink-50 dark:from-[#1a1530] dark:to-[#1a1030] border-2 border-violet-300 dark:border-violet-700/60 p-4 shadow-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-pink-600 flex items-center justify-center shadow-lg">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-slate-900 dark:text-white">
+                    তুমি কিছু জানো?
+                  </div>
+                  <div className="text-[11px] text-slate-600 dark:text-slate-400 font-semibold">
+                    তথ্য পাঠাও — News-এ তোমার নামসহ দেখাবে!
+                  </div>
+                </div>
+              </div>
+
+              <input
+                value={contribName}
+                onChange={(e) => setContribName(e.target.value)}
+                placeholder="তোমার নাম (দেখাবে: তথ্য দিয়েছেন — ...)"
+                className="w-full mb-2 bg-white dark:bg-[#0f141d] border-2 border-violet-200 dark:border-violet-700/60 rounded-xl px-3 py-2.5 text-[11px] focus:outline-none focus:border-violet-400 text-slate-900 dark:text-white"
+              />
+              <select
+                value={contribUni}
+                onChange={(e) => setContribUni(e.target.value)}
+                className="w-full mb-2 bg-white dark:bg-[#0f141d] border-2 border-violet-200 dark:border-violet-700/60 rounded-xl px-3 py-2.5 text-[11px] font-bold focus:outline-none text-slate-900 dark:text-white"
+              >
+                <option value="">— ভার্সিটি বাছো —</option>
+                {initialUniversitiesData.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+              <textarea
+                value={contribInfo}
+                onChange={(e) => setContribInfo(e.target.value)}
+                rows={3}
+                placeholder="যেমন: জাবির পরীক্ষা ২০ জানুয়ারি হবে বলে অফিসিয়াল নোটিশে প্রকাশ..."
+                className="w-full mb-2 bg-white dark:bg-[#0f141d] border-2 border-violet-200 dark:border-violet-700/60 rounded-xl px-3 py-2.5 text-[11px] focus:outline-none resize-none focus:border-violet-400 text-slate-900 dark:text-white"
+              />
+              <input
+                value={contribUrl}
+                onChange={(e) => setContribUrl(e.target.value)}
+                placeholder="সূত্র URL (ঐচ্ছিক, https://...)"
+                className="w-full mb-3 bg-white dark:bg-[#0f141d] border-2 border-violet-200 dark:border-violet-700/60 rounded-xl px-3 py-2.5 text-[11px] focus:outline-none focus:border-violet-400 text-slate-900 dark:text-white"
+              />
+              <button
+                onClick={submitContribution}
+                disabled={contribBusy}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-pink-600 hover:from-violet-700 hover:to-pink-700 text-white text-[11px] font-black cursor-pointer disabled:opacity-50 shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                {contribBusy
+                  ? "পাঠানো হচ্ছে..."
+                  : "📤 তথ্য জমা দাও (Authority verify করবে)"}
+              </button>
+              {contribMsg && (
+                <p className="text-[11px] font-bold text-center mt-2.5 text-slate-700 dark:text-slate-200">
+                  {contribMsg}
+                </p>
+              )}
+            </section>
+          )}
+
           {/* ===== ADMIN ===== */}
           {profile?.role === "admin" && onOpenAdmin && (
             <button
@@ -912,6 +1118,56 @@ export const SettingsPanel: React.FC<Props> = ({
               <Send className="w-4 h-4" /> Telegram
             </a>
           </div>
+
+          {/* ===== DIRECT FEEDBACK BOX (NEW!) ===== */}
+          <section className="rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-[#1a0f1f] dark:to-[#1a0f20] border-2 border-rose-200 dark:border-rose-700/60 p-4 shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-600 flex items-center justify-center shadow-lg">
+                <MessageSquareHeart className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-sm font-black text-slate-900 dark:text-white">
+                  মতামত বা সমস্যা
+                </div>
+                <div className="text-[11px] text-slate-600 dark:text-slate-400 font-semibold">
+                  সরাসরি আমাকে জানাও — upgrade করব!
+                </div>
+              </div>
+            </div>
+
+            {feedbackSent ? (
+              <div className="py-6 text-center">
+                <div className="text-3xl mb-2">💜</div>
+                <p className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                  ধন্যবাদ! তোমার মতামত পৌঁছে গেছে
+                </p>
+              </div>
+            ) : (
+              <>
+                <textarea
+                  value={feedbackMsg}
+                  onChange={(e) => setFeedbackMsg(e.target.value)}
+                  rows={3}
+                  placeholder="অ্যাপটা কেমন লাগছে? কোনো সমস্যা? নতুন feature idea?"
+                  className="w-full mb-2 bg-white dark:bg-[#0f141d] border-2 border-rose-200 dark:border-rose-700/60 rounded-xl px-3 py-2.5 text-[11px] focus:outline-none resize-none focus:border-rose-400 text-slate-900 dark:text-white"
+                />
+                <input
+                  value={feedbackContact}
+                  onChange={(e) => setFeedbackContact(e.target.value)}
+                  placeholder="মোবাইল/ইমেইল (ঐচ্ছিক — reply দিতে)"
+                  className="w-full mb-3 bg-white dark:bg-[#0f141d] border-2 border-rose-200 dark:border-rose-700/60 rounded-xl px-3 py-2.5 text-[11px] focus:outline-none focus:border-rose-400 text-slate-900 dark:text-white"
+                />
+                <button
+                  onClick={submitFeedback}
+                  disabled={feedbackBusy || feedbackMsg.trim().length < 5}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 disabled:opacity-50 text-white text-[11px] font-black cursor-pointer shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <Heart className="w-3.5 h-3.5" />
+                  {feedbackBusy ? "পাঠানো হচ্ছে..." : "💜 মতামত পাঠাও"}
+                </button>
+              </>
+            )}
+          </section>
 
           {/* ===== LOGOUT ===== */}
           <button
