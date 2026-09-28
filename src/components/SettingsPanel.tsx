@@ -14,7 +14,6 @@ import {
   Send,
   LogOut,
   ShieldCheck,
-  Mail,
   Bot,
   Lock,
   Gift,
@@ -23,11 +22,9 @@ import {
   Users,
   Heart,
   MessageSquareHeart,
-  Share2,
   Phone,
   HelpCircle,
   Sparkles,
-  Zap,
 } from "lucide-react";
 
 const BKASH_NUMBER = "01XXXXXXXXX";
