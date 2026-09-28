@@ -39,8 +39,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!uid) { setProfile(null); return; }
     setProfileError(null);
 
-    let { data, error } = await supabase
+    const { data: fetched, error } = await supabase
       .from('profiles').select('*').eq('id', uid).single();
+    let data = fetched;
     if (error) console.error('[profile select]', error.message);
 
     /* ভাঙা/পুরোনো token → clean logout */

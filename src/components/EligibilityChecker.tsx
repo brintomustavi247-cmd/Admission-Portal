@@ -367,7 +367,7 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({
       }
 
       // Match Score Calculation
-      let matchScore = 0;
+      let matchScore: number;
       if (isEligible) {
         const surplus = Math.max(0, combinedGpa - uni.minGpa.combined);
         matchScore = Math.min(100, Math.round(85 + surplus * 15));

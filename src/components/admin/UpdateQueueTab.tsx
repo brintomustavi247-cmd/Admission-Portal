@@ -33,7 +33,7 @@ const WEBHOOK_KEY = "ami123badlo";
 
 const norm = (s: string) =>
   String(s || "")
-    .replace(/[\s\(\)।,.\-—:]/g, "")
+    .replace(/[\s()।,.—:-]/g, "")
     .toLowerCase();
 const digits = (s: string) => String(s || "").replace(/[^\d০-৯]/g, "");
 
