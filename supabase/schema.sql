@@ -86,7 +86,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   update public.profiles set donor_card = true
   where id = auth.uid() and total_donated > 0;
-end $$;
+end; $$;
 
 -- ========== DYNAMIC PRICING + ANNOUNCEMENT ==========
 alter table public.app_settings add column if not exists base_price int not null default 99;
