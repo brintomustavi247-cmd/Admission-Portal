@@ -5,6 +5,8 @@
  */
 
 import React, {
+  lazy,
+  Suspense,
   useState,
   useEffect,
   useMemo,
@@ -39,7 +41,6 @@ import { UpdateNotifier } from "./components/UpdateNotifier";
 import { AppUpdateBanner } from "./components/AppUpdateBanner";
 import { NewsPanel } from "./components/NewsPanel";
 import { FeedbackPopup } from "./components/FeedbackPopup";
-import { Admin } from "./pages/Admin";
 import { unreadUpdates } from "./lib/newsSeen";
 import { useAuth } from "./contexts/AuthContext";
 import {
@@ -60,6 +61,12 @@ type RouteOverlay = "news" | "settings" | "search" | "uni" | null;
 
 const FONT_STORAGE_KEY = "admission_font_pref";
 const THEME_STORAGE_KEY = "varsity_theme";
+const THEME_RESET_KEY = "theme_reset_v2";
+
+/* Admin bundle শুধু admin view খুললে load হয় (App.tsx-ও lazy import করে) */
+const Admin = lazy(() =>
+  import("./pages/Admin").then((m) => ({ default: m.Admin })),
+);
 
 /* ---------- hash parse ---------- */
 function readRoute(): {
@@ -190,17 +197,14 @@ export default function AdmissionDashboard({
     } catch {}
     return "noto";
   });
-  // One-time: পুরনো saved dark preference reset (সবাই white দিয়ে শুরু করবে)
-  try {
-    if (!localStorage.getItem("theme_reset_v2")) {
-      localStorage.removeItem(THEME_STORAGE_KEY);
-      localStorage.setItem("theme_reset_v2", "1");
-    }
-  } catch {}
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    // render-এ শুধু read — কোনো write/setItem নেই (StrictMode-safe)
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
-      if (saved === "dark") return true;
+      if (saved === "dark") {
+        // reset-এর আগের auto-saved dark হলে white দিয়ে শুরু (নিচের effect reset করে দেবে)
+        return !!localStorage.getItem(THEME_RESET_KEY);
+      }
       if (saved === "light") return false;
     } catch {}
     return false; // ✅ DEFAULT: White/Light mode (system dark follow করবে না)
@@ -236,6 +240,16 @@ export default function AdmissionDashboard({
   }, [isUniModal, route.uniId, rawUniversities.length]);
 
   /* ---------- Side Effects ---------- */
+  /* One-time migration (শুধু first mount-এ, effect-এ — render-এ write নয়) */
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(THEME_RESET_KEY)) {
+        localStorage.removeItem(THEME_STORAGE_KEY);
+        localStorage.setItem(THEME_RESET_KEY, "1");
+      }
+    } catch {}
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
     if (isDarkMode) {
@@ -283,7 +297,7 @@ export default function AdmissionDashboard({
     if (!rawUniversities.length) return [];
     const normalize = (str: string) =>
       str
-        .replace(/[\(\)（）\-\_\,\.]/g, "")
+        .replace(/[()（）_.,-]/g, "")
         .replace(/\s+/g, "")
         .toLowerCase();
 
@@ -484,7 +498,15 @@ export default function AdmissionDashboard({
 
   /* ---------- ADMIN VIEW ---------- */
   if (showAdmin) {
-    return <Admin onExit={goBack} />;
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen animate-pulse bg-slate-100 dark:bg-[#0d1017]" />
+        }
+      >
+        <Admin onExit={goBack} />
+      </Suspense>
+    );
   }
 
   return (

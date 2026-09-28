@@ -1,10 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AppGate } from './components/AppGate';
-import { Landing } from './pages/Landing';
-import { Login } from './pages/Login';
-import { Admin } from './pages/Admin';
 import AdmissionDashboard from './page';
+
+/* লগ-আউট first paint-এ শুধু Landing/Login bundle; Admin bundle শুধু দরকার হলে load হয় */
+const Landing = lazy(() =>
+  import('./pages/Landing').then((m) => ({ default: m.Landing })),
+);
+const Login = lazy(() =>
+  import('./pages/Login').then((m) => ({ default: m.Login })),
+);
+const Admin = lazy(() =>
+  import('./pages/Admin').then((m) => ({ default: m.Admin })),
+);
+
+/* কোনো route crash করলেও পুরো app সাদা/blank screen হয় না */
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { err: Error | null }
+> {
+  state = { err: null as Error | null };
+  static getDerivedStateFromError(err: Error) {
+    return { err };
+  }
+  render() {
+    if (this.state.err) {
+      return (
+        <div className="min-h-screen flex items-center justify-center text-sm font-bold text-rose-500 p-6 text-center">
+          ⚠️ কিছু একটা ভুল হয়েছে — refresh করো। ({this.state.err.message})
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const Inner: React.FC = () => {
   const { session, profile, loading } = useAuth();
@@ -16,20 +45,24 @@ const Inner: React.FC = () => {
     return 'landing';
   });
 
-  /* Hash sync for route (e.g. #/admin) */
+  /* Hash sync for route (e.g. #/admin) — pure handler + খালি deps, তাই re-subscribe হয় না */
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleHash = () => {
       const hash = window.location.hash.replace('#/', '').replace('#', '');
-      if (hash === 'admin') {
-        setRoute('admin');
-      } else if (route === 'admin') {
-        setRoute('app');
-      }
+      setRoute((prev) => {
+        if (hash === 'admin') return 'admin';
+        if (prev === 'admin') return 'app';
+        return prev;
+      });
     };
     window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
-  }, [route]);
+    window.addEventListener('popstate', handleHash);
+    return () => {
+      window.removeEventListener('hashchange', handleHash);
+      window.removeEventListener('popstate', handleHash);
+    };
+  }, []);
 
   /* referral link (?ref=CODE) → সরাসরি register screen */
   useEffect(() => {
@@ -45,35 +78,55 @@ const Inner: React.FC = () => {
     );
   }
 
+  const suspenseFallback = (
+    <div className="min-h-screen animate-pulse bg-slate-100 dark:bg-[#0d1017]" />
+  );
+
   if (!session) {
-    return route === 'login'
-      ? <Login onDone={() => setRoute('app')} />
-      : <Landing onGetStarted={() => setRoute('login')} />;
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={suspenseFallback}>
+          {route === 'login' ? (
+            <Login onDone={() => setRoute('app')} />
+          ) : (
+            <Landing onGetStarted={() => setRoute('login')} />
+          )}
+        </Suspense>
+      </ErrorBoundary>
+    );
   }
 
   const effective = route === 'landing' ? 'app' : route;
 
   if (effective === 'admin' && profile?.role === 'admin') {
     return (
-      <Admin
-        onExit={() => {
-          setRoute('app');
-          const savedTab = localStorage.getItem('active_tab') || 'home';
-          window.location.hash = `/${savedTab}`;
-        }}
-      />
+      <ErrorBoundary>
+        <Suspense fallback={suspenseFallback}>
+          <Admin
+            onExit={() => {
+              setRoute('app');
+              const savedTab = localStorage.getItem('active_tab') || 'home';
+              window.location.hash = `/${savedTab}`;
+            }}
+          />
+        </Suspense>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <AppGate>
-      <AdmissionDashboard
-        onOpenAdmin={() => {
-          setRoute('admin');
-          window.location.hash = '/admin';
-        }}
-      />
-    </AppGate>
+    <ErrorBoundary>
+      <Suspense fallback={suspenseFallback}>
+        <AppGate>
+          <AdmissionDashboard
+            onOpenAdmin={() => {
+              setRoute('admin');
+              window.location.hash = '/admin';
+            }}
+          />
+        </AppGate>
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 
