@@ -95,6 +95,46 @@ async function updateSourceWeight(
   }
 }
 
+/* ========== COMMUNITY CONTRIBUTION → APPS SCRIPT WEBHOOK (v10) ==========
+   doPost(action=approve_contribution|reject_contribution) → contribution status
+   update + university_updates publish (_contributor metadata) + source_weights RPC।
+   Content-Type text/plain → CORS preflight এড়ানো (Apps Script OPTIONS handle করে না)। */
+async function callContributionWebhook(
+  action: "approve_contribution" | "reject_contribution",
+  contributionId: string,
+) {
+  const url = `${RESEARCH_WEBHOOK_URL}?key=${encodeURIComponent(WEBHOOK_KEY)}&action=${action}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ contribution_id: contributionId }),
+    redirect: "follow",
+  });
+  const text = await res.text();
+  let json: any = null;
+  try {
+    json = JSON.parse(text);
+  } catch {}
+  return { ok: res.ok && !!json && json.ok === true, json };
+}
+
+/* webhook response body পড়া না গেলেও DB থেকে confirm করা যায় (poll) */
+async function confirmContributionStatus(
+  id: string,
+  want: "approved" | "rejected",
+) {
+  for (let i = 0; i < 4; i++) {
+    const { data } = await supabase
+      .from("user_contributions")
+      .select("status")
+      .eq("id", id)
+      .single();
+    if (data?.status === want) return true;
+    await new Promise((r) => setTimeout(r, i === 0 ? 800 : 1500));
+  }
+  return false;
+}
+
 export const UpdateQueueTab: React.FC = () => {
   const { profile } = useAuth();
   const uid = profile?.id || "guest";
@@ -108,6 +148,7 @@ export const UpdateQueueTab: React.FC = () => {
     "all" | "pending" | "published" | "rejected"
   >("all");
   const [researching, setResearching] = useState(false);
+  const [contribBusy, setContribBusy] = useState<string | null>(null);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error" | "warning";
@@ -282,39 +323,86 @@ export const UpdateQueueTab: React.FC = () => {
       p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
     );
 
-  const approveContrib = async (c: any) => {
-    const { error } = await supabase.from("university_updates").insert({
-      university_id: c.university_id || null,
-      university_name: c.university_name || "সাধারণ",
-      update_type: "circular",
-      title: c.info_text.slice(0, 80),
-      raw_content: c.info_text,
-      extracted_data: {
-        _contributor: c.contributor_name,
-        _source: "community",
-      },
-      source_urls: c.source_url ? [c.source_url] : [],
-      severity: "normal",
-      status: "published",
-      published_at: new Date().toISOString(),
-    });
-    if (!error) {
-      await supabase
-        .from("user_contributions")
-        .update({ status: "approved" })
-        .eq("id", c.id);
-      showToast(`✅ Approved! ${c.contributor_name}-এর তথ্য News-এ`, "success");
-    } else showToast("❌ " + error.message, "error");
-    load();
-  };
+  /* Approve/Reject → Apps Script v10 webhook; webhook fail করলে Supabase fallback + DB verify */
+  const decideContribution = async (c: any, approve: boolean) => {
+    if (contribBusy) return;
+    setContribBusy(c.id);
+    const want = approve ? "approved" : "rejected";
+    try {
+      let hookOk = false;
+      try {
+        const hook = await callContributionWebhook(
+          approve ? "approve_contribution" : "reject_contribution",
+          c.id,
+        );
+        hookOk = hook.ok;
+        if (!hookOk && hook.json?.error)
+          console.warn("contribution webhook:", hook.json.error);
+      } catch (e) {
+        console.warn("contribution webhook unreachable:", e);
+      }
 
-  const rejectContrib = async (c: any) => {
-    await supabase
-      .from("user_contributions")
-      .update({ status: "rejected" })
-      .eq("id", c.id);
-    showToast("❌ Contribution rejected", "warning");
-    load();
+      /* Response body পড়া না গেলেও Apps Script কাজটা করে থাকতে পারে → DB verify */
+      if (!hookOk && (await confirmContributionStatus(c.id, want))) hookOk = true;
+
+      if (hookOk) {
+        showToast(
+          approve
+            ? `✅ Approved! ${c.contributor_name}-এর তথ্য News-এ গেছে (Apps Script)`
+            : "❌ Contribution rejected (Apps Script)",
+          approve ? "success" : "warning",
+        );
+        return;
+      }
+
+      /* Fallback: browser থেকেই Supabase-এ কাজ শেষ করো */
+      if (approve) {
+        const { error } = await supabase.from("university_updates").insert({
+          university_id: c.university_id || null,
+          university_name: c.university_name || "সাধারণ",
+          update_type: "circular",
+          title: c.info_text.slice(0, 80),
+          raw_content: c.info_text,
+          extracted_data: {
+            _contributor: c.contributor_name,
+            _source: "community",
+            _contributed_at: c.created_at,
+          },
+          source_urls: c.source_url ? [c.source_url] : [],
+          severity: "normal",
+          status: "published",
+          published_at: new Date().toISOString(),
+        });
+        if (error) {
+          showToast("❌ " + error.message, "error");
+          return;
+        }
+        await supabase
+          .from("user_contributions")
+          .update({ status: "approved" })
+          .eq("id", c.id);
+        if (c.source_url) await updateSourceWeight([c.source_url], "approve");
+      } else {
+        await supabase
+          .from("user_contributions")
+          .update({ status: "rejected" })
+          .eq("id", c.id);
+        if (c.source_url) await updateSourceWeight([c.source_url], "reject");
+      }
+
+      const done = await confirmContributionStatus(c.id, want);
+      showToast(
+        done
+          ? "⚠️ Webhook reachable ছিল না — fallback path-এ কাজ হয়েছে ✅ (Apps Script deploy URL/key চেক করো)"
+          : "❌ কিছুই update হয়নি — Supabase RLS / connection দেখো",
+        done ? "warning" : "error",
+      );
+    } catch (e: any) {
+      showToast("❌ " + (e?.message || "unknown error"), "error");
+    } finally {
+      setContribBusy(null);
+      load();
+    }
   };
 
   const filteredUpdates = useMemo(() => {
@@ -674,14 +762,17 @@ export const UpdateQueueTab: React.FC = () => {
               )}
               <div className="flex gap-2 pt-1">
                 <button
-                  onClick={() => approveContrib(c)}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black cursor-pointer flex items-center gap-1"
+                  onClick={() => decideContribution(c, true)}
+                  disabled={contribBusy === c.id}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-[10px] font-black cursor-pointer flex items-center gap-1"
                 >
-                  <CheckCircle className="w-3 h-3" /> Approve → News
+                  <CheckCircle className="w-3 h-3" />{" "}
+                  {contribBusy === c.id ? "পাঠানো হচ্ছে..." : "Approve → News"}
                 </button>
                 <button
-                  onClick={() => rejectContrib(c)}
-                  className="px-3 py-1.5 rounded-lg bg-rose-500/15 text-rose-300 text-[10px] font-black cursor-pointer hover:bg-rose-500/25"
+                  onClick={() => decideContribution(c, false)}
+                  disabled={contribBusy === c.id}
+                  className="px-3 py-1.5 rounded-lg bg-rose-500/15 text-rose-300 disabled:opacity-50 text-[10px] font-black cursor-pointer hover:bg-rose-500/25"
                 >
                   বাতিল
                 </button>
