@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { useEscapeClose } from "../hooks/useEscapeClose";
 import {
   X,
   Crown,
@@ -121,6 +122,9 @@ export const SettingsPanel: React.FC<Props> = ({
     if (profile && !cardName)
       setCardName(profile.full_name || session?.user.email || "DEV SUPPORTER");
   }, [profile, cardName, session]);
+
+  // Escape key → panel close
+  useEscapeClose(open, onClose);
 
   if (!open) return null;
 

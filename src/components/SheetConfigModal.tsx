@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
   FileSpreadsheet,
@@ -12,6 +12,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { runSheetFetcherUnitTests } from '../lib/sheetFetcher';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 
 interface SheetConfigModalProps {
   isOpen: boolean;
@@ -53,6 +54,9 @@ export const SheetConfigModal: React.FC<SheetConfigModalProps> = ({
     const results = runSheetFetcherUnitTests();
     setTestResults(results);
   };
+
+  // Escape key → modal close
+  useEscapeClose(isOpen, onClose);
 
   if (!isOpen) return null;
 

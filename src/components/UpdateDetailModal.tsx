@@ -2,6 +2,7 @@ import React from "react";
 import { UniversityUpdate } from "../types/admission";
 import { safeUrl } from "../lib/newsSeen";
 import { X, Calendar, DollarSign, Award, ExternalLink, CheckCircle2, Users } from "lucide-react";
+import { useEscapeClose } from "../hooks/useEscapeClose";
 
 interface Props {
   update: UniversityUpdate;
@@ -10,6 +11,9 @@ interface Props {
 
 export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
   const d = update.extracted_data || {};
+
+  // Escape → close (modal শুধু খোলা থাকলেই mount হয়)
+  useEscapeClose(true, onClose);
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">

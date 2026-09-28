@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeClose } from "../hooks/useEscapeClose";
+import { motion, AnimatePresence } from "motion/react";
 import {
   X,
   ExternalLink,
@@ -90,19 +91,16 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
+  // Escape → close (shared hook)
+  useEscapeClose(isOpen, onClose);
+
+  /* body scroll lock (Escape handling এখন useEscapeClose-এ) */
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    }
+    if (isOpen) document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!university) return null;
 

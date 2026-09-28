@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { UpdateDetailModal } from "./UpdateDetailModal";
 import { initialUniversitiesData } from "../data/mockUniversities";
 import { getSeen, markSeen, safeUrl } from "../lib/newsSeen";
+import { useEscapeClose } from "../hooks/useEscapeClose";
 import { Newspaper, X, Send, Users, Calendar, Megaphone, ExternalLink } from "lucide-react";
 
 type Tab = "news" | "community";
@@ -27,6 +28,9 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
   const [srcUrl, setSrcUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+
+  // Escape → panel close (ভেতরের detail modal খোলা থাকলে সেটাই আগে বন্ধ হবে)
+  useEscapeClose(open && !detail, onClose);
 
   const load = async () => {
     const [n, s] = await Promise.all([

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabase";
 import { MessageSquareHeart, X, Send, PhoneCall } from "lucide-react";
+import { useEscapeClose } from "../hooks/useEscapeClose";
 
 const KEY = "feedback_popup_last_shown";
 const WHATSAPP = "https://wa.me/8801XXXXXXXXX";
@@ -32,6 +33,9 @@ export const FeedbackPopup: React.FC = () => {
     localStorage.setItem(KEY, String(Date.now()));
     setShow(false);
   };
+
+  // Escape → popup close
+  useEscapeClose(show, dismiss);
 
   const submit = async () => {
     if (msg.trim().length < 5) return;

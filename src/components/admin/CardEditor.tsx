@@ -3,33 +3,40 @@ import { supabase } from "../../lib/supabase";
 import { initialUniversitiesData } from "../../data/mockUniversities";
 import { Save, Trash2, Plus, Edit3, RotateCcw } from "lucide-react";
 
+interface CardUnitRow {
+  unit: string;
+  title: string;
+  examDate: string;
+  fee?: string;
+}
+
 export const CardEditor: React.FC = () => {
   const [uniId, setUniId] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [note, setNote] = useState("");
-  const [units, setUnits] = useState<any[]>([]);
+  const [units, setUnits] = useState<CardUnitRow[]>([]);
   const [hasOverride, setHasOverride] = useState(false);
   const [msg, setMsg] = useState("");
 
   const loadUni = async (id: string) => {
     setUniId(id);
     const base = initialUniversitiesData.find((u) => u.id === id);
-    if (!base) return;
     const { data } = await supabase
       .from("university_overrides")
       .select("*")
       .eq("university_id", id)
       .single();
-    const ov = data?.data || {};
+    const ov = (data?.data || {}) as Record<string, any>;
     setHasOverride(!!data);
-    setStart(ov.startDate ?? base.startDate ?? "");
-    setEnd(ov.endDate ?? base.endDate ?? "");
-    setNote(ov.statusNote ?? base.statusNote ?? "");
+    // override-only id হলে base না পেয়েও খালি form দেখাও (silent no-op বন্ধ)
+    setStart(ov.startDate ?? base?.startDate ?? "");
+    setEnd(ov.endDate ?? base?.endDate ?? "");
+    setNote(ov.statusNote ?? base?.statusNote ?? "");
     setUnits(
-      (ov.examUnits ?? base.examUnits ?? []).map((u: any) => ({ ...u })),
+      (ov.examUnits ?? base?.examUnits ?? []).map((u: any) => ({ ...u })),
     );
-    setMsg("");
+    setMsg(base ? "" : "⚠️ Base data নেই — override থেকে edit হচ্ছে");
   };
 
   const save = async () => {

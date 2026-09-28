@@ -1,14 +1,12 @@
 import { supabase } from './supabase';
 
-let uidCache: string | null | undefined;
-
+/* uid আর module-level cache করা হয় না — sign-out/sign-in-এ stale uid যাওয়ার bug ছিল।
+   প্রতিবার session থেকে পড়া হয় (local call, cheap)। */
 export const track = async (event: string, meta?: Record<string, any>) => {
   try {
-    if (uidCache === undefined) {
-      const { data } = await supabase.auth.getSession();
-      uidCache = data.session?.user.id || null;
-    }
-    if (!uidCache) return;
-    await supabase.from('user_events').insert({ user_id: uidCache, event_type: event, meta: meta || {} });
+    const { data } = await supabase.auth.getSession();
+    const uid = data.session?.user.id || null;
+    if (!uid) return;
+    await supabase.from('user_events').insert({ user_id: uid, event_type: event, meta: meta || {} });
   } catch {}
 };
