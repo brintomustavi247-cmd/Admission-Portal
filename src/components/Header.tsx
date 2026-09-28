@@ -166,8 +166,14 @@ export const Header: React.FC<HeaderProps> = ({
   }, [showSearchModal]);
 
   const handleSelectUni = (uni: University) => {
-    setShowSearchModal(false);
-    onSelectUniversity?.(uni);
+    /* Route change নিজেই search modal বন্ধ করবে —
+       এখানে setShowSearchModal(false) করলে history.back() race হয়ে
+       uni modal খুলতে পারে না। তাই শুধু navigate করি। */
+    if (onSelectUniversity) {
+      onSelectUniversity(uni);
+    } else {
+      setShowSearchModal(false);
+    }
   };
 
   const desktopTabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [

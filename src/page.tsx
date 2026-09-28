@@ -441,6 +441,13 @@ export default function AdmissionDashboard({
     (uni: University) => go("/uni/" + uni.id),
     [go],
   );
+  /* Search থেকে select করলে /search entry-টা replace করি —
+     যাতে back চাপলে search আবার না খোলে, সরাসরি আগের page-এ যায় */
+  const handleSelectFromSearch = useCallback((uni: University) => {
+    window.history.replaceState(null, "", "#/uni/" + uni.id);
+    setRoute(readRoute());
+  }, []);
+
   const handleEligibilityEvaluations = useCallback(
     (
       results: Record<string, EligibilityEvaluation> | null,
@@ -483,7 +490,7 @@ export default function AdmissionDashboard({
 
       <Header
         universities={universities}
-        onSelectUniversity={handleOpenModal}
+        onSelectUniversity={handleSelectFromSearch}
         totalCount={universities.length}
         secondTimerCount={metrics.secondTimerCount}
         ongoingCount={metrics.ongoingCount}
