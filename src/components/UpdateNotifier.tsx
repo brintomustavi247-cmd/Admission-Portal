@@ -1,159 +1,105 @@
 /**
- * UpdateNotifier v3 — "BREAKING NEWS STRIP"
- * ✅ Top-center slim horizontal bar (TV breaking-news style)
- * ✅ Severity rail (লাল/হলুদ/নীল) + ping dot + auto-hide progress line
- * ✅ Tap strip বা "দেখুন" → detail modal; modal বন্ধ হলে seen mark
- * ✅ Mobile-light: কোনো blur orb নেই, শুধু ১টা backdrop-blur bar
+ * UpdateNotifier — iOS-style system notification
+ * ✅ স্বাভাবিক premium app-এর মতো: clean card, subtle shadow, no gimmicks
+ * ✅ Tap = details modal • ✕ = dismiss • 8s পরে auto-hide
+ * ✅ Light + dark dual mode, mobile-first width
  */
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useUniversityUpdates } from "../hooks/useUniversityUpdates";
 import { UpdateDetailModal } from "./UpdateDetailModal";
 import { formatBanglaDate } from "../lib/banglaUtils";
-import {
-  AlertTriangle,
-  ArrowUpRight,
-  BellRing,
-  CalendarDays,
-  X,
-  Zap,
-} from "lucide-react";
+import { GraduationCap, X } from "lucide-react";
 
-const SHOW_MS = 12000;
-
-const SEV: Record<
-  string,
-  { rail: string; chip: string; icon: React.ReactNode; label: string }
-> = {
-  urgent: {
-    rail: "from-rose-500 to-orange-500",
-    chip: "bg-rose-500/20 text-rose-300",
-    icon: <Zap className="w-4 h-4" />,
-    label: "ব্রেকিং",
-  },
-  important: {
-    rail: "from-amber-400 to-yellow-500",
-    chip: "bg-amber-500/20 text-amber-300",
-    icon: <AlertTriangle className="w-4 h-4" />,
-    label: "গুরুত্বপূর্ণ",
-  },
-  normal: {
-    rail: "from-sky-500 to-indigo-500",
-    chip: "bg-sky-500/20 text-sky-300",
-    icon: <BellRing className="w-4 h-4" />,
-    label: "নতুন",
-  },
-};
+const AUTO_HIDE_MS = 8000;
 
 export const UpdateNotifier: React.FC = () => {
   const { latestUpdate, dismissUpdate } = useUniversityUpdates();
   const [modalOpen, setModalOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+
+  /* নতুন update এলে আবার দেখাও */
+  useEffect(() => {
+    setVisible(true);
+  }, [latestUpdate?.id]);
 
   /* auto-hide (modal খোলা থাকলে pause) */
   useEffect(() => {
-    if (!latestUpdate || modalOpen) return;
-    const t = setTimeout(() => dismissUpdate(latestUpdate.id), SHOW_MS);
+    if (!latestUpdate || modalOpen || !visible) return;
+    const t = setTimeout(() => setVisible(false), AUTO_HIDE_MS);
     return () => clearTimeout(t);
-  }, [latestUpdate, modalOpen, dismissUpdate]);
+  }, [latestUpdate, modalOpen, visible]);
 
   if (!latestUpdate) return null;
-
-  const sev = SEV[latestUpdate.severity] || SEV.normal;
   const examDate = latestUpdate.extracted_data?.exam_date;
-
-  const closeDetail = () => {
-    setModalOpen(false);
-    dismissUpdate(latestUpdate.id);
-  };
 
   return (
     <>
       <AnimatePresence>
-        {!modalOpen && (
+        {visible && !modalOpen && (
           <motion.div
             key={latestUpdate.id}
-            initial={{ y: -90, opacity: 0 }}
+            initial={{ y: -72, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -90, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 340, damping: 30 }}
-            className="fixed top-2 left-2 right-2 sm:left-1/2 sm:-translate-x-1/2 sm:w-[560px] z-[95]"
+            exit={{ y: -72, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 420, damping: 34 }}
+            className="fixed top-3 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-[420px] z-[95]"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl shadow-black/60">
-              {/* severity rail (বাঁয়ে) */}
-              <div
-                className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${sev.rail}`}
-              />
-
-              <div className="flex items-center gap-2.5 pl-4 pr-2 py-2.5">
-                {/* icon + ping */}
-                <div
-                  className={`relative w-9 h-9 rounded-xl bg-gradient-to-br ${sev.rail} flex items-center justify-center text-white shrink-0 shadow-lg`}
-                >
-                  {sev.icon}
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white animate-ping" />
-                </div>
-
-                {/* headline (tap = detail) */}
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(true)}
-                  className="flex-1 min-w-0 text-left cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${sev.chip}`}
-                    >
-                      {sev.label}
-                    </span>
-                    <span className="text-[9px] font-bold text-slate-400 truncate">
-                      {latestUpdate.university_name}
-                    </span>
-                  </div>
-                  <p className="text-[12px] font-black text-white truncate mt-0.5">
-                    {latestUpdate.title}
-                  </p>
-                </button>
-
-                {/* date chip (desktop) */}
-                {examDate && (
-                  <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2 py-1 rounded-lg shrink-0">
-                    <CalendarDays className="w-3 h-3" />
-                    {formatBanglaDate(examDate)}
-                  </span>
-                )}
-
-                {/* actions */}
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(true)}
-                  className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-white hover:bg-sky-100 text-slate-900 text-[10px] font-black cursor-pointer active:scale-95 transition-all"
-                >
-                  দেখুন <ArrowUpRight className="w-3 h-3" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => dismissUpdate(latestUpdate.id)}
-                  className="shrink-0 p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 cursor-pointer transition-all"
-                  title="বন্ধ করো"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+            <div
+              role="status"
+              onClick={() => setModalOpen(true)}
+              className="flex items-start gap-3 rounded-2xl bg-white/95 dark:bg-[#1c2430]/95 backdrop-blur border border-slate-200/70 dark:border-white/10 shadow-lg shadow-slate-900/10 dark:shadow-black/40 p-3.5 cursor-pointer select-none"
+            >
+              {/* app icon */}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+                <GraduationCap className="w-5 h-5" />
               </div>
 
-              {/* auto-hide progress line */}
-              <motion.div
-                className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r ${sev.rail}`}
-                initial={{ width: "100%" }}
-                animate={{ width: "0%" }}
-                transition={{ duration: SHOW_MS / 1000, ease: "linear" }}
-              />
+              {/* text block */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[12px] font-semibold text-slate-900 dark:text-white truncate">
+                    ভর্তি পোর্টাল
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 shrink-0">
+                    এইমাত্র
+                  </span>
+                </div>
+                <p className="text-[13px] font-bold text-slate-800 dark:text-slate-100 leading-snug mt-0.5 line-clamp-2">
+                  {latestUpdate.title}
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+                  {latestUpdate.university_name}
+                  {examDate && ` • পরীক্ষা ${formatBanglaDate(examDate)}`}
+                </p>
+              </div>
+
+              {/* dismiss */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setVisible(false);
+                  dismissUpdate(latestUpdate.id);
+                }}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition shrink-0 cursor-pointer"
+                aria-label="বন্ধ করুন"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {modalOpen && (
-        <UpdateDetailModal update={latestUpdate} onClose={closeDetail} />
+        <UpdateDetailModal
+          update={latestUpdate}
+          onClose={() => {
+            setModalOpen(false);
+            dismissUpdate(latestUpdate.id);
+          }}
+        />
       )}
     </>
   );
