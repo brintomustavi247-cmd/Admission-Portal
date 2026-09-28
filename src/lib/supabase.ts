@@ -1,6 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://tgfinkycmzufexncxfmk.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZmlua3ljbXp1ZmV4bmN4Zm1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzQ5OTgsImV4cCI6MjEwNTMxMDk5OH0.uikS9RRCII19FCWgmObibwjLONdgrmc9yfoOqgae49E';
+/* Env-only (৩য় বার): আর কোনো hardcoded fallback নেই।
+ * `VITE_` prefix মানেই value-টা client bundle-এ চলে যায়, তাই এগুলো
+ * (anon key — anon key হলে public, কিন্তু URL/key ভুল project-এ
+ * পড়ে গেলে production-এর data অন্য project-এ leak করার ঝুঁকি থাকে)
+ * যাচাই না করে boot করা ভুল ছিল।
+ * .env.example → .env.local copy না করলে এখন সঙ্গে সঙ্গে পরিষ্কার
+ * error দেবে, চুপচাপ ভুল backend-এ কানেক্ট হবে না। */
+const url = import.meta.env.VITE_SUPABASE_URL;
+const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!url || !anon) {
+  throw new Error(
+    "Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY — copy .env.example to .env.local",
+  );
+}
+
+export const supabase = createClient(url, anon);

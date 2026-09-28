@@ -31,15 +31,11 @@
     />
     <meta name="apple-mobile-web-app-title" content="ভর্তি পোর্টাল" />
 
-    <!-- Google Fonts Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- Premium Bengali Typography (Hind Siliguri + Anek Bangla + Plus Jakarta Sans) -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Anek+Bangla:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap"
-      rel="stylesheet"
-    />
+    <!--
+      ফন্ট আর Google Fonts <link> থেকে আসে না — src/fonts.css (@font-face) + public/fonts/*.woff2
+      same-origin থেকে serve হয়। main.tsx fonts.css import করে।
+      ফলে render-blocking third-party request ও external DNS/TLS handshake নেই।
+    -->
   </head>
   <body
     class="bg-[#f8fafc] dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 antialiased min-h-screen"

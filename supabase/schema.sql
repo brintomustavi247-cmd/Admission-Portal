@@ -387,9 +387,18 @@ create policy profiles_update_self on public.profiles
       referral_code, referred_by, discount_unlocked, total_donated, donor_card
     )
   );
+-- SECURITY: `using` ছাড়া শুধু `using` থাকলে admin যে কোনো row-এর যেকোনো
+-- privileged field (role/is_premium/...) নিজের client থেকে বদলাতে পারত —
+-- WITH CHECK যোগ করলে UPDATE-এর গন্তব্য row-ও যাচাই হয়।
+-- নিজের row-এ privileged বদলাতে চাইলে SQL/dashboard (service role = RLS
+-- bypass) ব্যবহার করতে হবে — UI workflow অক্ষত থাকে।
 drop policy if exists profiles_update_admin on public.profiles;
 create policy profiles_update_admin on public.profiles
-  for update using (public.is_admin());
+  for update using (public.is_admin())
+  with check (
+    public.is_admin()
+    and (id <> auth.uid() or public.profile_privileged_fields_unchanged())
+  );
 
 -- App settings
 drop policy if exists settings_read on public.app_settings;

@@ -7,10 +7,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Link,
-  Code2,
   Database,
 } from 'lucide-react';
-import { runSheetFetcherUnitTests } from '../lib/sheetFetcher';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 
 interface SheetConfigModalProps {
@@ -38,7 +36,6 @@ export const SheetConfigModal: React.FC<SheetConfigModalProps> = ({
   isLoading,
 }) => {
   const [inputUrl, setInputUrl] = useState(currentSheetId);
-  const [testResults, setTestResults] = useState<{ passed: boolean; details: string[] } | null>(null);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,11 +43,6 @@ export const SheetConfigModal: React.FC<SheetConfigModalProps> = ({
       onApplySheetUrl(inputUrl.trim());
       onClose();
     }
-  };
-
-  const handleRunTests = () => {
-    const results = runSheetFetcherUnitTests();
-    setTestResults(results);
   };
 
   // Escape key → modal close
@@ -146,54 +138,26 @@ export const SheetConfigModal: React.FC<SheetConfigModalProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center justify-between gap-3 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
-                onClick={handleRunTests}
-                className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-100 dark:bg-[#232b3a] hover:bg-slate-200 dark:hover:bg-[#2a3344] text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
+                onClick={onRefresh}
+                disabled={isLoading}
+                className="p-2 rounded-xl border border-slate-200 dark:border-[#333d4d] hover:bg-slate-50 dark:hover:bg-[#2a3344] text-slate-600 dark:text-slate-300 disabled:opacity-50 cursor-pointer"
+                title="রিফ্রেশ"
               >
-                <Code2 className="w-3.5 h-3.5" />
-                <span>ইউনিট টেস্ট চালান</span>
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
               </button>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onRefresh}
-                  disabled={isLoading}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-[#333d4d] hover:bg-slate-50 dark:hover:bg-[#2a3344] text-slate-600 dark:text-slate-300 disabled:opacity-50 cursor-pointer"
-                  title="রিফ্রেশ"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-                >
-                  সংরক্ষণ ও লোড করুন
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                সংরক্ষণ ও লোড করুন
+              </button>
             </div>
           </form>
-
-          {/* Unit Test Results Display */}
-          {testResults && (
-            <div className="mt-4 p-3 rounded-2xl bg-slate-900 text-slate-100 text-xs space-y-1.5 max-h-40 overflow-y-auto font-mono">
-              <div className="font-bold flex items-center justify-between pb-1 border-b border-slate-800">
-                <span>ইউনিট টেস্ট ফলাফল:</span>
-                <span className={testResults.passed ? 'text-emerald-400' : 'text-rose-400'}>
-                  {testResults.passed ? 'সব টেস্ট পাস করেছে (ALL PASSED)' : 'ত্রুটি পাওয়া গেছে'}
-                </span>
-              </div>
-              {testResults.details.map((detail, idx) => (
-                <div key={idx} className="text-[11px] opacity-90">
-                  {detail}
-                </div>
-              ))}
-            </div>
-          )}
         </motion.div>
       </div>
     </AnimatePresence>

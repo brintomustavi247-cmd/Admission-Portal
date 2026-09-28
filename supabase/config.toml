@@ -1,0 +1,9 @@
+# JWT verification is ON for both functions — the runtime rejects
+# unauthenticated requests before the handler body runs.
+# Each handler ALSO re-verifies admin role server-side (defense in depth).
+
+[functions.research-proxy]
+verify_jwt = true
+
+[functions.extract-with-gemini]
+verify_jwt = true

@@ -24,24 +24,19 @@ import {
 } from "lucide-react";
 
 /* ============================================================
-   ⚙️ CONFIG — Apps Script Web App URL + key এখন .env.local থেকে আসে
-   (Apps Script → Deploy → Manage deployments → Web app URL)
-   ============================================================ */
-// SECURITY: URL/key আর কখনো source-এ hardcode করো না — git history-তে থেকে যায়।
-// .env.local (gitignored) এ রাখো:
-//   VITE_RESEARCH_WEBHOOK_URL=https://script.google.com/macros/s/..../exec
-//   VITE_WEBHOOK_KEY=<rotated Apps Script WEBHOOK_SECRET>
-const RESEARCH_WEBHOOK_URL = (
-  import.meta.env.VITE_RESEARCH_WEBHOOK_URL || ""
-).trim();
-const WEBHOOK_KEY = (import.meta.env.VITE_WEBHOOK_KEY || "").trim();
-const WEBHOOK_CONFIGURED = Boolean(RESEARCH_WEBHOOK_URL && WEBHOOK_KEY);
+   🔬 RESEARCH WEBHOOK — server-side proxy
+   ============================================================
+   SECRET আর client-এ নেই। `VITE_` prefix মানেই value bundle-এ চলে যায়,
+   তাই VITE_WEBHOOK_KEY দিয়ে ছিলে key-টা প্রত্যেক visitor-ই দেখতে পেত
+   (git history-তে commit `2588855`-এও পড়ে আছে)।
 
-if (!WEBHOOK_CONFIGURED) {
-  console.warn(
-    "Research webhook not configured. Set VITE_RESEARCH_WEBHOOK_URL and VITE_WEBHOOK_KEY (see .env.example / apps-script/README.md)",
-  );
-}
+   এখন:  browser → supabase.functions.invoke("research-proxy")
+                → Edge Function (admin verify + secret) → Apps Script
+
+   Setup: supabase secrets set RESEARCH_WEBHOOK_URL=... RESEARCH_WEBHOOK_KEY=...
+          supabase functions deploy research-proxy
+   বিস্তারিত: apps-script/README.md → Deployment
+   ============================================================ */
 
 const norm = (s: string) =>
   String(s || "")
@@ -107,29 +102,32 @@ async function updateSourceWeight(
   }
 }
 
-/* ========== COMMUNITY CONTRIBUTION → APPS SCRIPT WEBHOOK (v10) ==========
+/* ========== COMMUNITY CONTRIBUTION → APPS SCRIPT (v10) ==========
    doPost(action=approve_contribution|reject_contribution) → contribution status
    update + university_updates publish (_contributor metadata) + source_weights RPC।
-   Content-Type text/plain → CORS preflight এড়ানো (Apps Script OPTIONS handle করে না)। */
+
+   আগে browser থেকে `?key=<WEBHOOK_KEY>` সহ সরাসরি POST হত — key-টা
+   bundle-এ থাকত। এখন research-proxy-র ভেতর দিয়ে যায় (server-side secret
+   + server-side admin check)। Proxy নিজে text/plain POST করে, তাই
+   Apps Script-এর preflight behaviour অপরিবর্তিত। */
 async function callContributionWebhook(
   action: "approve_contribution" | "reject_contribution",
   contributionId: string,
 ) {
-  /* env missing → fetch-ই করবো না; caller Supabase fallback path নেবে */
-  if (!WEBHOOK_CONFIGURED) return { ok: false, json: null };
-  const url = `${RESEARCH_WEBHOOK_URL}?key=${encodeURIComponent(WEBHOOK_KEY)}&action=${action}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ contribution_id: contributionId }),
-    redirect: "follow",
-  });
-  const text = await res.text();
-  let json: any = null;
   try {
-    json = JSON.parse(text);
-  } catch {}
-  return { ok: res.ok && !!json && json.ok === true, json };
+    const { data, error } = await supabase.functions.invoke("research-proxy", {
+      body: { action, contribution_id: contributionId },
+    });
+    if (error) {
+      console.warn("Contribution proxy error:", error);
+      return { ok: false, json: null };
+    }
+    const json: any = data;
+    return { ok: !!json && json.ok === true, json };
+  } catch (e) {
+    console.warn("Contribution proxy failed:", e);
+    return { ok: false, json: null };
+  }
 }
 
 /* webhook response body পড়া না গেলেও DB থেকে confirm করা যায় (poll) */
@@ -204,15 +202,8 @@ export const UpdateQueueTab: React.FC = () => {
     load();
   }, [load]);
 
-  /* ========== 🔬 DEEP RESEARCH — FIXED ========== */
+  /* ========== 🔬 DEEP RESEARCH — via server-side proxy ========== */
   const deepResearch = async () => {
-    if (!WEBHOOK_CONFIGURED) {
-      showToast(
-        "❌ VITE_RESEARCH_WEBHOOK_URL / VITE_WEBHOOK_KEY সেট করা নেই — .env.local দেখো (apps-script/README.md → Deployment)",
-        "error",
-      );
-      return;
-    }
     const uniId = prompt(
       "কোন ভার্সিটির জন্য deep research? (id: du, gst, buet, medical, ju...)",
     );
@@ -221,22 +212,26 @@ export const UpdateQueueTab: React.FC = () => {
     setResearching(true);
     showToast("🔬 Deep research চলছে... ৩০-৯০ সেকেন্ড লাগতে পারে", "success");
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 120000);
-      const res = await fetch(
-        `${RESEARCH_WEBHOOK_URL}?key=${WEBHOOK_KEY}&uni=${encodeURIComponent(uniId.trim())}`,
-        { redirect: "follow", signal: controller.signal },
+      const { data, error } = await supabase.functions.invoke(
+        "research-proxy",
+        { body: { uni: uniId.trim() } },
       );
-      clearTimeout(timer);
-      const text = await res.text();
-      let json: any = null;
-      try {
-        json = JSON.parse(text);
-      } catch {}
-
-      if (!res.ok || !json) {
+      if (error) {
+        showToast("❌ Proxy error — login/admin check করো", "error");
+        return;
+      }
+      const json: any = data;
+      if (!json) {
+        showToast("❌ খালি response — Edge Function deploy করেছো কিনা দেখো", "error");
+        return;
+      }
+      if (json.error) {
         showToast(
-          `❌ HTTP ${res.status} — Apps Script-এ New version deploy করেছো কিনা দেখো`,
+          `❌ ${
+            json.error === "forbidden"
+              ? "শুধু admin — তোমার role admin না"
+              : json.error
+          }`,
           "error",
         );
         return;
@@ -258,7 +253,7 @@ export const UpdateQueueTab: React.FC = () => {
       }
     } catch (e: any) {
       showToast(
-        "❌ Network error — deployment access 'Anyone' আছে কিনা দেখো",
+        "❌ Network error — Edge Function reachable কিনা দেখো",
         "error",
       );
     } finally {

@@ -55,29 +55,12 @@ status poll করে confirm করে।
    Function deploy না হওয়া পর্যন্ত Admin → "১-ক্লিক AI এক্সট্রাক্টর" নিজে থেকেই
    local regex fallback extractor-এ কাজ করবে (feature ভাঙবে না)।
 
-## Bootstrap order (গুরুত্বপূর্ণ)
+## Database Bootstrap (single source of truth)
 
-Fresh DB বানাতে হলে ঠিক এই order-এ run করো (Supabase SQL Editor):
-
-1. `supabase/schema.sql` — সব table + base function/trigger/policy
-2. `supabase/migrations/20260927_restore_schema.sql` — v10 feature + RLS
-3. `supabase/migrations/20260928_notice_board_and_scrape_logs.sql` — notice board + run logs
-4. `supabase/migrations/20260928_fix_blockers.sql` — **সবসময় শেষে** (blocker + security fix)
-
-**Migrations কখনো out-of-order run করবে না** — পরেরটা আগেরটার তৈরি করা object-এর উপর নির্ভর করে
-(যেমন `check_referral_code()`/`validate_and_set_payment_amount()` আগের migration-ই বানায়)।
-সবগুলো idempotent, তাই আগেরগুলো re-run করা নিরাপদ।
-
-প্রতিটা migration কী যোগ করে:
-
-- `supabase/migrations/20260927_restore_schema.sql` — `university_updates`, `user_contributions`, `app_feedback`,
-  `source_weights`, `university_overrides`, `user_events`, `app_settings` columns, `update_source_weight()`,
-  `admin_process_payment()`, RLS + realtime publication।
-- `supabase/migrations/20260928_notice_board_and_scrape_logs.sql` — `notice_board_snapshots`, `ai_scrape_logs`
-  (v10-এর notice detection + logging)।
-- `supabase/migrations/20260928_fix_blockers.sql` — `profiles.email` column, `check_referral_code()` return type,
-  self-update privilege-escalation বন্ধ, `profiles_select_all` সীমিত, `update_source_weight()` admin guard,
-  `free_until` payment logic, `referred_by` overwrite বন্ধ।
+- **Fresh database** → run ONLY `supabase/schema.sql` (canonical, self-contained).
+- **Production** → already migrated. Do NOT run anything from `migrations/archive/`.
+- `migrations/archive/*` = historical audit trail. Running them re-opens fixed
+  security holes. There is intentionally no ordered multi-file bootstrap anymore.
 
 ## Security notes (গুরুত্বপূর্ণ)
 

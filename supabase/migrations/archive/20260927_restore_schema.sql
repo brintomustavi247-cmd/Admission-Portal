@@ -1,3 +1,12 @@
+-- ⚠️⚠️ HISTORICAL MIGRATION — DO NOT RUN ON ANY DATABASE ⚠️⚠️
+-- Applied to production on 2026-09-27/28; now SUPERSEDED.
+-- Fresh bootstrap  : run ONLY supabase/schema.sql
+-- Existing prod DB : already up to date — re-running this file would
+--                    RE-INTRODUCE removed vulnerabilities (open profiles
+--                    read, priv-esc policy, unguarded RPCs).
+-- Kept for audit history only.
+
+
 -- ============================================================
 -- RESTORE + COMPLETE SCHEMA (idempotent — যতবার খুশি run করা যাবে)
 -- ============================================================
