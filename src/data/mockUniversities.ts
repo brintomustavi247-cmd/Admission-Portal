@@ -1,12 +1,13 @@
 // -----------------------------------------------------------------------------
-// Admission Portal dataset — Updated 25 Sep 2026 (BD)
+// Admission Portal dataset — Full Rewrite v13.2 (BD)
 // Source: Multi-source research (Prothom Alo, Kaler Kantho, Daily Star, official portals)
+// KB-Verified: DU (admission.eis.du.ac.bd), JU (ju-admission.org)
 // -----------------------------------------------------------------------------
 
 import { University } from "../types/admission";
 
 export const initialUniversitiesData: University[] = [
-  // 1. ঢাকা বিশ্ববিদ্যালয় (ঢাবি) - DU [No new update in last 14 days]
+  // 1. ঢাকা বিশ্ববিদ্যালয় (ঢাবি) - DU [KB-VERIFIED: admission.eis.du.ac.bd, 2025-26 session, EXPIRED]
   {
     id: "du",
     name: "ঢাকা বিশ্ববিদ্যালয় (ঢাবি)",
@@ -18,15 +19,29 @@ export const initialUniversitiesData: University[] = [
     applicationLink: "https://admission.eis.du.ac.bd/",
     applicationProcess:
       "অনলাইন পোর্টাল থেকে এসএসসি ও এইচএসসি রোল, রেজিস্ট্রেশন ও বোর্ড দিয়ে আবেদন সম্পন্ন করুন। ফি ব্যাংকিং/অনলাইনে জমা দিন।",
-    startDate: "2026-11-11",
-    endDate: "2026-11-25",
+    startDate: "2025-10-29",
+    endDate: "2025-11-19",
     admitCardDate: "",
     secondTimerAllowed: false,
-    secondTimerDeduction: "সুযোগ নেই (শুধুমাত্র HSC 2026 ব্যাচ)",
-    eligibleHscBatches: "শুধুমাত্র HSC 2026",
+    secondTimerDeduction: "সুযোগ নেই (শুধুমাত্র HSC 2025 ব্যাচ)",
+    eligibleHscBatches: "শুধুমাত্র HSC 2025",
     circularStatus: "confirmed",
     statusNote:
-      "আগস্টে ঘোষিত সূচি: IBA ৫ ডিসেম্বর, ক ইউনিট ১২ ডিসেম্বর, খ ইউনিট ১৯ ডিসেম্বর, চারুকলা ২২ ডিসেম্বর, গ ইউনিট ২৬ ডিসেম্বর। আবেদন ১১-২৫ নভেম্বর। গত ১৪ দিনে নতুন কোনো পরিবর্তন নেই।",
+      "✅ KB-verified 2025-26 session (সময়সীমা শেষ): আইবিএ ২৮ নভে, চারুকলা ২৯ নভে, ব্যবসায় ৬ ডিসে, ক ইউনিট ১৩ ডিসে, বিজ্ঞান ২৭ ডিসে ২০২৫। ৮ বিভাগে পরীক্ষা। ২০২৬-২৭ circular অপেক্ষমান।",
+    sessionYear: "2025-26",
+    examRegions: [
+      "ঢাকা",
+      "চট্টগ্রাম",
+      "রাজশাহী",
+      "খুলনা",
+      "সিলেট",
+      "রংপুর",
+      "বরিশাল",
+      "ময়মনসিংহ",
+    ],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -46,38 +61,45 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "DU",
     examUnits: [
       {
-        unit: "IBA",
+        unit: "আইবিএ",
         title: "Institute of Business Administration",
-        examDate: "2026-12-05",
+        examDate: "2025-11-28",
         time: "সকাল ১০:০০ - ১২:০০",
         fee: "১৫০০ টাকা",
       },
       {
-        unit: "ক ইউনিট",
-        title: "বিজ্ঞান অনুষদভুক্ত বিষয়সমূহ",
-        examDate: "2026-12-12",
-        time: "সকাল ১১:০০ - ১২:৩০",
-        fee: "১০৫০ টাকা",
-      },
-      {
-        unit: "খ ইউনিট",
-        title: "কলা, আইন ও সামাজিক বিজ্ঞান",
-        examDate: "2026-12-19",
-        time: "সকাল ১১:০০ - ১২:৩০",
-        fee: "১০৫০ টাকা",
-      },
-      {
         unit: "চারুকলা ইউনিট",
         title: "চারুকলা অনুষদ",
-        examDate: "2026-12-22",
+        examDate: "2025-11-29",
         time: "সকাল ১১:০০ - ১২:৩০",
         fee: "১০৫০ টাকা",
       },
       {
-        unit: "গ ইউনিট",
-        title: "ব্যবসায় প্রশাসন",
-        examDate: "2026-12-26",
+        unit: "ব্যবসায় শিক্ষা ইউনিট",
+        title: "ব্যবসায় শিক্ষা অনুষদ",
+        examDate: "2025-12-06",
         time: "সকাল ১১:০০ - ১২:৩০",
+        fee: "১০৫০ টাকা",
+      },
+      {
+        unit: "ক ইউনিট",
+        title: "কলা, আইন ও সামাজিক বিজ্ঞান",
+        examDate: "2025-12-13",
+        time: "সকাল ১১:০০ - ১২:৩০",
+        fee: "১০৫০ টাকা",
+      },
+      {
+        unit: "বিজ্ঞান ইউনিট",
+        title: "বিজ্ঞান অনুষদভুক্ত বিষয়সমূহ",
+        examDate: "2025-12-27",
+        time: "বিকাল ৩:৩০ - ৫:০০",
+        fee: "১০৫০ টাকা",
+      },
+      {
+        unit: "খেলোয়াড় ইউনিট",
+        title: "ক্রীড়া কোটা (আবেদন মার্চ ২০২৬)",
+        examDate: "",
+        time: "",
         fee: "১০৫০ টাকা",
       },
     ],
@@ -104,6 +126,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "আগস্টের শেষে ঘোষিত: ১৭ ডিসেম্বর সি ও ডি ইউনিট, ১৮ ডিসেম্বর এ ও বি ইউনিট। গত ১৪ দিনে নতুন কোনো আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["খুলনা"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -136,7 +163,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 3. জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি) - JU [UPDATED 22 Sep 2026]
+  // 3. জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি) - JU [KB-VERIFIED: ju-admission.org, 2025 session, EXPIRED]
   {
     id: "ju",
     name: "জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি)",
@@ -148,15 +175,20 @@ export const initialUniversitiesData: University[] = [
     applicationLink: "https://ju-admission.org/",
     applicationProcess:
       "অনলাইন পোর্টালে লগইন করে ইউনিট ভিত্তিক আবেদন করুন। বিকাশ, রকেট বা নগদে ফি প্রদান করুন।",
-    startDate: "",
-    endDate: "",
-    admitCardDate: "",
+    startDate: "2025-01-01",
+    endDate: "2025-01-21",
+    admitCardDate: "2025-02-02",
     secondTimerAllowed: true,
     secondTimerDeduction: "কোন নম্বর কর্তন নেই (সম্পূর্ণ সমসুযোগ)",
-    eligibleHscBatches: "HSC 2025 ও 2026",
-    circularStatus: "reported",
+    eligibleHscBatches: "HSC 2024 ও 2025",
+    circularStatus: "confirmed",
     statusNote:
-      "📅 NEW: ২২ সেপ্টেম্বর ভর্তি কমিটির সভায় ১৭ জানুয়ারি ২০২৭ থেকে পরীক্ষা শুরুর প্রস্তাব। ওই সপ্তাহজুড়ে পরীক্ষা চলতে পারে। বিভাগীয় শহরে কেন্দ্র বাদ (আর্থিক/লজিস্টিক কারণে)। চূড়ান্ত সিদ্ধান্ত একাডেমিক কাউন্সিলের সভায়। (সূত্র: Shiksha Sangbad, Barta 24)",
+      "✅ KB-verified 2025 session (সময়সীমা শেষ): ৯-১৯ ফেব্রুয়ারি ২০২৫ পরীক্ষা। A/B/C=৯০০ টাকা, C1/D/E/IBA-JU=৬০০ টাকা। সাভার ক্যাম্পাসে পরীক্ষা। ২০২৬ circular অপেক্ষমান।",
+    sessionYear: "2025",
+    examRegions: ["সাভার (মূল ক্যাম্পাস)"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -176,10 +208,46 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "JU",
     examUnits: [
       {
-        unit: "স্নাতক ভর্তি পরীক্ষা",
-        title: "সম্ভাব্য শুরু ১৭ জানুয়ারি ২০২৭",
-        examDate: "2027-01-17",
-        fee: "১১০০ টাকা",
+        unit: "A ইউনিট",
+        title: "গাণিতিক ও ভৌত বিজ্ঞান",
+        examDate: "2025-02-09",
+        fee: "৯০০ টাকা",
+      },
+      {
+        unit: "B ইউনিট",
+        title: "জীববিজ্ঞান অনুষদ",
+        examDate: "2025-02-11",
+        fee: "৯০০ টাকা",
+      },
+      {
+        unit: "C ইউনিট",
+        title: "কলা ও মানবিক",
+        examDate: "2025-02-13",
+        fee: "৯০০ টাকা",
+      },
+      {
+        unit: "C1 ইউনিট",
+        title: "সামাজিক বিজ্ঞান",
+        examDate: "2025-02-15",
+        fee: "৬০০ টাকা",
+      },
+      {
+        unit: "D ইউনিট",
+        title: "ব্যবসায় শিক্ষা",
+        examDate: "2025-02-17",
+        fee: "৬০০ টাকা",
+      },
+      {
+        unit: "E ইউনিট",
+        title: "আইন",
+        examDate: "2025-02-19",
+        fee: "৬০০ টাকা",
+      },
+      {
+        unit: "IBA-JU",
+        title: "ইনস্টিটিউট অব বিজনেস অ্যাডমিনিস্ট্রেশন",
+        examDate: "2025-02-19",
+        fee: "৬০০ টাকা",
       },
     ],
   },
@@ -205,6 +273,20 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "সেপ্টেম্বরের শুরুতে ঘোষিত: ৮ জানুয়ারি খ ইউনিট (বাণিজ্য), ৯ জানুয়ারি গ ইউনিট (বিজ্ঞান), ১৬ জানুয়ারি ক ইউনিট (মানবিক)। প্রথমবার সব বিভাগীয় শহরে কেন্দ্র। গত ১৪ দিনে নতুন আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: [
+      "রাজশাহী",
+      "ঢাকা",
+      "চট্টগ্রাম",
+      "খুলনা",
+      "সিলেট",
+      "রংপুর",
+      "বরিশাল",
+      "ময়মনসিংহ",
+    ],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -259,6 +341,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "সেপ্টেম্বরের শুরুতে ঘোষিত: আবেদন ১৫ নভেম্বর দুপুর ১২টা থেকে ১০ ডিসেম্বর রাত ১১:৫৯। পরীক্ষা: এ ইউনিট ১ জানুয়ারি, ই ইউনিট ৮ জানুয়ারি, বি ইউনিট ১৫ জানুয়ারি, সি ইউনিট ২২ জানুয়ারি, ডি ইউনিট ২৩ জানুয়ারি ২০২৭। একাডেমিক কার্যক্রম ৪ এপ্রিল ২০২৭ থেকে।",
+    sessionYear: "2026-27",
+    examRegions: ["ঢাকা"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -326,6 +413,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "reported",
     statusNote:
       "সেপ্টেম্বরের শুরুতে ঘোষিত: পরীক্ষা ২৯ জানুয়ারি থেকে ৮ ফেব্রুয়ারি ২০২৭। সি ইউনিট ২৯ জানুয়ারি, ক ইউনিট ৩০ জানুয়ারি। ⚠️ কুবির বি ইউনিটের (৬ ফেব্রুয়ারি) সঙ্গে তারিখ সংঘর্ষ রিপোর্টেড; সময়/কেন্দ্র পরিবর্তন হতে পারে।",
+    sessionYear: "2026-27",
+    examRegions: ["চট্টগ্রাম", "হাটহাজারী"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -406,6 +498,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "৭ সেপ্টেম্বর সংবাদ বিজ্ঞপ্তি: ভর্তি পরীক্ষা ১৬ জানুয়ারি ২০২৭ (শুক্রবার)। আবেদন শুরুর তারিখ, পরীক্ষা পদ্ধতি ও আসন সংখ্যা এখনো নির্ধারিত হয়নি। গত ১৪ দিনে নতুন আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["ঢাকা (পলাশী ক্যাম্পাস)"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -450,6 +547,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "আগস্টের শেষে ঘোষিত: বিএসসি ইঞ্জিনিয়ারিং, বিইউআরপি ও বি আর্ক ভর্তি পরীক্ষা ৮ জানুয়ারি ২০২৭। গত ১৪ দিনে আবেদন সময়সূচি বা ফি আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["খুলনা"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -494,6 +596,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "reported",
     statusNote:
       "স্নাতক ভর্তির সম্ভাব্য তারিখ ১৪ জানুয়ারি ২০২৭। দ্রষ্টব্য: ২১ সেপ্টেম্বরের বিজ্ঞপ্তি স্নাতকোত্তর (MSc/MEng/PhD) কোর্সের, স্নাতক ভর্তির নয়। গত ১৪ দিনে নতুন UG আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["রাজশাহী"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -537,6 +644,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "reported",
     statusNote:
       "📅 NEW: ১৯ সেপ্টেম্বর স্নাতক ভর্তি কমিটির সভায় ২৩ জানুয়ারি ২০২৭ (শনিবার) সম্ভাব্য তারিখ নির্ধারণ। ক ও খ—দুই গ্রুপে পরীক্ষা; খ গ্রুপে স্থাপত্যসহ নগর ও অঞ্চল পরিকল্পনা। আবেদন যোগ্যতা, ফি ও সময়সূচি একাডেমিক কাউন্সিলের অনুমোদনের পর বিজ্ঞপ্তিতে। (সূত্র: Prothom Alo, Kaler Kantho, Samakal)",
+    sessionYear: "2026-27",
+    examRegions: ["চট্টগ্রাম"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -586,6 +698,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "আগস্টের শেষে ঘোষিত: ১৮ ডিসেম্বর সি ইউনিট (বিজ্ঞান) সকালে, ১৯ ডিসেম্বর এ ও বি ইউনিট (প্রকৌশল ও স্থাপত্য)। গত ১৪ দিনে নতুন আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["ঢাকা (মিরপুর)"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -635,6 +752,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "awaiting_circular",
     statusNote:
       "গত ১৪ দিনে ২০২৬–২৭ ভর্তি বিজ্ঞপ্তি প্রকাশ হয়নি। নতুন তথ্য ঘোষণা হলে অফিসিয়াল পোর্টালে জানানো হবে।",
+    sessionYear: "2026-27",
+    examRegions: ["লালমনিরহাট", "ঢাকা"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.5,
       hsc: 4.5,
@@ -673,6 +795,21 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "৮ সেপ্টেম্বর কৃষি গুচ্ছ কমিটি নিশ্চিত: ভর্তি পরীক্ষা ২ জানুয়ারি ২০২৭। আয়োজন ও সমন্বয়ে শেকৃবি। গত ১৪ দিনে আবেদন সময়সূচি, ফি বা যোগ্যতা আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: [
+      "ময়মনসিংহ (BAU)",
+      "গাজীপুর (SAU)",
+      "সিলেট (GAU)",
+      "পটুয়াখালী (PSTU)",
+      "চট্টগ্রাম (CVASU)",
+      "রংপুর",
+      "খুলনা",
+      "কুমিল্লা",
+      "নাটোর",
+    ],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -724,6 +861,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "সেপ্টেম্বরের শুরুতে ঘোষিত: ছয় অনুষদের পরীক্ষা ২০২৭ জানুয়ারির শুরুতে চার দিনে। ১ ও ৯ জানুয়ারি বিজনেস স্টাডিজ, ২ জানুয়ারি আর্টস ও সোশ্যাল সায়েন্স, ৮ জানুয়ারি সায়েন্স/ইঞ্জিনিয়ারিং/মেডিকেল/সিকিউরিটি। গত ১৪ দিনে নতুন আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["ঢাকা (মিরপুর)"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -787,6 +929,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "awaiting_circular",
     statusNote:
       "গত ১৪ দিনে ভর্তি বিজ্ঞপ্তি প্রকাশ হয়নি। নতুন ঘোষণা অপেক্ষার প্রস্তাব।",
+    sessionYear: "2026-27",
+    examRegions: ["দিনাজপুর"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -825,6 +972,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "সেপ্টেম্বরের শুরুতে ঘোষিত: প্রথম বর্ষ ভর্তি পরীক্ষা ২৬ ও ২৭ জানুয়ারি ২০২৭ (দুই দিনে)। গত ১৪ দিনে আবেদন সময়সূচি বা ফি আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["সিলেট"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.0,
       hsc: 3.0,
@@ -873,6 +1025,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "৭ সেপ্টেম্বর ডিন ও বিভাগীয় প্রধানদের সভায় চূড়ান্ত, ৮ সেপ্টেম্বর বিজ্ঞপ্তি: BSc in Textile Engineering ভর্তি পরীক্ষা ২৯ জানুয়ারি ২০২৭। যোগ্যতা, জিপিএ শর্ত ও আবেদন HSC ফলের পর নির্ধারিত হবে। গত ১৪ দিনে নতুন আপডেট নেই।",
+    sessionYear: "2026-27",
+    examRegions: ["ঢাকা (তেজগাঁও)"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -917,6 +1074,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "✅ CONFIRMED ২৪ সেপ্টেম্বর: কেন্দ্রীয় ভর্তি কমিটির সভায় চূড়ান্ত। পরীক্ষা ৫, ৬ ও ৭ ফেব্রুয়ারি ২০২৭। এ ইউনিট (বিজ্ঞান) ৫ ফেব্রুয়ারি সকাল ১১টা, বি ইউনিট (কলা/সামাজিক/আইন) ৬ ফেব্রুয়ারি বিকেল ৩টা, সি ইউনিট (বিজনেস) ৭ ফেব্রুয়ারি সকাল ১১টা। আবেদন ১৫ নভেম্বর–১০ ডিসেম্বর। কেন্দ্র: কুমিল্লা, চট্টগ্রাম, রাজশাহী। (সূত্র: Bangladesh Pratidin, RTV News)",
+    sessionYear: "2026-27",
+    examRegions: ["কুমিল্লা", "চট্টগ্রাম", "রাজশাহী"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.0,
       hsc: 3.0,
@@ -977,6 +1139,11 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "reported",
     statusNote:
       "🏢 NEW (২২ সেপ্টেম্বর): একাডেমিক ও প্রশাসনিক কার্যক্রম ঢাকার অস্থায়ী ক্যাম্পাস থেকে চট্টগ্রামের স্থায়ী ক্যাম্পাসে স্থানান্তরের সিদ্ধান্ত। ২০২৭ সালের মে থেকে স্নাতক পাঠদান ও নবভর্তি ক্লাস স্থায়ী ক্যাম্পাসে শুরু হবে। ২০২৬–২৭ ভর্তি পরীক্ষার নতুন তারিখ এখনো ঘোষণা হয়নি। (সূত্র: The Daily Campus)",
+    sessionYear: "2026-27",
+    examRegions: ["চট্টগ্রাম"],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,
@@ -1015,6 +1182,20 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "confirmed",
     statusNote:
       "✅ CONFIRMED ১৭ সেপ্টেম্বর: উপাচার্যদের অনলাইন সভায় চূড়ান্ত। প্রথমবার চার ইউনিটে পরীক্ষা: বি ইউনিট (মানবিক) ১৯ মার্চ ১১টা-১২টা, সি ইউনিট (বাণিজ্য) ২০ মার্চ ১১টা-১২টা, ডি ইউনিট (আর্কিটেকচার) ২০ মার্চ ৩টা-৪টা, এ ইউনিট (বিজ্ঞান) ২৭ মার্চ ১১টা-১২টা ২০২৭। আয়োজনে পবিপ্রবি। আবেদন সময়সূচি, ফি ও যোগ্যতা পরবর্তী বিজ্ঞপ্তিতে। (সূত্র: Prothom Alo, Ajker Patrika, Observer BD)",
+    sessionYear: "2026-27",
+    examRegions: [
+      "ঢাকা",
+      "চট্টগ্রাম",
+      "রাজশাহী",
+      "খুলনা",
+      "সিলেট",
+      "রংপুর",
+      "বরিশাল",
+      "ময়মনসিংহ",
+    ],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 3.5,
       hsc: 3.5,
@@ -1080,6 +1261,20 @@ export const initialUniversitiesData: University[] = [
     circularStatus: "reported",
     statusNote:
       "🚨 URGENT (১৬ সেপ্টেম্বর): স্বাস্থ্য শিক্ষা অধিদপ্তর (DGME) মহাপরিচালক জানান, ২০২৬–২৭ MBBS/BDS ভর্তি পরীক্ষা প্রাথমিকভাবে ৪ ডিসেম্বর ২০২৬ নির্ধারিত। MBBS ও BDS একযোগে হবে। HSC ফল অক্টোবরের তৃতীয় সপ্তাহে প্রকাশিত হলে তারিখ বহাল; অন্যথায় পিছিয়ে যেতে পারে। বিস্তারিত বিজ্ঞপ্তি এখনো প্রকাশ হয়নি। (সূত্র: Kaler Kantho, Shikshabarta)",
+    sessionYear: "2026-27",
+    examRegions: [
+      "ঢাকা",
+      "চট্টগ্রাম",
+      "রাজশাহী",
+      "খুলনা",
+      "সিলেট",
+      "রংপুর",
+      "বরিশাল",
+      "ময়মনসিংহ",
+    ],
+    calculatorPolicy: null,
+    examMode: "offline",
+    admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {
       ssc: 4.0,
       hsc: 4.0,

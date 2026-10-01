@@ -10,25 +10,23 @@ import {
   Zap,
   Calculator,
   Clock,
+  HelpCircle,
 } from "lucide-react";
 import { University, EligibilityEvaluation } from "../types/admission";
 import { UrgencyBadge } from "./UrgencyBadge";
 import { formatBanglaDate, formatBanglaGpa } from "../lib/banglaUtils";
+import {
+  BreakingUpdateData,
+  resolveRegions,
+  resolveCalculator,
+  resolveSession,
+  sourceLabel,
+  sourceColor,
+} from "../lib/dataResolver";
 
 interface UniversityCardProps {
   university: University & {
-    latestBreakingUpdate?: {
-      title: string;
-      extracted_data?: {
-        exam_date?: string;
-        fees?: string;
-        fee_amount?: string;
-        exam_regions?: string[];
-        calculator_allowed?: boolean | null;
-        _session_year?: string;
-        _is_expired?: boolean;
-      };
-    };
+    latestBreakingUpdate?: BreakingUpdateData;
   };
   isSecondTimerMode: boolean;
   onOpenModal: (uni: University) => void;
@@ -60,10 +58,16 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
           : "text-[10px] sm:text-[11px] font-black tracking-tighter px-0.5";
 
   const breaking = university.latestBreakingUpdate;
-  const regions = breaking?.extracted_data?.exam_regions || [];
-  const calcAllowed = breaking?.extracted_data?.calculator_allowed;
-  const sessionYear = breaking?.extracted_data?._session_year;
-  const isExpired = breaking?.extracted_data?._is_expired === true;
+
+  /* ===== HYBRID RESOLUTION: live scrape → static fallback ===== */
+  const venue = resolveRegions(university, breaking);
+  const calc = resolveCalculator(university, breaking);
+  const session = resolveSession(university, breaking);
+
+  const regions = venue.regions;
+  const calcAllowed = calc.allowed;
+  const sessionYear = session.year;
+  const isExpired = session.isExpired;
 
   /* Expired হলে card dim হবে, active হলে normal */
   const cardOpacity = isExpired ? "opacity-90" : "";
@@ -257,7 +261,7 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
             )}
           </div>
 
-          {/* ===== VENUE / EXAM REGIONS ===== */}
+          {/* ===== VENUE / EXAM REGIONS (live → static fallback) ===== */}
           {regions.length > 0 && (
             <div
               className={`col-span-2 flex items-center gap-1.5 p-2 rounded-lg mt-1 border ${
@@ -282,7 +286,7 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
                       : "text-indigo-800 dark:text-indigo-200"
                   }
                 >
-                  {regions.length}টি বিভাগ
+                  {regions.length}টি
                 </strong>
                 <span
                   className={`ml-1 ${
@@ -295,11 +299,18 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
                   {regions.length > 3 ? "..." : ""})
                 </span>
               </span>
+              {!isExpired && venue.source !== "unknown" && (
+                <span
+                  className={`ml-auto shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded border ${sourceColor(venue.source)}`}
+                >
+                  {sourceLabel(venue.source)}
+                </span>
+              )}
             </div>
           )}
 
-          {/* ===== CALCULATOR POLICY ===== */}
-          {calcAllowed !== null && calcAllowed !== undefined && (
+          {/* ===== CALCULATOR POLICY (live → static → neutral "unknown") ===== */}
+          {calcAllowed === true || calcAllowed === false ? (
             <div
               className={`col-span-2 flex items-center gap-1.5 p-2 rounded-lg mt-1 border text-[11px] ${
                 isExpired
@@ -336,6 +347,24 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
                   </span>
                 </>
               )}
+              {!isExpired && calc.source !== "unknown" && (
+                <span
+                  className={`ml-auto shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded border ${sourceColor(calc.source)}`}
+                >
+                  {sourceLabel(calc.source)}
+                </span>
+              )}
+            </div>
+          ) : (
+            /* ===== NEUTRAL ROW: policy ঘোষণা হয়নি (আর লুকানো না!) ===== */
+            <div className="col-span-2 flex items-center gap-1.5 p-2 rounded-lg mt-1 border bg-slate-50 dark:bg-[#232b3a]/60 border-slate-200 dark:border-[#2a3344] text-[11px] text-slate-500 dark:text-slate-400">
+              <HelpCircle className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+              <span>
+                🧮 ক্যালকুলেটর নীতি:{" "}
+                <strong className="text-slate-600 dark:text-slate-300">
+                  বিজ্ঞপ্তিতে উল্লেখ নেই
+                </strong>
+              </span>
             </div>
           )}
 
