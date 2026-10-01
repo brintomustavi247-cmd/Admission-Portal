@@ -12,6 +12,7 @@ import {
   Copy,
   CheckCircle2,
   Zap,
+  Calculator,
 } from "lucide-react";
 import { University } from "../types/admission";
 import { formatBanglaDate, formatBanglaGpa } from "../lib/banglaUtils";
@@ -64,6 +65,17 @@ const UNIT_COLORS = [
   "from-fuchsia-500 to-purple-700",
 ];
 
+const REGION_COLORS = [
+  "bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-200 border-sky-300 dark:border-sky-700",
+  "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700",
+  "bg-violet-100 dark:bg-violet-950/50 text-violet-800 dark:text-violet-200 border-violet-300 dark:border-violet-700",
+  "bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700",
+  "bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700",
+  "bg-cyan-100 dark:bg-cyan-950/50 text-cyan-800 dark:text-cyan-200 border-cyan-300 dark:border-cyan-700",
+  "bg-indigo-100 dark:bg-indigo-950/50 text-indigo-800 dark:text-indigo-200 border-indigo-300 dark:border-indigo-700",
+  "bg-fuchsia-100 dark:bg-fuchsia-950/50 text-fuchsia-800 dark:text-fuchsia-200 border-fuchsia-300 dark:border-fuchsia-700",
+];
+
 interface UniversityModalProps {
   university:
     | (University & {
@@ -75,6 +87,8 @@ interface UniversityModalProps {
             application_end?: string;
             fees?: string;
             fee_amount?: string;
+            exam_regions?: string[];
+            calculator_allowed?: boolean | null;
           };
           source_urls?: string[];
         };
@@ -90,11 +104,8 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
   onClose,
 }) => {
   const [copied, setCopied] = useState(false);
-
-  // Escape → close (shared hook)
   useEscapeClose(isOpen, onClose);
 
-  /* body scroll lock (Escape handling এখন useEscapeClose-এ) */
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     return () => {
@@ -111,6 +122,8 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
   const appEnd =
     breaking?.extracted_data?.application_end || university.endDate;
   const firstExam = liveExamDate || university.examUnits?.[0]?.examDate || "";
+  const regions = breaking?.extracted_data?.exam_regions || [];
+  const calcAllowed = breaking?.extracted_data?.calculator_allowed;
 
   const logoText =
     university.logoLetter || university.shortName || university.name.charAt(0);
@@ -142,7 +155,6 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
             onClick={onClose}
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
           />
-
           <motion.div
             id="university-detail-modal"
             initial={{ opacity: 0, scale: 0.94, y: 15 }}
@@ -252,6 +264,62 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* ===== NEW: Exam Regions Grid ===== */}
+              {regions.length > 0 && (
+                <div className="p-3.5 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 border-2 border-indigo-300 dark:border-indigo-700/60">
+                  <h3 className="text-xs sm:text-sm font-bold text-indigo-900 dark:text-indigo-100 mb-3 flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                    <span>পরীক্ষার কেন্দ্র ({regions.length}টি বিভাগ)</span>
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {regions.map((region, idx) => (
+                      <div
+                        key={idx}
+                        className={`px-3 py-2 rounded-lg border text-xs sm:text-sm font-bold text-center ${REGION_COLORS[idx % REGION_COLORS.length]}`}
+                      >
+                        📍 {region}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ===== NEW: Calculator Policy Banner ===== */}
+              {calcAllowed !== null && calcAllowed !== undefined && (
+                <div
+                  className={`p-3.5 rounded-xl border-2 flex items-start gap-3 ${
+                    calcAllowed
+                      ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-emerald-100"
+                      : "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-950 dark:text-rose-100"
+                  }`}
+                >
+                  <div
+                    className={`p-2 rounded-xl shrink-0 mt-0.5 shadow-sm ${
+                      calcAllowed
+                        ? "bg-emerald-500 text-white"
+                        : "bg-rose-500 text-white"
+                    }`}
+                  >
+                    <Calculator className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-black text-sm">
+                      🧮 ক্যালকুলেটর নীতি
+                    </div>
+                    <div className="font-bold text-xs sm:text-sm mt-1">
+                      {calcAllowed
+                        ? "ক্যালকুলেটর ব্যবহার করা যাবে ✅"
+                        : "ক্যালকুলেটর ব্যবহার করা যাবে না ❌"}
+                    </div>
+                    <p className="text-[11px] mt-1 opacity-80 leading-relaxed">
+                      {calcAllowed
+                        ? "সাধারণ/সায়েন্টিফিক ক্যালকুলেটর পরীক্ষার হলে নেওয়া যাবে।"
+                        : "পরীক্ষার হলে কোনো ধরনের ক্যালকুলেটর অনুমোদিত নয়। ম্যানুয়ালি হিসাব করতে হবে।"}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div
                 className={`p-2.5 sm:p-3.5 rounded-xl border-2 flex items-start gap-2.5 ${university.secondTimerAllowed ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-100" : "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/60 text-amber-950 dark:text-amber-100"}`}

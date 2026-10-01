@@ -8,6 +8,7 @@ import {
   Check,
   AlertTriangle,
   Zap,
+  Calculator,
 } from "lucide-react";
 import { University, EligibilityEvaluation } from "../types/admission";
 import { UrgencyBadge } from "./UrgencyBadge";
@@ -20,6 +21,9 @@ interface UniversityCardProps {
       extracted_data?: {
         exam_date?: string;
         fees?: string;
+        fee_amount?: string;
+        exam_regions?: string[];
+        calculator_allowed?: boolean | null;
       };
     };
   };
@@ -36,14 +40,11 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
 }) => {
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest("button") || target.closest("a")) {
-      return;
-    }
+    if (target.closest("button") || target.closest("a")) return;
     onOpenModal(university);
   };
 
   const nextExamUnit = university.examUnits?.[0];
-
   const logoText =
     university.logoLetter || university.shortName || university.name.charAt(0);
   const logoFontSize =
@@ -56,6 +57,8 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
           : "text-[10px] sm:text-[11px] font-black tracking-tighter px-0.5";
 
   const breaking = university.latestBreakingUpdate;
+  const regions = breaking?.extracted_data?.exam_regions || [];
+  const calcAllowed = breaking?.extracted_data?.calculator_allowed;
 
   return (
     <motion.div
@@ -81,9 +84,8 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
       }`}
     >
       <div>
-        {/* Live Breaking Alert Banner in Card */}
         {breaking && (
-          <div className="mb-3 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 border border-amber-500/40 flex items-center justify-between gap-1.5 animate-in fade-in duration-300">
+          <div className="mb-3 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 border border-amber-500/40 flex items-center justify-between gap-1.5">
             <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-300 truncate">
               <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
               <span className="truncate">{breaking.title}</span>
@@ -98,19 +100,15 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
 
         <div className="flex items-start gap-3 mb-2.5 sm:mb-3">
           <div
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white shadow-xs shrink-0 select-none text-center ${logoFontSize} ${
-              university.logoBg || "bg-slate-700"
-            }`}
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white shadow-xs shrink-0 select-none text-center ${logoFontSize} ${university.logoBg || "bg-slate-700"}`}
           >
             {logoText}
           </div>
-
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors leading-snug line-clamp-2">
                 {university.name}
               </h3>
-
               <div className="hidden sm:block shrink-0">
                 <UrgencyBadge
                   startDate={university.startDate}
@@ -118,7 +116,6 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
                 />
               </div>
             </div>
-
             <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">
               <span className="inline-flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
@@ -137,7 +134,6 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
           </div>
         </div>
 
-        {/* Mobile Urgency */}
         <div className="sm:hidden flex items-center justify-between gap-2 px-2.5 py-1.5 mb-2.5 rounded-xl bg-slate-50/90 dark:bg-[#232b3a]/80 border border-slate-100 dark:border-[#2a3344]">
           <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
             আবেদন সময়সীমা
@@ -148,7 +144,6 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
           />
         </div>
 
-        {/* Key Info Grid */}
         <div className="grid grid-cols-2 gap-2.5 py-2.5 my-2 border-y border-slate-100 dark:border-[#2a3344] text-xs">
           <div>
             <span className="text-slate-500 dark:text-slate-400 block mb-0.5">
@@ -176,6 +171,49 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
             )}
           </div>
 
+          {/* ===== NEW: Venue count + Calculator policy ===== */}
+          {regions.length > 0 && (
+            <div className="col-span-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 bg-indigo-50 dark:bg-indigo-950/40 p-2 rounded-lg mt-1 border border-indigo-200 dark:border-indigo-800/60">
+              <MapPin className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span className="truncate text-[11px]">
+                পরীক্ষার কেন্দ্র:{" "}
+                <strong className="text-indigo-800 dark:text-indigo-200">
+                  {regions.length}টি বিভাগ
+                </strong>
+                <span className="text-slate-500 dark:text-slate-400 ml-1">
+                  ({regions.slice(0, 3).join(", ")}
+                  {regions.length > 3 ? "..." : ""})
+                </span>
+              </span>
+            </div>
+          )}
+
+          {calcAllowed !== null && calcAllowed !== undefined && (
+            <div
+              className={`col-span-2 flex items-center gap-1.5 p-2 rounded-lg mt-1 border text-[11px] ${
+                calcAllowed
+                  ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200"
+                  : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200"
+              }`}
+            >
+              {calcAllowed ? (
+                <>
+                  <Calculator className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>
+                    🧮 ক্যালকুলেটর <strong>ব্যবহার করা যাবে</strong>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                  <span>
+                    🧮 ক্যালকুলেটর <strong>নিষিদ্ধ</strong>
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+
           {(breaking?.extracted_data?.exam_date || nextExamUnit) && (
             <div className="col-span-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#232b3a]/80 p-2 rounded-lg mt-1">
               <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
@@ -201,7 +239,6 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
           <span>বিস্তারিত সময়সূচি</span>
           <ChevronRight className="w-3.5 h-3.5" />
         </button>
-
         <a
           href={university.applicationLink}
           target="_blank"

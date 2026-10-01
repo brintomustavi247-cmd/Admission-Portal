@@ -1,7 +1,18 @@
 import React from "react";
 import { UniversityUpdate } from "../types/admission";
 import { safeUrl } from "../lib/newsSeen";
-import { X, Calendar, DollarSign, Award, ExternalLink, CheckCircle2, Users } from "lucide-react";
+import {
+  X,
+  Calendar,
+  DollarSign,
+  Award,
+  ExternalLink,
+  CheckCircle2,
+  Users,
+  MapPin,
+  Calculator,
+  AlertTriangle,
+} from "lucide-react";
 import { useEscapeClose } from "../hooks/useEscapeClose";
 
 interface Props {
@@ -11,8 +22,9 @@ interface Props {
 
 export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
   const d = update.extracted_data || {};
+  const regions = (d.exam_regions || []) as string[];
+  const calcAllowed = d.calculator_allowed as boolean | null | undefined;
 
-  // Escape → close (modal শুধু খোলা থাকলেই mount হয়)
   useEscapeClose(true, onClose);
 
   return (
@@ -40,8 +52,61 @@ export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
               <Calendar className="w-4 h-4 text-sky-400 shrink-0" />
               <div>
-                <span className="text-slate-400 block text-[11px]">পরীক্ষার তারিখ</span>
+                <span className="text-slate-400 block text-[11px]">
+                  পরীক্ষার তারিখ
+                </span>
                 <span className="font-bold text-white">{d.exam_date}</span>
+              </div>
+            </div>
+          )}
+
+          {/* ===== NEW: Exam Regions ===== */}
+          {regions.length > 0 && (
+            <div className="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
+                <span className="text-slate-200 font-bold text-[11px]">
+                  পরীক্ষার কেন্দ্র ({regions.length}টি)
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {regions.map((region, i) => (
+                  <span
+                    key={i}
+                    className="px-2.5 py-1 rounded-lg bg-indigo-500/15 text-indigo-200 border border-indigo-500/30 text-[11px] font-bold"
+                  >
+                    📍 {region}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ===== NEW: Calculator Policy ===== */}
+          {calcAllowed !== null && calcAllowed !== undefined && (
+            <div
+              className={`flex items-center gap-3 p-3 rounded-xl border ${
+                calcAllowed
+                  ? "bg-emerald-500/5 border-emerald-500/20"
+                  : "bg-rose-500/5 border-rose-500/20"
+              }`}
+            >
+              {calcAllowed ? (
+                <Calculator className="w-4 h-4 text-emerald-400 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              )}
+              <div>
+                <span className="text-slate-400 block text-[11px]">
+                  🧮 ক্যালকুলেটর নীতি
+                </span>
+                <span
+                  className={`font-bold ${calcAllowed ? "text-emerald-300" : "text-rose-300"}`}
+                >
+                  {calcAllowed
+                    ? "ক্যালকুলেটর ব্যবহার করা যাবে ✅"
+                    : "ক্যালকুলেটর ব্যবহার করা যাবে না ❌"}
+                </span>
               </div>
             </div>
           )}
@@ -50,7 +115,9 @@ export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
               <DollarSign className="w-4 h-4 text-emerald-400 shrink-0" />
               <div>
-                <span className="text-slate-400 block text-[11px]">আবেদন ফি</span>
+                <span className="text-slate-400 block text-[11px]">
+                  আবেদন ফি
+                </span>
                 <span className="font-bold text-white">{d.fees}</span>
               </div>
             </div>
@@ -60,9 +127,12 @@ export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
               <Award className="w-4 h-4 text-amber-400 shrink-0" />
               <div>
-                <span className="text-slate-400 block text-[11px]">নূন্যতম GPA শর্ত</span>
+                <span className="text-slate-400 block text-[11px]">
+                  নূন্যতম GPA শর্ত
+                </span>
                 <span className="font-bold text-white">
-                  SSC: {d.min_gpa.ssc ?? '—'} | HSC: {d.min_gpa.hsc ?? '—'} | মোট: {d.min_gpa.combined ?? '—'}
+                  SSC: {d.min_gpa.ssc ?? "—"} | HSC: {d.min_gpa.hsc ?? "—"} |
+                  মোট: {d.min_gpa.combined ?? "—"}
                 </span>
               </div>
             </div>
@@ -70,9 +140,14 @@ export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
 
           {d.highlights && d.highlights.length > 0 && (
             <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-2">
-              <span className="text-slate-400 font-bold text-[11px] block">গুরুত্বপূর্ণ তথ্যসমূহ:</span>
-              {d.highlights.map((h, i) => (
-                <div key={i} className="flex items-start gap-2 text-slate-300 text-xs">
+              <span className="text-slate-400 font-bold text-[11px] block">
+                গুরুত্বপূর্ণ তথ্যসমূহ:
+              </span>
+              {(d.highlights as any[]).map((h, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-2 text-slate-300 text-xs"
+                >
                   <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 shrink-0 mt-0.5" />
                   <span>{h}</span>
                 </div>
@@ -84,15 +159,21 @@ export const UpdateDetailModal: React.FC<Props> = ({ update, onClose }) => {
             <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
               <Users className="w-4 h-4 text-emerald-400 shrink-0" />
               <div>
-                <span className="text-slate-400 block text-[11px]">তথ্য সংগ্রহ করেছেন</span>
-                <span className="font-bold text-emerald-300">{update.extracted_data._contributor}</span>
+                <span className="text-slate-400 block text-[11px]">
+                  তথ্য সংগ্রহ করেছেন
+                </span>
+                <span className="font-bold text-emerald-300">
+                  {update.extracted_data._contributor}
+                </span>
               </div>
             </div>
           )}
 
           {update.source_urls && update.source_urls.length > 0 && (
             <div className="pt-2">
-              <span className="text-slate-400 text-[11px] block mb-1.5 font-semibold">অফিসিয়াল উৎস / সার্কুলার:</span>
+              <span className="text-slate-400 text-[11px] block mb-1.5 font-semibold">
+                অফিসিয়াল উৎস / সার্কুলার:
+              </span>
               {update.source_urls.map((url, i) => {
                 const href = safeUrl(url);
                 if (!href) return null;
