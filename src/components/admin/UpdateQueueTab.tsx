@@ -21,6 +21,7 @@ import {
   Search,
   ShieldCheck,
   Zap,
+  Calendar,
 } from "lucide-react";
 
 /* ============================================================
@@ -147,12 +148,67 @@ async function confirmContributionStatus(
   return false;
 }
 
+/* ========== TIME/DATE FORMATTING ========== */
+const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+const toBanglaDigits = (s: string | number) =>
+  String(s).replace(/\d/g, (d) => BN_DIGITS[parseInt(d)]);
+
+const BN_MONTHS = [
+  "জানুয়ারি",
+  "ফেব্রুয়ারি",
+  "মার্চ",
+  "এপ্রিল",
+  "মে",
+  "জুন",
+  "জুলাই",
+  "আগস্ট",
+  "সেপ্টেম্বর",
+  "অক্টোবর",
+  "নভেম্বর",
+  "ডিসেম্বর",
+];
+
+function formatRelativeTime(dateStr: string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diff = now - then;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (seconds < 60) return "এইমাত্র";
+  if (minutes < 60) return `${toBanglaDigits(minutes)} মিনিট আগে`;
+  if (hours < 24) return `${toBanglaDigits(hours)} ঘন্টা আগে`;
+  if (days < 7) return `${toBanglaDigits(days)} দিন আগে`;
+  if (days < 30) return `${toBanglaDigits(Math.floor(days / 7))} সপ্তাহ আগে`;
+  return `${toBanglaDigits(Math.floor(days / 30))} মাস আগে`;
+}
+
+function formatAbsoluteTime(dateStr: string): string {
+  const d = new Date(dateStr);
+  const day = toBanglaDigits(d.getDate());
+  const month = BN_MONTHS[d.getMonth()];
+  const year = toBanglaDigits(d.getFullYear());
+  const hours = toBanglaDigits(d.getHours().toString().padStart(2, "0"));
+  const minutes = toBanglaDigits(d.getMinutes().toString().padStart(2, "0"));
+  return `${day} ${month} ${year}, ${hours}:${minutes}`;
+}
+
+function isNewItem(dateStr: string): boolean {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diff = now - then;
+  return diff < 60 * 60 * 1000; // 1 hour
+}
+
 export const UpdateQueueTab: React.FC = () => {
   const { profile } = useAuth();
   const uid = profile?.id || "guest";
   const [updates, setUpdates] = useState<any[]>([]);
   const [contribs, setContribs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  /* ✅ initial true — mount-এ fetch চলার সময় spinner (effect-এ sync setLoading(true) নেই) */
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
   const [detail, setDetail] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -174,33 +230,57 @@ export const UpdateQueueTab: React.FC = () => {
     setTimeout(() => setToast(null), 5000);
   };
 
-  const load = useCallback(async () => {
+  /* ✅ pure fetch — কোনো setState নেই (effect-safe) */
+  const fetchQueue = useCallback(
+    () =>
+      Promise.all([
+        supabase
+          .from("university_updates")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("user_contributions")
+          .select("*")
+          .eq("status", "pending")
+          .order("created_at", { ascending: false }),
+      ]),
+    [],
+  );
+
+  /* ✅ setState গুলো apply-এ — effect-এর .then callback থেকে safe */
+  const applyQueue = useCallback(
+    (u: any, c: any) => {
+      const items = u.data || [];
+      setUpdates(items);
+      markSeen(
+        uid,
+        "updates",
+        items
+          .filter((x: any) => x.status === "published")
+          .map((x: any) => x.id),
+      );
+      setContribs(c.data || []);
+      setLoading(false);
+    },
+    [uid],
+  );
+
+  /* handlers (deepResearch/publish...) থেকে call হয় — আগের মতোই setLoading(true) সহ */
+  const load = useCallback(() => {
     setLoading(true);
-    const [u, c] = await Promise.all([
-      supabase
-        .from("university_updates")
-        .select("*")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("user_contributions")
-        .select("*")
-        .eq("status", "pending")
-        .order("created_at", { ascending: false }),
-    ]);
-    const items = u.data || [];
-    setUpdates(items);
-    markSeen(
-      uid,
-      "updates",
-      items.filter((x: any) => x.status === "published").map((x: any) => x.id),
-    );
-    setContribs(c.data || []);
-    setLoading(false);
-  }, [uid]);
+    return fetchQueue().then(([u, c]) => applyQueue(u, c));
+  }, [fetchQueue, applyQueue]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    /* ✅ effect body-তে sync setState নেই — setState applyQueue-তে (.then callback) */
+    let alive = true;
+    fetchQueue().then(([u, c]) => {
+      if (alive) applyQueue(u, c);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [fetchQueue, applyQueue]);
 
   /* ========== 🔬 DEEP RESEARCH — via server-side proxy ========== */
   const deepResearch = async () => {
@@ -222,7 +302,10 @@ export const UpdateQueueTab: React.FC = () => {
       }
       const json: any = data;
       if (!json) {
-        showToast("❌ খালি response — Edge Function deploy করেছো কিনা দেখো", "error");
+        showToast(
+          "❌ খালি response — Edge Function deploy করেছো কিনা দেখো",
+          "error",
+        );
         return;
       }
       if (json.error) {
@@ -251,7 +334,7 @@ export const UpdateQueueTab: React.FC = () => {
       } else {
         showToast(`❌ ${json.error || "Unknown error"}`, "error");
       }
-    } catch (e: any) {
+    } catch {
       showToast(
         "❌ Network error — Edge Function reachable কিনা দেখো",
         "error",
@@ -352,7 +435,8 @@ export const UpdateQueueTab: React.FC = () => {
       }
 
       /* Response body পড়া না গেলেও Apps Script কাজটা করে থাকতে পারে → DB verify */
-      if (!hookOk && (await confirmContributionStatus(c.id, want))) hookOk = true;
+      if (!hookOk && (await confirmContributionStatus(c.id, want)))
+        hookOk = true;
 
       if (hookOk) {
         showToast(
@@ -440,6 +524,7 @@ export const UpdateQueueTab: React.FC = () => {
       community: updates.filter(
         (u) => u.extracted_data?._source === "community",
       ).length,
+      newItems: updates.filter((u) => isNewItem(u.created_at)).length,
     }),
     [updates],
   );
@@ -466,7 +551,7 @@ export const UpdateQueueTab: React.FC = () => {
       <ManualUpdateForm onSuccess={load} />
 
       {/* STATS */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
         {[
           { l: "Total", v: stats.total, c: "text-white border-white/10" },
           {
@@ -494,6 +579,11 @@ export const UpdateQueueTab: React.FC = () => {
             v: stats.community,
             c: "text-pink-300 border-pink-500/30",
           },
+          {
+            l: "New (1h)",
+            v: stats.newItems,
+            c: "text-cyan-300 border-cyan-500/30",
+          },
         ].map((s) => (
           <div
             key={s.l}
@@ -504,6 +594,7 @@ export const UpdateQueueTab: React.FC = () => {
             >
               {s.l === "Verified" && <ShieldCheck className="w-3 h-3" />}
               {s.l === "Community" && <Users className="w-3 h-3" />}
+              {s.l === "New (1h)" && <Sparkles className="w-3 h-3" />}
               {s.l}
             </div>
             <div className={`text-xl font-black ${s.c.split(" ")[0]}`}>
@@ -599,15 +690,21 @@ export const UpdateQueueTab: React.FC = () => {
               const ex = existsInApp(item);
               const isSel = selected.includes(item.id);
               const hasConcrete = hasConcreteCardData(item.extracted_data);
+              const isNew = isNewItem(item.created_at);
+              const relTime = formatRelativeTime(item.created_at);
+              const absTime = formatAbsoluteTime(item.created_at);
+
               return (
                 <div
                   key={item.id}
-                  className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                  className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
                     item.status === "published"
                       ? "bg-[#12201a] border-emerald-500/20"
                       : ex.exists
                         ? "bg-[#151b27] border-slate-600/40 opacity-80"
-                        : "bg-[#151b27] border-amber-500/30"
+                        : isNew
+                          ? "bg-[#151b27] border-cyan-500/50 shadow-lg shadow-cyan-500/20 ring-2 ring-cyan-500/30"
+                          : "bg-[#151b27] border-amber-500/30"
                   }`}
                 >
                   <div className="flex items-start gap-2.5 min-w-0 flex-1">
@@ -623,7 +720,7 @@ export const UpdateQueueTab: React.FC = () => {
                         )}
                       </button>
                     )}
-                    <div className="space-y-1 min-w-0">
+                    <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span
                           className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
@@ -636,6 +733,11 @@ export const UpdateQueueTab: React.FC = () => {
                         >
                           {item.status}
                         </span>
+                        {isNew && (
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-cyan-500/30 text-cyan-200 border border-cyan-400/50 flex items-center gap-1 animate-pulse">
+                            <Sparkles className="w-2.5 h-2.5" /> NEW
+                          </span>
+                        )}
                         {item.extracted_data?._verified && (
                           <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 flex items-center gap-1">
                             <ShieldCheck className="w-2.5 h-2.5" /> যাচাইকৃত
@@ -669,6 +771,13 @@ export const UpdateQueueTab: React.FC = () => {
                         {item.title}
                       </p>
                       <div className="flex items-center gap-3 flex-wrap text-[10px] text-slate-400">
+                        <span
+                          className="flex items-center gap-1 text-cyan-400 font-semibold"
+                          title={absTime}
+                        >
+                          <Calendar className="w-3 h-3" />
+                          {relTime}
+                        </span>
                         {item.extracted_data?.exam_date && (
                           <span className="flex items-center gap-1 text-sky-400">
                             <Clock className="w-3 h-3" />{" "}

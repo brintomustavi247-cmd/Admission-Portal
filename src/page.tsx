@@ -215,17 +215,14 @@ export default function AdmissionDashboard() {
     };
   }, []);
 
-  /* unread badge — derived, no sync setState in effect */
-  const [seenTick, setSeenTick] = useState(0);
+  /* unread badge — derived + 'news-seen-changed' tick (effect-এ sync setState নেই) */
+  const [, setSeenTick] = useState(0);
   useEffect(() => {
     const h = () => setSeenTick((t) => t + 1);
     window.addEventListener("news-seen-changed", h);
     return () => window.removeEventListener("news-seen-changed", h);
   }, []);
-  const newsUnread = useMemo(
-    () => unreadUpdates(newsUid, liveUpdates).length,
-    [newsUid, liveUpdates, seenTick],
-  );
+  const newsUnread = unreadUpdates(newsUid, liveUpdates).length;
 
   /* ---------- Preferences ---------- */
   const [isSecondTimer, setIsSecondTimer] = useState<boolean>(false);

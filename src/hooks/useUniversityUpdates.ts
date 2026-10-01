@@ -6,35 +6,56 @@ export function useUniversityUpdates() {
   const [latestUpdate, setLatestUpdate] = useState<UniversityUpdate | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const fetchLatest = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
+  /* ✅ pure fetch — কোনো setState নেই (effect-safe) */
+  const fetchTop = useCallback(
+    () =>
+      supabase
         .from("university_updates")
         .select("*")
         .eq("status", "published")
         .order("published_at", { ascending: false })
-        .limit(1);
+        .limit(1),
+    []
+  );
 
-      if (error) {
-        console.error("Updates fetch error:", error);
-        return;
-      }
+  /* ✅ setState গুলো apply-এ — effect-এর .then callback থেকে safe */
+  const applyLatest = useCallback((data: any[] | null, error: any) => {
+    if (error) {
+      console.error("Updates fetch error:", error);
+      return;
+    }
 
-      if (data && data.length > 0) {
-        const top = data[0] as UniversityUpdate;
-        const dismissedId = localStorage.getItem("last_dismissed_update");
-        if (dismissedId !== top.id) {
-          setLatestUpdate(top);
-        }
-        setUnreadCount(data.length);
+    if (data && data.length > 0) {
+      const top = data[0] as UniversityUpdate;
+      const dismissedId = localStorage.getItem("last_dismissed_update");
+      if (dismissedId !== top.id) {
+        setLatestUpdate(top);
       }
-    } catch (err) {
-      console.error("Fetch exception:", err);
+      setUnreadCount(data.length);
     }
   }, []);
 
+  /* refetch (hook consumer-এর জন্য) — আগের মতোই setState সহ */
+  const fetchLatest = useCallback(async () => {
+    try {
+      const { data, error } = await fetchTop();
+      applyLatest(data, error);
+    } catch (err) {
+      console.error("Fetch exception:", err);
+    }
+  }, [fetchTop, applyLatest]);
+
   useEffect(() => {
-    fetchLatest();
+    /* ✅ effect body-তে sync setState নেই — setState applyLatest-এ (.then callback) */
+    let alive = true;
+    fetchTop().then(
+      ({ data, error }) => {
+        if (alive) applyLatest(data, error);
+      },
+      (err) => {
+        console.error("Fetch exception:", err);
+      }
+    );
 
     // Supabase Realtime Listener across all clients
     const channel = supabase
@@ -61,9 +82,10 @@ export function useUniversityUpdates() {
       });
 
     return () => {
+      alive = false;
       supabase.removeChannel(channel);
     };
-  }, [fetchLatest]);
+  }, [fetchTop, applyLatest]);
 
   const dismissUpdate = (id: string) => {
     localStorage.setItem("last_dismissed_update", id);

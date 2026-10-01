@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import {
   GraduationCap,
@@ -93,9 +93,12 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({
   const [eligibleCount, setEligibleCount] = useState<number>(0);
   const [evaluationResults, setEvaluationResults] = useState<Record<string, EligibilityEvaluation>>({});
 
-  useEffect(() => {
+  /* ✅ prop change হলে state reset — effect ছাড়া (render-এর সময় adjust, React docs pattern) */
+  const [prevInitial, setPrevInitial] = useState(initialSecondTimer);
+  if (initialSecondTimer !== prevInitial) {
+    setPrevInitial(initialSecondTimer);
     setIsSecondTimer(initialSecondTimer);
-  }, [initialSecondTimer]);
+  }
 
   // Apply Quick-Set Grade Presets
   const applyPreset = (preset: 'all_aplus' | 'buet_fit' | 'medical_fit' | 'all_a' | 'all_a_minus') => {

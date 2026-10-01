@@ -99,6 +99,13 @@ export const Header: React.FC<HeaderProps> = ({
     onSearchOpenChange?.(open);
   };
 
+  /* ✅ modal বন্ধ হলে query reset — effect ছাড়া (render-এর সময় adjust; prop/route-driven close-ও ধরবে) */
+  const [prevSearchOpen, setPrevSearchOpen] = useState(showSearchModal);
+  if (showSearchModal !== prevSearchOpen) {
+    setPrevSearchOpen(showSearchModal);
+    if (!showSearchModal) setSearchQuery("");
+  }
+
   const filteredUniversities = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase().trim();
@@ -143,11 +150,9 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   useEffect(() => {
-    if (showSearchModal) {
-      const t = setTimeout(() => searchInputRef.current?.focus(), 100);
-      return () => clearTimeout(t);
-    }
-    setSearchQuery("");
+    if (!showSearchModal) return;
+    const t = setTimeout(() => searchInputRef.current?.focus(), 100);
+    return () => clearTimeout(t);
   }, [showSearchModal]);
 
   useEffect(() => {

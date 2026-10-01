@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
@@ -25,34 +25,64 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
   // Escape → panel close (ভেতরের detail modal খোলা থাকলে সেটাই আগে বন্ধ হবে)
   useEscapeClose(open && !detail, onClose);
 
-  const load = async () => {
-    const [n, s] = await Promise.all([
-      supabase
-        .from("university_updates")
-        .select("*")
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(60),
-      supabase
-        .from("app_settings")
-        .select("contribution_enabled")
-        .eq("id", 1)
-        .single(),
-    ]);
+  /* ✅ pure fetch — কোনো setState নেই (effect-safe) */
+  const fetchPosts = useCallback(
+    () =>
+      Promise.all([
+        supabase
+          .from("university_updates")
+          .select("*")
+          .eq("status", "published")
+          .order("published_at", { ascending: false })
+          .limit(60),
+        supabase
+          .from("app_settings")
+          .select("contribution_enabled")
+          .eq("id", 1)
+          .single(),
+      ]),
+    [],
+  );
+
+  /* ✅ setState গুলো apply-এ — effect-এর .then callback থেকে safe */
+  const applyPosts = useCallback((n: any, s: any) => {
     setAll(n.data || []);
     if (s.data) setContribEnabled(s.data.contribution_enabled !== false);
-  };
+  }, []);
+
   useEffect(() => {
-    if (open) load();
-  }, [open]);
+    if (!open) return;
+    let alive = true;
+    fetchPosts().then(([n, s]) => {
+      if (alive) applyPosts(n, s);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [open, fetchPosts, applyPosts]);
 
-  const official = all.filter((n) => n.extracted_data?._source !== "community");
-  const community = all.filter((n) => n.extracted_data?._source === "community");
+  const official = useMemo(
+    () => all.filter((n) => n.extracted_data?._source !== "community"),
+    [all],
+  );
+  const community = useMemo(
+    () => all.filter((n) => n.extracted_data?._source === "community"),
+    [all],
+  );
 
+  /* ✅ plain derive (memo নয়) — tick re-render-এ fresh থাকে, unnecessary-dep warning নেই */
   const seen = new Set(getSeen(uid, "updates"));
   const unreadOfficial = official.filter((n) => !seen.has(n.id)).length;
   const unreadCommunity = community.filter((n) => !seen.has(n.id)).length;
 
+  /* ✅ 'news-seen-changed' subscription → tick → badge/list refresh (sync setState নেই) */
+  useEffect(() => {
+    const h = () => setSeenTick((t) => t + 1);
+    window.addEventListener("news-seen-changed", h);
+    return () => window.removeEventListener("news-seen-changed", h);
+  }, []);
+
+  /* ✅ markSeen নিজেই 'news-seen-changed' dispatch করে → উপরের subscription tick বাড়ায় */
   useEffect(() => {
     if (!open) return;
     const list = tab === "news" ? official : community;
@@ -61,8 +91,7 @@ export const NewsPanel: React.FC<{ open: boolean; onClose: () => void }> = ({
       "updates",
       list.map((n) => n.id),
     );
-    setSeenTick((t) => t + 1);
-  }, [open, tab, all.length]);
+  }, [open, tab, official, community, uid]);
 
   const openDetail = (n: any) => {
     markSeen(uid, "updates", [n.id]);

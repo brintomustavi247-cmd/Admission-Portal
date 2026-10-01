@@ -9,7 +9,8 @@ export const FreePeriodPopup: React.FC = () => {
   const [freeUntil, setFreeUntil] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [now, setNow] = useState(Date.now());
+  /* ✅ purity fix: lazy initializer (render-এ সরাসরি Date.now() নয়) */
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     supabase.from('app_settings').select('*').eq('id', 1).single().then(({ data }) => {

@@ -1,20 +1,18 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { AppGate } from './components/AppGate';
-import AdmissionDashboard from './page';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AppGate } from "./components/AppGate";
+import AdmissionDashboard from "./page";
 
-/* লগ-আউট first paint-এ শুধু Landing/Login bundle; Admin bundle শুধু দরকার হলে load হয় */
 const Landing = lazy(() =>
-  import('./pages/Landing').then((m) => ({ default: m.Landing })),
+  import("./pages/Landing").then((m) => ({ default: m.Landing })),
 );
 const Login = lazy(() =>
-  import('./pages/Login').then((m) => ({ default: m.Login })),
+  import("./pages/Login").then((m) => ({ default: m.Login })),
 );
 const Admin = lazy(() =>
-  import('./pages/Admin').then((m) => ({ default: m.Admin })),
+  import("./pages/Admin").then((m) => ({ default: m.Admin })),
 );
 
-/* কোনো route crash করলেও পুরো app সাদা/blank screen হয় না */
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { err: Error | null }
@@ -37,38 +35,41 @@ class ErrorBoundary extends React.Component<
 
 const Inner: React.FC = () => {
   const { session, profile, loading } = useAuth();
-  const [route, setRoute] = useState<'landing' | 'login' | 'app' | 'admin'>(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.replace('#/', '').replace('#', '');
-      if (hash === 'admin') return 'admin';
-    }
-    return 'landing';
-  });
+  const [route, setRoute] = useState<"landing" | "login" | "app" | "admin">(
+    () => {
+      if (typeof window !== "undefined") {
+        const hash = window.location.hash.replace("#/", "").replace("#", "");
+        if (hash === "admin") return "admin";
+      }
+      return "landing";
+    },
+  );
 
-  /* Hash sync for route (e.g. #/admin) — pure handler + খালি deps, তাই re-subscribe হয় না */
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     const handleHash = () => {
-      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      const hash = window.location.hash.replace("#/", "").replace("#", "");
       setRoute((prev) => {
-        if (hash === 'admin') return 'admin';
-        if (prev === 'admin') return 'app';
+        if (hash === "admin") return "admin";
+        if (prev === "admin") return "app";
         return prev;
       });
     };
-    window.addEventListener('hashchange', handleHash);
-    window.addEventListener('popstate', handleHash);
+    window.addEventListener("hashchange", handleHash);
+    window.addEventListener("popstate", handleHash);
     return () => {
-      window.removeEventListener('hashchange', handleHash);
-      window.removeEventListener('popstate', handleHash);
+      window.removeEventListener("hashchange", handleHash);
+      window.removeEventListener("popstate", handleHash);
     };
   }, []);
 
-  /* referral link (?ref=CODE) → সরাসরি register screen */
-  useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get('ref');
-    if (ref && !session) setRoute('login');
-  }, [session]);
+  /* ✅ FIX: derived route — effect-এ setState নেই */
+  const effectiveRoute = useMemo(() => {
+    if (typeof window === "undefined") return route;
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref && !session) return "login";
+    return route === "landing" ? "app" : route;
+  }, [route, session]);
 
   if (loading) {
     return (
@@ -86,26 +87,24 @@ const Inner: React.FC = () => {
     return (
       <ErrorBoundary>
         <Suspense fallback={suspenseFallback}>
-          {route === 'login' ? (
-            <Login onDone={() => setRoute('app')} />
+          {effectiveRoute === "login" ? (
+            <Login onDone={() => setRoute("app")} />
           ) : (
-            <Landing onGetStarted={() => setRoute('login')} />
+            <Landing onGetStarted={() => setRoute("login")} />
           )}
         </Suspense>
       </ErrorBoundary>
     );
   }
 
-  const effective = route === 'landing' ? 'app' : route;
-
-  if (effective === 'admin' && profile?.role === 'admin') {
+  if (effectiveRoute === "admin" && profile?.role === "admin") {
     return (
       <ErrorBoundary>
         <Suspense fallback={suspenseFallback}>
           <Admin
             onExit={() => {
-              setRoute('app');
-              const savedTab = localStorage.getItem('active_tab') || 'home';
+              setRoute("app");
+              const savedTab = localStorage.getItem("active_tab") || "home";
               window.location.hash = `/${savedTab}`;
             }}
           />
@@ -131,4 +130,4 @@ export default function App() {
       <Inner />
     </AuthProvider>
   );
-};
+}

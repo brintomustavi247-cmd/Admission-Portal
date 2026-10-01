@@ -73,7 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!data) {
-      if (!profileError) setProfileError('Profile row পাওয়া/বানানো যায়নি');
+      /* ✅ fix: `profileError` stale closure read বাদ (deps [] — warning মুক্ত, behavior same) */
+      setProfileError('Profile row পাওয়া/বানানো যায়নি');
       setProfile(null);
       return;
     }

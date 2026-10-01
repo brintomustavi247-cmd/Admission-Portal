@@ -18,9 +18,14 @@ export const UpdateNotifier: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [visible, setVisible] = useState(true);
 
-  useEffect(() => {
+  /* ✅ নতুন update এলে আবার দেখাও — effect ছাড়া (render-এর সময় adjust) */
+  const [prevUpdateId, setPrevUpdateId] = useState<string | undefined>(
+    latestUpdate?.id,
+  );
+  if (latestUpdate?.id !== prevUpdateId) {
+    setPrevUpdateId(latestUpdate?.id);
     setVisible(true);
-  }, [latestUpdate?.id]);
+  }
 
   useEffect(() => {
     if (!latestUpdate || modalOpen || !visible) return;
