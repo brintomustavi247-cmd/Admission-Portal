@@ -5,13 +5,12 @@ import {
   ResolvedSessionInfo,
   DataSource,
 } from "../types/admission";
+import { VENUE_POLICY_2026_27, VenuePolicy } from "../data/venuePolicy2026";
 
 /**
- * HYBRID DATA RESOLVER — v13.2 (ESLint-clean)
- * Strategy:
- *   1. Live scrape (latestBreakingUpdate.extracted_data) = highest priority
- *   2. Static config (university.examRegions etc.) = verified fallback
- *   3. Source tracking via DataSource (live_scrape | static_fallback | unknown)
+ * HYBRID DATA RESOLVER — v13.3
+ * Fallback chain: live scrape → static config (mockUniversities) → KB policy map (venuePolicy2026)
+ * FIX: resolveVenuePolicy export added; regions/calculator/session এ policy map fallback যোগ।
  */
 
 export interface BreakingUpdateData {
@@ -46,6 +45,13 @@ function staticExpired(university: University): boolean {
   });
 }
 
+/* ===== NEW: KB policy map access ===== */
+export function resolveVenuePolicy(
+  university: University,
+): VenuePolicy | undefined {
+  return VENUE_POLICY_2026_27[university.id];
+}
+
 export function resolveRegions(
   university: University,
   breaking?: BreakingUpdateData | null,
@@ -57,6 +63,10 @@ export function resolveRegions(
   const staticRegions = university.examRegions || [];
   if (staticRegions.length > 0) {
     return { regions: staticRegions, source: "static_fallback" };
+  }
+  const policy = resolveVenuePolicy(university);
+  if (policy && policy.regions.length > 0) {
+    return { regions: policy.regions, source: "static_fallback" };
   }
   return { regions: [], source: "unknown" };
 }
@@ -73,6 +83,10 @@ export function resolveCalculator(
   if (stat === true || stat === false) {
     return { allowed: stat, source: "static_fallback" };
   }
+  const policy = resolveVenuePolicy(university);
+  if (policy && (policy.calculator === true || policy.calculator === false)) {
+    return { allowed: policy.calculator, source: "static_fallback" };
+  }
   return { allowed: null, source: "unknown" };
 }
 
@@ -85,13 +99,16 @@ export function resolveSession(
   if (liveYear) {
     return { year: liveYear, isExpired: liveExpired, source: "live_scrape" };
   }
-  const staticYear = university.sessionYear;
-  if (staticYear) {
+  if (university.sessionYear) {
     return {
-      year: staticYear,
+      year: university.sessionYear,
       isExpired: staticExpired(university),
       source: "static_fallback",
     };
+  }
+  const policy = resolveVenuePolicy(university);
+  if (policy) {
+    return { year: "2026-27", isExpired: false, source: "static_fallback" };
   }
   return { year: "", isExpired: false, source: "unknown" };
 }

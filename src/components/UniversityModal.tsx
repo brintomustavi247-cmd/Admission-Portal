@@ -15,9 +15,18 @@ import {
   Calculator,
   Clock,
   Ban,
+  Info,
 } from "lucide-react";
 import { University } from "../types/admission";
 import { formatBanglaDate, formatBanglaGpa } from "../lib/banglaUtils";
+import {
+  resolveCalculator,
+  resolveRegions,
+  resolveSession,
+  resolveVenuePolicy,
+  sourceColor,
+  sourceLabel,
+} from "../lib/dataResolver";
 
 const BN = "০১২৩৪৫৬৭৮৯";
 const bnToEnDigits = (s: string) =>
@@ -131,10 +140,20 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
   const appEnd =
     breaking?.extracted_data?.application_end || university.endDate;
   const firstExam = liveExamDate || university.examUnits?.[0]?.examDate || "";
-  const regions = breaking?.extracted_data?.exam_regions || [];
-  const calcAllowed = breaking?.extracted_data?.calculator_allowed;
-  const sessionYear = breaking?.extracted_data?._session_year;
-  const isExpired = breaking?.extracted_data?._is_expired === true;
+
+  /* ===== Hybrid resolver (v13.2): live scrape → static config → KB policy ===== */
+  const venueInfo = resolveRegions(university, breaking);
+  const regions = venueInfo.regions;
+  const calcInfo = resolveCalculator(university, breaking);
+  const calcAllowed = calcInfo.allowed;
+  const sessionInfo = resolveSession(university, breaking);
+  const sessionYear = sessionInfo.year;
+  const isExpired = sessionInfo.isExpired;
+  const policy = resolveVenuePolicy(university);
+  const venueNote = policy?.venueNote || "";
+  const calculatorNote = policy?.calculatorNote || "";
+  const hasCalculatorPolicy =
+    calcAllowed === true || calcAllowed === false || !!calculatorNote;
   const extractedUnits = breaking?.extracted_data?.units || [];
 
   const logoText =
@@ -411,7 +430,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
               </div>
 
               {/* ===== EXAM REGIONS GRID ===== */}
-              {regions.length > 0 && (
+              {(regions.length > 0 || !!venueNote) && (
                 <div
                   className={`p-3.5 rounded-xl border-2 ${
                     isExpired
@@ -420,7 +439,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                   }`}
                 >
                   <h3
-                    className={`text-xs sm:text-sm font-bold mb-3 flex items-center gap-1.5 ${
+                    className={`text-xs sm:text-sm font-bold mb-3 flex items-center flex-wrap gap-1.5 ${
                       isExpired
                         ? "text-slate-700 dark:text-slate-300"
                         : "text-indigo-900 dark:text-indigo-100"
@@ -433,54 +452,94 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                           : "text-indigo-600 dark:text-indigo-400"
                       }`}
                     />
-                    <span>পরীক্ষার কেন্দ্র ({regions.length}টি বিভাগ)</span>
+                    <span>
+                      {regions.length > 0
+                        ? `পরীক্ষার কেন্দ্র (${regions.length}টি বিভাগ)`
+                        : "পরীক্ষার কেন্দ্র"}
+                    </span>
+                    {venueInfo.source !== "unknown" && (
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border ${sourceColor(
+                          venueInfo.source,
+                        )}`}
+                      >
+                        {sourceLabel(venueInfo.source)}
+                      </span>
+                    )}
                     {isExpired && (
                       <span className="ml-auto text-[9px] font-black px-2 py-0.5 rounded bg-slate-500 text-white">
                         আগের সেশন
                       </span>
                     )}
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {regions.map((region, idx) => (
-                      <div
-                        key={idx}
-                        className={`px-3 py-2 rounded-lg border text-xs sm:text-sm font-bold text-center ${
-                          isExpired
-                            ? REGION_COLORS_EXPIRED
-                            : REGION_COLORS[idx % REGION_COLORS.length]
-                        }`}
-                      >
-                        📍 {region}
-                      </div>
-                    ))}
-                  </div>
+                  {regions.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {regions.map((region, idx) => (
+                        <div
+                          key={idx}
+                          className={`px-3 py-2 rounded-lg border text-xs sm:text-sm font-bold text-center ${
+                            isExpired
+                              ? REGION_COLORS_EXPIRED
+                              : REGION_COLORS[idx % REGION_COLORS.length]
+                          }`}
+                        >
+                          📍 {region}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {venueNote && (
+                    <p
+                      className={`text-[11px] leading-relaxed ${
+                        regions.length > 0 ? "mt-3 pt-3 border-t" : ""
+                      } ${
+                        isExpired
+                          ? "border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                          : "border-indigo-200 dark:border-indigo-800/60 text-indigo-900 dark:text-indigo-200"
+                      }`}
+                    >
+                      ℹ️ {venueNote}
+                      {policy?.source && (
+                        <span className="opacity-70">
+                          {" "}
+                          (সূত্র: {policy.source})
+                        </span>
+                      )}
+                    </p>
+                  )}
                 </div>
               )}
 
               {/* ===== CALCULATOR POLICY BANNER ===== */}
-              {calcAllowed !== null && calcAllowed !== undefined && (
+              {hasCalculatorPolicy && (
                 <div
                   className={`p-3.5 rounded-xl border-2 flex items-start gap-3 ${
                     isExpired
                       ? "bg-slate-100 dark:bg-slate-800/60 border-slate-400 dark:border-slate-600"
-                      : calcAllowed
+                      : calcAllowed === true
                         ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700"
-                        : "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700"
+                        : calcAllowed === false
+                          ? "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700"
+                          : "bg-slate-50 dark:bg-slate-800/40 border-slate-300 dark:border-slate-600"
                   }`}
                 >
                   <div
                     className={`p-2 rounded-xl shrink-0 mt-0.5 shadow-sm ${
                       isExpired
                         ? "bg-slate-500 text-white"
-                        : calcAllowed
+                        : calcAllowed === true
                           ? "bg-emerald-500 text-white"
-                          : "bg-rose-500 text-white"
+                          : calcAllowed === false
+                            ? "bg-rose-500 text-white"
+                            : "bg-slate-500 text-white"
                     }`}
                   >
-                    {calcAllowed ? (
+                    {calcAllowed === true ? (
                       <Calculator className="w-4 h-4" />
-                    ) : (
+                    ) : calcAllowed === false ? (
                       <Ban className="w-4 h-4" />
+                    ) : (
+                      <Info className="w-4 h-4" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -495,14 +554,18 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                       className={`font-bold text-xs sm:text-sm mt-1 ${
                         isExpired
                           ? "text-slate-600 dark:text-slate-400"
-                          : calcAllowed
+                          : calcAllowed === true
                             ? "text-emerald-950 dark:text-emerald-100"
-                            : "text-rose-950 dark:text-rose-100"
+                            : calcAllowed === false
+                              ? "text-rose-950 dark:text-rose-100"
+                              : "text-slate-900 dark:text-slate-100"
                       }`}
                     >
-                      {calcAllowed
+                      {calcAllowed === true
                         ? "ক্যালকুলেটর ব্যবহার করা যাবে ✅"
-                        : "ক্যালকুলেটর ব্যবহার করা যাবে না ❌"}
+                        : calcAllowed === false
+                          ? "ক্যালকুলেটর ব্যবহার করা যাবে না ❌"
+                          : "এখনো ঘোষণা করা হয়নি ⏳"}
                     </div>
                     <p
                       className={`text-[11px] mt-1 leading-relaxed ${
@@ -511,9 +574,12 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                           : "opacity-80"
                       }`}
                     >
-                      {calcAllowed
+                      {calcAllowed === true
                         ? "সাধারণ/সায়েন্টিফিক ক্যালকুলেটর পরীক্ষার হলে নেওয়া যাবে।"
-                        : "পরীক্ষার হলে কোনো ধরনের ক্যালকুলেটর অনুমোদিত নয়। ম্যানুয়ালি হিসাব করতে হবে।"}
+                        : calcAllowed === false
+                          ? "পরীক্ষার হলে কোনো ধরনের ক্যালকুলেটর অনুমোদিত নয়। ম্যানুয়ালি হিসাব করতে হবে।"
+                          : calculatorNote ||
+                            "বিজ্ঞপ্তিতে ক্যালকুলেটর নীতি এখনো উল্লেখ করা হয়নি। পরীক্ষার আগে অফিসিয়াল বিজ্ঞপ্তি দেখে নিন।"}
                     </p>
                   </div>
                 </div>
@@ -805,6 +871,54 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                   )}
                 </div>
               </div>
+
+              {/* ===== STATUS NOTE (Info icon) ===== */}
+              {university.statusNote && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-3.5 sm:p-4 rounded-2xl border-2 flex items-start gap-3 ${
+                    isExpired
+                      ? "bg-slate-100 dark:bg-slate-800/60 border-slate-400 dark:border-slate-600 opacity-70"
+                      : "bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700/60"
+                  }`}
+                >
+                  <div
+                    className={`p-2 rounded-xl shrink-0 mt-0.5 shadow-sm ${
+                      isExpired
+                        ? "bg-slate-500 text-white"
+                        : "bg-sky-600 text-white"
+                    }`}
+                  >
+                    <Info className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3
+                      className={`text-sm font-bold mb-1 flex items-center gap-1.5 ${
+                        isExpired
+                          ? "text-slate-600 dark:text-slate-400"
+                          : "text-sky-900 dark:text-sky-100"
+                      }`}
+                    >
+                      <span>সর্বশেষ অবস্থা ও গুরুত্বপূর্ণ নোট</span>
+                      {isExpired && (
+                        <span className="ml-auto text-[9px] font-black px-2 py-0.5 rounded bg-slate-500 text-white">
+                          আগের সেশন
+                        </span>
+                      )}
+                    </h3>
+                    <p
+                      className={`text-[11px] sm:text-xs leading-relaxed ${
+                        isExpired
+                          ? "text-slate-500 dark:text-slate-400"
+                          : "text-slate-700 dark:text-slate-300"
+                      }`}
+                    >
+                      {university.statusNote}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* ===== FOOTER ===== */}
