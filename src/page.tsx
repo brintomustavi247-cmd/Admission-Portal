@@ -24,6 +24,7 @@ import {
   DEFAULT_SHEET_ID,
 } from "./lib/sheetFetcher";
 import { calculateUrgency, toBanglaNum } from "./lib/banglaUtils";
+import { isUndergradRelevant } from "./lib/newsFilter";
 import { Header } from "./components/Header";
 import { AttemptToggle } from "./components/AttemptToggle";
 import { EligibilityChecker } from "./components/EligibilityChecker";
@@ -304,9 +305,13 @@ export default function AdmissionDashboard() {
         const normEnglish = normalize(uni.englishName || "");
         const match =
           liveUpdates.find(
-            (u) => u.university_id && u.university_id === uni.id,
+            (u) =>
+              u.university_id &&
+              u.university_id === uni.id &&
+              isUndergradRelevant(u.title),
           ) ||
           liveUpdates.find((u) => {
+            if (!isUndergradRelevant(u.title)) return false;
             if (!u.university_name) return false;
             const normDb = normalize(u.university_name);
             return (

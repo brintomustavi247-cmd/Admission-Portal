@@ -7,7 +7,7 @@
 import { University } from "../types/admission";
 
 export const initialUniversitiesData: University[] = [
-  // 1. ঢাকা বিশ্ববিদ্যালয় (ঢাবি) - DU [KB-VERIFIED: admission.eis.du.ac.bd, 2025-26 session, EXPIRED]
+  // 1. ঢাকা বিশ্ববিদ্যালয় (ঢাবি) - DU [KB-VERIFIED: admission.eis.du.ac.bd, 2026-27 session, UPCOMING]
   {
     id: "du",
     name: "ঢাকা বিশ্ববিদ্যালয় (ঢাবি)",
@@ -19,16 +19,16 @@ export const initialUniversitiesData: University[] = [
     applicationLink: "https://admission.eis.du.ac.bd/",
     applicationProcess:
       "অনলাইন পোর্টাল থেকে এসএসসি ও এইচএসসি রোল, রেজিস্ট্রেশন ও বোর্ড দিয়ে আবেদন সম্পন্ন করুন। ফি ব্যাংকিং/অনলাইনে জমা দিন।",
-    startDate: "2025-10-29",
-    endDate: "2025-11-19",
+    startDate: "2026-11-11",
+    endDate: "2026-11-25",
     admitCardDate: "",
     secondTimerAllowed: false,
-    secondTimerDeduction: "সুযোগ নেই (শুধুমাত্র HSC 2025 ব্যাচ)",
-    eligibleHscBatches: "শুধুমাত্র HSC 2025",
+    secondTimerDeduction: "সুযোগ নেই (শুধুমাত্র HSC 2026 ব্যাচ)",
+    eligibleHscBatches: "শুধুমাত্র HSC 2026",
     circularStatus: "confirmed",
     statusNote:
-      "✅ KB-verified 2025-26 session (সময়সীমা শেষ): আইবিএ ২৮ নভে, চারুকলা ২৯ নভে, ব্যবসায় ৬ ডিসে, ক ইউনিট ১৩ ডিসে, বিজ্ঞান ২৭ ডিসে ২০২৫। ৮ বিভাগে পরীক্ষা। ২০২৬-২৭ circular অপেক্ষমান।",
-    sessionYear: "2025-26",
+      "আগস্টে ঘোষিত সূচি: IBA ৫ ডিসেম্বর, ক ইউনিট ১২ ডিসেম্বর, খ ইউনিট ১৯ ডিসেম্বর, চারুকলা ২২ ডিসেম্বর, গ ইউনিট ২৬ ডিসেম্বর ২০২৬। আবেদন ১১-২৫ নভেম্বর ২০২৬ (শুরু হয়নি)।",
+    sessionYear: "2026-27",
     examRegions: [
       "ঢাকা",
       "চট্টগ্রাম",
@@ -63,43 +63,36 @@ export const initialUniversitiesData: University[] = [
       {
         unit: "আইবিএ",
         title: "Institute of Business Administration",
-        examDate: "2025-11-28",
+        examDate: "2026-12-05",
         time: "সকাল ১০:০০ - ১২:০০",
         fee: "১৫০০ টাকা",
       },
       {
+        unit: "ক ইউনিট",
+        title: "বিজ্ঞান অনুষদভুক্ত বিষয়সমূহ",
+        examDate: "2026-12-12",
+        time: "সকাল ১১:০০ - ১২:৩০",
+        fee: "১০৫০ টাকা",
+      },
+      {
+        unit: "খ ইউনিট",
+        title: "কলা, আইন ও সামাজিক বিজ্ঞান",
+        examDate: "2026-12-19",
+        time: "সকাল ১১:০০ - ১২:৩০",
+        fee: "১০৫০ টাকা",
+      },
+      {
         unit: "চারুকলা ইউনিট",
         title: "চারুকলা অনুষদ",
-        examDate: "2025-11-29",
+        examDate: "2026-12-22",
         time: "সকাল ১১:০০ - ১২:৩০",
         fee: "১০৫০ টাকা",
       },
       {
-        unit: "ব্যবসায় শিক্ষা ইউনিট",
-        title: "ব্যবসায় শিক্ষা অনুষদ",
-        examDate: "2025-12-06",
+        unit: "গ ইউনিট",
+        title: "ব্যবসায় প্রশাসন",
+        examDate: "2026-12-26",
         time: "সকাল ১১:০০ - ১২:৩০",
-        fee: "১০৫০ টাকা",
-      },
-      {
-        unit: "ক ইউনিট",
-        title: "কলা, আইন ও সামাজিক বিজ্ঞান",
-        examDate: "2025-12-13",
-        time: "সকাল ১১:০০ - ১২:৩০",
-        fee: "১০৫০ টাকা",
-      },
-      {
-        unit: "বিজ্ঞান ইউনিট",
-        title: "বিজ্ঞান অনুষদভুক্ত বিষয়সমূহ",
-        examDate: "2025-12-27",
-        time: "বিকাল ৩:৩০ - ৫:০০",
-        fee: "১০৫০ টাকা",
-      },
-      {
-        unit: "খেলোয়াড় ইউনিট",
-        title: "ক্রীড়া কোটা (আবেদন মার্চ ২০২৬)",
-        examDate: "",
-        time: "",
         fee: "১০৫০ টাকা",
       },
     ],
@@ -163,7 +156,7 @@ export const initialUniversitiesData: University[] = [
     ],
   },
 
-  // 3. জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি) - JU [KB-VERIFIED: ju-admission.org, 2025 session, EXPIRED]
+  // 3. জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি) - JU [2026-27: পরীক্ষার তারিখ প্রস্তাবিত (১৭ জানু ২০২৭), আবেদন সময়সূচি এখনো ঘোষিত হয়নি]
   {
     id: "ju",
     name: "জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি)",
@@ -175,16 +168,16 @@ export const initialUniversitiesData: University[] = [
     applicationLink: "https://ju-admission.org/",
     applicationProcess:
       "অনলাইন পোর্টালে লগইন করে ইউনিট ভিত্তিক আবেদন করুন। বিকাশ, রকেট বা নগদে ফি প্রদান করুন।",
-    startDate: "2025-01-01",
-    endDate: "2025-01-21",
-    admitCardDate: "2025-02-02",
+    startDate: "",
+    endDate: "",
+    admitCardDate: "",
     secondTimerAllowed: true,
     secondTimerDeduction: "কোন নম্বর কর্তন নেই (সম্পূর্ণ সমসুযোগ)",
-    eligibleHscBatches: "HSC 2024 ও 2025",
-    circularStatus: "confirmed",
+    eligibleHscBatches: "HSC 2025 ও 2026",
+    circularStatus: "reported",
     statusNote:
-      "✅ KB-verified 2025 session (সময়সীমা শেষ): ৯-১৯ ফেব্রুয়ারি ২০২৫ পরীক্ষা। A/B/C=৯০০ টাকা, C1/D/E/IBA-JU=৬০০ টাকা। সাভার ক্যাম্পাসে পরীক্ষা। ২০২৬ circular অপেক্ষমান।",
-    sessionYear: "2025",
+      "📅 ২২ সেপ্টেম্বর ভর্তি কমিটির সভায় ১৭ জানুয়ারি ২০২৭ থেকে পরীক্ষা শুরুর প্রস্তাব; বিভাগীয় শহরে কেন্দ্র বাদ। আবেদনের তারিখ এখনো ঘোষিত হয়নি (HSC ফলের অপেক্ষায়)।",
+    sessionYear: "2026-27",
     examRegions: ["সাভার (মূল ক্যাম্পাস)"],
     calculatorPolicy: null,
     examMode: "offline",
@@ -208,46 +201,10 @@ export const initialUniversitiesData: University[] = [
     logoLetter: "JU",
     examUnits: [
       {
-        unit: "A ইউনিট",
-        title: "গাণিতিক ও ভৌত বিজ্ঞান",
-        examDate: "2025-02-09",
-        fee: "৯০০ টাকা",
-      },
-      {
-        unit: "B ইউনিট",
-        title: "জীববিজ্ঞান অনুষদ",
-        examDate: "2025-02-11",
-        fee: "৯০০ টাকা",
-      },
-      {
-        unit: "C ইউনিট",
-        title: "কলা ও মানবিক",
-        examDate: "2025-02-13",
-        fee: "৯০০ টাকা",
-      },
-      {
-        unit: "C1 ইউনিট",
-        title: "সামাজিক বিজ্ঞান",
-        examDate: "2025-02-15",
-        fee: "৬০০ টাকা",
-      },
-      {
-        unit: "D ইউনিট",
-        title: "ব্যবসায় শিক্ষা",
-        examDate: "2025-02-17",
-        fee: "৬০০ টাকা",
-      },
-      {
-        unit: "E ইউনিট",
-        title: "আইন",
-        examDate: "2025-02-19",
-        fee: "৬০০ টাকা",
-      },
-      {
-        unit: "IBA-JU",
-        title: "ইনস্টিটিউট অব বিজনেস অ্যাডমিনিস্ট্রেশন",
-        examDate: "2025-02-19",
-        fee: "৬০০ টাকা",
+        unit: "স্নাতক ভর্তি পরীক্ষা",
+        title: "সম্ভাব্য শুরু ১৭ জানুয়ারি ২০২৭",
+        examDate: "2027-01-17",
+        fee: "১১০০ টাকা",
       },
     ],
   },
