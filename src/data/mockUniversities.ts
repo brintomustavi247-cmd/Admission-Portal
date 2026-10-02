@@ -762,7 +762,6 @@ export const initialUniversitiesData: University[] = [
       "রংপুর",
       "খুলনা",
       "কুমিল্লা",
-      "নাটোর",
     ],
     calculatorPolicy: null,
     examMode: "offline",
