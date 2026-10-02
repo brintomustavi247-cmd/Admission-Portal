@@ -16,6 +16,7 @@ import {
   Clock,
   Ban,
   Info,
+  HelpCircle,
 } from "lucide-react";
 import { University } from "../types/admission";
 import { formatBanglaDate, formatBanglaGpa } from "../lib/banglaUtils";
@@ -152,8 +153,6 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
   const policy = resolveVenuePolicy(university);
   const venueNote = policy?.venueNote || "";
   const calculatorNote = policy?.calculatorNote || "";
-  const hasCalculatorPolicy =
-    calcAllowed === true || calcAllowed === false || !!calculatorNote;
   const extractedUnits = breaking?.extracted_data?.units || [];
 
   const logoText =
@@ -510,8 +509,10 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                 </div>
               )}
 
-              {/* ===== CALCULATOR POLICY BANNER ===== */}
-              {hasCalculatorPolicy && (
+              {/* ===== CALCULATOR POLICY BANNER (always visible — ৩টা state) ===== */}
+              {(calcAllowed === true ||
+                calcAllowed === false ||
+                calcAllowed === null) && (
                 <div
                   className={`p-3.5 rounded-xl border-2 flex items-start gap-3 ${
                     isExpired
@@ -520,7 +521,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                         ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700"
                         : calcAllowed === false
                           ? "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700"
-                          : "bg-slate-50 dark:bg-slate-800/40 border-slate-300 dark:border-slate-600"
+                          : "bg-slate-100 dark:bg-[#232b3a]/60 border-slate-300 dark:border-[#333d4d] text-slate-800 dark:text-slate-200"
                   }`}
                 >
                   <div
@@ -539,7 +540,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                     ) : calcAllowed === false ? (
                       <Ban className="w-4 h-4" />
                     ) : (
-                      <Info className="w-4 h-4" />
+                      <HelpCircle className="w-4 h-4" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -565,7 +566,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                         ? "ক্যালকুলেটর ব্যবহার করা যাবে ✅"
                         : calcAllowed === false
                           ? "ক্যালকুলেটর ব্যবহার করা যাবে না ❌"
-                          : "এখনো ঘোষণা করা হয়নি ⏳"}
+                          : "বিজ্ঞপ্তিতে উল্লেখ নেই (ঘোষণার অপেক্ষায়) ⚪"}
                     </div>
                     <p
                       className={`text-[11px] mt-1 leading-relaxed ${
@@ -579,7 +580,7 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                         : calcAllowed === false
                           ? "পরীক্ষার হলে কোনো ধরনের ক্যালকুলেটর অনুমোদিত নয়। ম্যানুয়ালি হিসাব করতে হবে।"
                           : calculatorNote ||
-                            "বিজ্ঞপ্তিতে ক্যালকুলেটর নীতি এখনো উল্লেখ করা হয়নি। পরীক্ষার আগে অফিসিয়াল বিজ্ঞপ্তি দেখে নিন।"}
+                            "২০২৬-২৭ সেশনের বিজ্ঞপ্তিতে ক্যালকুলেটর সংক্রান্ত সুস্পষ্ট নির্দেশনা এখনো পাওয়া যায়নি। প্রকাশিত হলে স্বয়ংক্রিয়ভাবে আপডেট হবে।"}
                     </p>
                   </div>
                 </div>
