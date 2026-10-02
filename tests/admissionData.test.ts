@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { initialUniversitiesData } from "../src/data/mockUniversities";
 import { VENUE_POLICY_2026_27 } from "../src/data/venuePolicy2026";
 import {
+  resolveCalculator,
   resolveRegions,
   resolveSession,
   resolveVenuePolicy,
@@ -127,6 +128,38 @@ describe("hybrid resolver + KB venue policy wiring", () => {
   it("JU policy note-এ 'বিভাগীয় শহরে কেন্দ্র বাদ' আছে", () => {
     expect(resolveVenuePolicy(byId("ju"))?.venueNote).toContain(
       "বিভাগীয় শহরে কেন্দ্র বাদ",
+    );
+  });
+
+  it("4-state calculator: eng=allowed(fx-100MS) / DU-JU=banned / CU=conditional+breakdown / unknown", () => {
+    expect(resolveCalculator(byId("buet"))).toMatchObject({
+      allowed: true,
+      source: "static_fallback",
+    });
+    expect(resolveCalculator(byId("du"))).toMatchObject({
+      allowed: false,
+      source: "static_fallback",
+    });
+    expect(resolveCalculator(byId("ju"))).toMatchObject({
+      allowed: false,
+      source: "static_fallback",
+    });
+    const cu = resolveCalculator(byId("cu"));
+    expect(cu.allowed).toBe("conditional");
+    expect(cu.unitBreakdown?.length).toBe(7);
+    expect(
+      cu.unitBreakdown?.find((u) => u.unit.startsWith("A ইউনিট"))?.allowed,
+    ).toBe(true);
+  });
+
+  it("calculator notes-এ fx-100MS explicit mention আছে", () => {
+    const eng = resolveVenuePolicy(byId("buet"))?.calculatorNote || "";
+    expect(eng).toContain("fx-100MS");
+    expect(resolveVenuePolicy(byId("cu"))?.calculatorNote).toContain(
+      "fx-100MS",
+    );
+    expect(resolveVenuePolicy(byId("du"))?.calculatorNote).toContain(
+      "fx-100MS",
     );
   });
 });

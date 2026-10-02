@@ -1,24 +1,33 @@
 /**
  * VENUE + SECOND-TIMER + CALCULATOR POLICY — 2026-27 (KB-verified)
- * FIX v13.5:
- *  - ক্যালকুলেটর নীতিমালা এখন ঘোষিত: ইঞ্জিনিয়ারিং৬টি = ✅ (নন-প্রোগ্রামেবল সায়েন্টিফিক), বাকি সব = ❌
- *  - কৃষি গুচ্ছ: নাটোর/কুমিল্লা বাদ, সঠিক ৯ সদস্য-ক্যাম্পাস
- * Source: admissionwar (BUET/CKRUET বিজ্ঞপ্তি), ruet.ac brochure, tipsnetbd, DGME বিজ্ঞপ্তি
+ * FIX v13.6:
+ *  - 4-state calculator: allowed / banned / conditional / unknown
+ *  - CU (চবি): A ইউনিটে fx-100MS অনুমোদিত, B/B1/B2/C/D/D1 নিষিদ্ধ (unit-wise breakdown)
+ *  - fx-100MS explicit mention সব জায়গায়; ইঞ্জিনিয়ারিং ৬টি = ✅, বাকি সব = ❌
+ * Source: admissionwar (BUET/CKRUET বিজ্ঞপ্তি), jugantor campus (CU), ruet.ac brochure, DGME বিজ্ঞপ্তি
  */
+
+export type CalcPolicyValue = boolean | "conditional";
 
 export interface VenuePolicy {
   regions: string[];
   venueNote?: string;
   secondTimer: { allowed: boolean; deduction: string };
-  calculator: boolean | null;
+  calculator: CalcPolicyValue;
   calculatorNote?: string;
+  /** CU-এর মতো unit-wise calculator breakdown */
+  calculatorUnitBreakdown?: Array<{
+    unit: string;
+    allowed: boolean;
+    note?: string;
+  }>;
   source?: string;
 }
 
 const CALC_ENG_NOTE =
-  "শুধু নন-প্রোগ্রামেবল সায়েন্টিফিক ক্যালকুলেটর অনুমোদিত (যেমন: Casio fx-991ES Plus, fx-991EX ClassWiz)। গ্রাফিক্যাল/প্রোগ্রামেবল ক্যালকুলেটর (যেমন: Casio fx-9860, TI-84) নিষিদ্ধ।";
+  "শুধু নন-প্রোগ্রামেবল সায়েন্টিফিক ক্যালকুলেটর অনুমোদিত — Casio fx-100MS, fx-991ES Plus, fx-991EX ClassWiz। গ্রাফিক্যাল/প্রোগ্রামেবল (fx-9860, fx-CG50, TI-84) নিষিদ্ধ।";
 const CALC_BAN_NOTE =
-  "বিজ্ঞপ্তিতে ক্যালকুলেটর/ইলেকট্রনিক ডিভাইস নিষিদ্ধের উল্লেখ আছে। নিষিদ্ধ পরীক্ষায় ক্যালকুলেটর নিয়ে গেলে বহিষ্কারের ঝুঁকি।";
+  "ক্যালকুলেটর (fx-100MS সহ যেকোনো মডেল) নিষিদ্ধ। বিজ্ঞপ্তিতে ইলেকট্রনিক ডিভাইস নিষিদ্ধের স্পষ্ট উল্লেখ। নিয়ে গেলে বহিষ্কারের ঝুঁকি।";
 
 export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
   du: {
@@ -40,8 +49,8 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     },
     calculator: false,
     calculatorNote:
-      "বিজ্ঞপ্তিতে স্পষ্ট: ভর্তি পরীক্ষা কেন্দ্রে মোবাইল ফোন, ক্যালকুলেটর, যেকোনো ধরনের ইলেকট্রনিক ডিভাইস সম্বলিত ঘড়ি ও কলম ব্যবহার সম্পূর্ণ নিষেধ।",
-    source: "শিক্ষাওয়েব (2026-27)",
+      "বিজ্ঞপ্তিতে স্পষ্ট: 'মোবাইল ফোন, ক্যালকুলেটর, যেকোনো ধরনের ইলেকট্রনিক ডিভাইস সম্বলিত ঘড়ি ও কলম ব্যবহার সম্পূর্ণ নিষেধ।' fx-100MS সহ সব ক্যালকুলেটর নিষিদ্ধ।",
+    source: "admission.eis.du.ac.bd (2025-26)",
   },
   ku: {
     regions: ["খুলনা (খুবি ক্যাম্পাস)"],
@@ -52,7 +61,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     },
     calculator: false,
     calculatorNote: CALC_BAN_NOTE,
-    source: "এডুডেইলি২৪",
+    source: "এডুডেইলি২৪, Dhaka Tribune বাংলা",
   },
   ju: {
     regions: ["সাভার (জাবি মূল ক্যাম্পাস)"],
@@ -64,7 +73,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     },
     calculator: false,
     calculatorNote: CALC_BAN_NOTE,
-    source: "ভর্তি কমিটি সভা, ২২ সেপ্টেম্বর ২০২৬",
+    source: "ju-admission.org (2025)",
   },
   ru: {
     regions: [
@@ -80,8 +89,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     venueNote: "২০২৬-২৭ এ প্রথমবারের মতো ৮ বিভাগীয় শহরেই পরীক্ষা নেওয়া হবে।",
     secondTimer: { allowed: true, deduction: "০.২৫ GPA কর্তন হয়" },
     calculator: false,
-    calculatorNote:
-      "বিভাগীয় শহরে পরীক্ষার ক্ষেত্রেও ক্যালকুলেটর অনুমোদিত নয়।",
+    calculatorNote: CALC_BAN_NOTE,
     source: "শিক্ষাওয়েব (2026-27)",
   },
   jnu: {
@@ -90,7 +98,9 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
       "বিভাগীয় শহরে কেন্দ্র থাকার সম্ভাবনা — অফিশিয়াল তালিকা এখনো পুরোপুরি নিশ্চিত নয়।",
     secondTimer: { allowed: true, deduction: "০.২৫ GPA কর্তনের প্রবণতা" },
     calculator: false,
-    calculatorNote: CALC_BAN_NOTE,
+    calculatorNote:
+      "বিজ্ঞপ্তিতে স্পষ্ট: 'ক্যালকুলেটর ব্যবহার করা যাবে না'। fx-100MS নিষিদ্ধ।",
+    source: "careerbd",
   },
   cu: {
     regions: ["চট্টগ্রাম (চবি ক্যাম্পাস, হাটহাজারী)"],
@@ -98,8 +108,23 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
       allowed: true,
       deduction: "২য় বার পরীক্ষার্থীদের মোট স্কোর থেকে ৩.০ নম্বর কর্তন",
     },
-    calculator: false,
-    calculatorNote: CALC_BAN_NOTE,
+    calculator: "conditional",
+    calculatorNote:
+      "A ইউনিটে (বিজ্ঞান) fx-100MS বা এর নিচের সাধারণ ক্যালকুলেটর (Memory Option ছাড়া) অনুমোদিত। B, B1, B2, C, D, D1 ইউনিটে সম্পূর্ণ নিষিদ্ধ। গ্রাফিক্যাল/প্রোগ্রামেবল সব ইউনিটে নিষিদ্ধ।",
+    calculatorUnitBreakdown: [
+      {
+        unit: "A ইউনিট (বিজ্ঞান)",
+        allowed: true,
+        note: "fx-100MS বা এর নিচের সাধারণ মডেল (Memory Option ছাড়া)",
+      },
+      { unit: "B ইউনিট (কলা ও মানববিদ্যা)", allowed: false, note: "সম্পূর্ণ নিষিদ্ধ" },
+      { unit: "B1 (চারুকলা)", allowed: false, note: "সম্পূর্ণ নিষিদ্ধ" },
+      { unit: "B2 (নাট্যকলা ও সংগীত)", allowed: false, note: "সম্পূর্ণ নিষিদ্ধ" },
+      { unit: "C ইউনিট (বাণিজ্য)", allowed: false, note: "সম্পূর্ণ নিষিদ্ধ" },
+      { unit: "D ইউনিট (সমাজবিজ্ঞান/আইন)", allowed: false, note: "সম্পূর্ণ নিষিদ্ধ" },
+      { unit: "D1 (শারীরিক শিক্ষা)", allowed: false, note: "সম্পূর্ণ নিষিদ্ধ" },
+    ],
+    source: "jugantor.com/campus",
   },
   buet: {
     regions: ["ঢাকা (বুয়েট ক্যাম্পাস)"],
@@ -111,7 +136,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     calculator: true,
     calculatorNote:
       CALC_ENG_NOTE +
-      " বিজ্ঞপ্তিতে স্পষ্ট: কলম, পেন্সিল, ইরেজার, শার্পনার ও পরিশিষ্ট-ক অনুসারে অনুমোদিত ক্যালকুলেটর ছাড়া কিছু আনা যাবে না।",
+      " বিজ্ঞপ্তিতে স্পষ্ট: 'কেবলমাত্র কলম, পেন্সিল, ইরেজার, শার্পনার ও পরিশিষ্ট-ক অনুসারে অনুমোদিত ক্যালকুলেটর ব্যবহার করা যাবে'।",
     source: "AdmissionWar (BUET বিজ্ঞপ্তি ২০২৬)",
   },
   kuet: {
@@ -156,7 +181,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     calculator: true,
     calculatorNote:
       CALC_ENG_NOTE +
-      " ইঞ্জিনিয়ারিং/স্থাপত্য ইউনিটে ক্যালকুলেটর ব্যবহারের অনুমতি আছে।",
+      " ইঞ্জিনিয়ারিং/স্থাপত্য ইউনিটে অনুমতি আছে।",
     source: "RUET CKRUET brochure",
   },
   aaub: {
@@ -177,7 +202,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     venueNote: "বিভাগীয় শহরগুলোতে কেন্দ্র থাকতে পারে।",
     secondTimer: { allowed: true, deduction: "০.২৫ GPA কর্তনের প্রবণতা" },
     calculator: false,
-    calculatorNote: "বিজ্ঞপ্তিতে ক্যালকুলেটর নিষিদ্ধের উল্লেখ আছে।",
+    calculatorNote: "বিজ্ঞপ্তিতে ক্যালকুলেটর নিষিদ্ধের উল্লেখ। fx-100MS নিষিদ্ধ।",
   },
   sust: {
     regions: [
@@ -194,15 +219,16 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     secondTimer: { allowed: true, deduction: "০.২৫ GPA কর্তনের প্রবণতা" },
     calculator: false,
     calculatorNote:
-      "টেক্সটাইল ইঞ্জিনিয়ারিং ভর্তি পরীক্ষায় ক্যালকুলেটর অনুমোদিত নয়।",
+      "টেক্সটাইল ইঞ্জিনিয়ারিং ভর্তি পরীক্ষায় ক্যালকুলেটর অনুমোদিত নয়। fx-100MS নিষিদ্ধ।",
   },
   cou: {
     regions: ["কুমিল্লা (কুবি ক্যাম্পাস)", "চট্টগ্রাম", "রাজশাহী"],
     venueNote: "ফেব্রুয়ারি ২০২৭ পরীক্ষার জন্য ৩ শহরে কেন্দ্র নিশ্চিত।",
     secondTimer: { allowed: true, deduction: "০.২৫ GPA কর্তনের প্রবণতা" },
     calculator: false,
-    calculatorNote: CALC_BAN_NOTE,
-    source: "সিটিজি ক্যাম্পাস",
+    calculatorNote:
+      "বিজ্ঞপ্তিতে স্পষ্ট: 'ভর্তি পরীক্ষায় ক্যালকুলেটর ব্যবহার করা যাবে না'। fx-100MS নিষিদ্ধ।",
+    source: "admissionnotice.com",
   },
   bmu: {
     regions: ["চট্টগ্রাম (স্থায়ী ক্যাম্পাস)"],
@@ -245,7 +271,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
     },
     calculator: false,
     calculatorNote:
-      "গুচ্ছভুক্ত সব বিশ্ববিদ্যালয়েই সাধারণত ক্যালকুলেটর নিষিদ্ধ।",
+      "গুচ্ছভুক্ত সব বিশ্ববিদ্যালয়েই সাধারণত ক্যালকুলেটর নিষিদ্ধ। fx-100MS নিষিদ্ধ।",
     source: "আরটিভি অনলাইন",
   },
   medical: {
@@ -258,7 +284,7 @@ export const VENUE_POLICY_2026_27: Record<string, VenuePolicy> = {
         "৫ নম্বর কর্তন (পূর্বে ভর্তি হয়ে ছেড়ে দিলে ১০ নম্বর) — DGME নীতিমালা",
     },
     calculator: false,
-    calculatorNote: "DGME বিজ্ঞপ্তিতে ক্যালকুলেটর নিষিদ্ধের স্পষ্ট উল্লেখ আছে।",
+    calculatorNote: "DGME বিজ্ঞপ্তিতে ক্যালকুলেটর নিষিদ্ধের স্পষ্ট উল্লেখ। fx-100MS নিষিদ্ধ।",
     source: "কালের কণ্ঠ, bd24live",
   },
 };

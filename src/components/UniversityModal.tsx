@@ -509,9 +509,10 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                 </div>
               )}
 
-              {/* ===== CALCULATOR POLICY BANNER (always visible — ৩টা state) ===== */}
+              {/* ===== CALCULATOR POLICY BANNER (always visible — 4-state) ===== */}
               {(calcAllowed === true ||
                 calcAllowed === false ||
+                calcAllowed === "conditional" ||
                 calcAllowed === null) && (
                 <div
                   className={`p-3.5 rounded-xl border-2 flex items-start gap-3 ${
@@ -521,7 +522,9 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                         ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700"
                         : calcAllowed === false
                           ? "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700"
-                          : "bg-slate-100 dark:bg-[#232b3a]/60 border-slate-300 dark:border-[#333d4d] text-slate-800 dark:text-slate-200"
+                          : calcAllowed === "conditional"
+                            ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700"
+                            : "bg-slate-100 dark:bg-[#232b3a]/60 border-slate-300 dark:border-[#333d4d] text-slate-800 dark:text-slate-200"
                   }`}
                 >
                   <div
@@ -532,24 +535,35 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                           ? "bg-emerald-500 text-white"
                           : calcAllowed === false
                             ? "bg-rose-500 text-white"
-                            : "bg-slate-500 text-white"
+                            : calcAllowed === "conditional"
+                              ? "bg-amber-500 text-white"
+                              : "bg-slate-500 text-white"
                     }`}
                   >
                     {calcAllowed === true ? (
                       <Calculator className="w-4 h-4" />
                     ) : calcAllowed === false ? (
                       <Ban className="w-4 h-4" />
+                    ) : calcAllowed === "conditional" ? (
+                      <AlertTriangle className="w-4 h-4" />
                     ) : (
                       <HelpCircle className="w-4 h-4" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div
-                      className={`font-black text-sm ${
+                      className={`font-black text-sm flex items-center gap-2 ${
                         isExpired ? "text-slate-700 dark:text-slate-300" : ""
                       }`}
                     >
                       🧮 ক্যালকুলেটর নীতি
+                      {calcInfo.source !== "unknown" && (
+                        <span
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${sourceColor(calcInfo.source)}`}
+                        >
+                          {sourceLabel(calcInfo.source)}
+                        </span>
+                      )}
                     </div>
                     <div
                       className={`font-bold text-xs sm:text-sm mt-1 ${
@@ -559,14 +573,18 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                             ? "text-emerald-950 dark:text-emerald-100"
                             : calcAllowed === false
                               ? "text-rose-950 dark:text-rose-100"
-                              : "text-slate-900 dark:text-slate-100"
+                              : calcAllowed === "conditional"
+                                ? "text-amber-950 dark:text-amber-100"
+                                : "text-slate-900 dark:text-slate-100"
                       }`}
                     >
                       {calcAllowed === true
-                        ? "ক্যালকুলেটর ব্যবহার করা যাবে ✅"
+                        ? "অনুমোদিত (নন-প্রোগ্রামেবল সায়েন্টিফিক) ✅"
                         : calcAllowed === false
-                          ? "ক্যালকুলেটর ব্যবহার করা যাবে না ❌"
-                          : "বিজ্ঞপ্তিতে উল্লেখ নেই (ঘোষণার অপেক্ষায়) ⚪"}
+                          ? "সম্পূর্ণ নিষিদ্ধ ❌"
+                          : calcAllowed === "conditional"
+                            ? "ইউনিটভেদে ভিন্ন ⚠️"
+                            : "বিজ্ঞপ্তিতে উল্লেখ নেই (ঘোষণার অপেক্ষায়) ⚪"}
                     </div>
                     <p
                       className={`text-[11px] mt-1 leading-relaxed ${
@@ -576,12 +594,52 @@ export const UniversityModal: React.FC<UniversityModalProps> = ({
                       }`}
                     >
                       {calcAllowed === true
-                        ? "সাধারণ/সায়েন্টিফিক ক্যালকুলেটর পরীক্ষার হলে নেওয়া যাবে।"
+                        ? calculatorNote ||
+                          "Casio fx-100MS, fx-991ES Plus, fx-991EX ClassWiz অনুমোদিত। গ্রাফিক্যাল/প্রোগ্রামেবল (fx-9860, TI-84) নিষিদ্ধ।"
                         : calcAllowed === false
-                          ? "পরীক্ষার হলে কোনো ধরনের ক্যালকুলেটর অনুমোদিত নয়। ম্যানুয়ালি হিসাব করতে হবে।"
-                          : calculatorNote ||
-                            "২০২৬-২৭ সেশনের বিজ্ঞপ্তিতে ক্যালকুলেটর সংক্রান্ত সুস্পষ্ট নির্দেশনা এখনো পাওয়া যায়নি। প্রকাশিত হলে স্বয়ংক্রিয়ভাবে আপডেট হবে।"}
+                          ? calculatorNote ||
+                            "fx-100MS সহ যেকোনো ক্যালকুলেটর নিষিদ্ধ। নিয়ে গেলে বহিষ্কারের ঝুঁকি।"
+                          : calcAllowed === "conditional"
+                            ? calculatorNote ||
+                              "কিছু ইউনিটে অনুমোদিত, কিছু ইউনিটে নিষিদ্ধ। নিচে বিস্তারিত দেখুন।"
+                            : calculatorNote ||
+                              "২০২৬-২৭ সেশনের বিজ্ঞপ্তিতে ক্যালকুলেটর সংক্রান্ত সুস্পষ্ট নির্দেশনা এখনো পাওয়া যায়নি। প্রকাশিত হলে স্বয়ংক্রিয়ভাবে আপডেট হবে।"}
                     </p>
+
+                    {/* CU-এর মতো unit-wise breakdown */}
+                    {calcAllowed === "conditional" &&
+                      calcInfo.unitBreakdown &&
+                      calcInfo.unitBreakdown.length > 0 && (
+                        <div className="mt-3 space-y-1.5 border-t border-amber-300 dark:border-amber-700/50 pt-3">
+                          <p className="text-[10px] font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider">
+                            ইউনিটভিত্তিক নীতি:
+                          </p>
+                          {calcInfo.unitBreakdown.map((u, idx) => (
+                            <div
+                              key={idx}
+                              className={`flex items-start gap-2 text-[11px] p-2 rounded-lg ${
+                                u.allowed
+                                  ? "bg-emerald-100/50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200"
+                                  : "bg-rose-100/50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200"
+                              }`}
+                            >
+                              {u.allowed ? (
+                                <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              ) : (
+                                <Ban className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              )}
+                              <div className="flex-1">
+                                <div className="font-bold">{u.unit}</div>
+                                {u.note && (
+                                  <div className="text-[10px] opacity-80 mt-0.5">
+                                    {u.note}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                   </div>
                 </div>
               )}

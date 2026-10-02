@@ -48,7 +48,7 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
   const nextExamUnit = university.examUnits?.[0];
   const breaking = university.latestBreakingUpdate;
 
-  /* ===== Calculator: live → static → policy map (৩টা state) ===== */
+  /* ===== Calculator: live → static → policy map (৪-state) ===== */
   const calc = resolveCalculator(university, breaking);
   const calcAllowed = calc.allowed;
 
@@ -186,20 +186,24 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
             )}
           </div>
 
-          {/* ===== CALCULATOR CHIP: ৩টা state, সব card এ একরকম ===== */}
+          {/* ===== CALCULATOR CHIP: 4-state, সব card এ একরকম ===== */}
           <div
             className={`col-span-2 flex items-center gap-1.5 p-2 rounded-lg mt-1 border text-[11px] ${
               calcAllowed === true
                 ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200"
                 : calcAllowed === false
                   ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200"
-                  : "bg-slate-50 dark:bg-[#232b3a]/60 border-slate-200 dark:border-[#2a3344] text-slate-500 dark:text-slate-400"
+                  : calcAllowed === "conditional"
+                    ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200"
+                    : "bg-slate-50 dark:bg-[#232b3a]/60 border-slate-200 dark:border-[#2a3344] text-slate-500 dark:text-slate-400"
             }`}
           >
             {calcAllowed === true ? (
               <Calculator className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
             ) : calcAllowed === false ? (
               <Ban className="w-3.5 h-3.5 shrink-0 text-rose-600 dark:text-rose-400" />
+            ) : calcAllowed === "conditional" ? (
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
             ) : (
               <HelpCircle className="w-3.5 h-3.5 shrink-0 text-slate-400" />
             )}
@@ -211,14 +215,18 @@ export const UniversityCard: React.FC<UniversityCardProps> = ({
                     ? "text-emerald-800 dark:text-emerald-200"
                     : calcAllowed === false
                       ? "text-rose-800 dark:text-rose-200"
-                      : "text-slate-600 dark:text-slate-300"
+                      : calcAllowed === "conditional"
+                        ? "text-amber-800 dark:text-amber-200"
+                        : "text-slate-600 dark:text-slate-300"
                 }
               >
                 {calcAllowed === true
-                  ? "ব্যবহার করা যাবে"
+                  ? "fx-100MS অনুমোদিত"
                   : calcAllowed === false
-                    ? "নিষিদ্ধ"
-                    : "নীতি অঘোষিত"}
+                    ? "সম্পূর্ণ নিষিদ্ধ"
+                    : calcAllowed === "conditional"
+                      ? "ইউনিটভেদে ভিন্ন"
+                      : "নীতি অঘোষিত"}
               </strong>
             </span>
             {calc.source !== "unknown" && (

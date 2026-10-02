@@ -75,18 +75,41 @@ export function resolveCalculator(
   university: University,
   breaking?: BreakingUpdateData | null,
 ): ResolvedCalculatorInfo {
+  // 1) Live scrape
   const live = breaking?.extracted_data?.calculator_allowed;
-  if (live === true || live === false) {
-    return { allowed: live, source: "live_scrape" };
-  }
+  if (live === true) return { allowed: true, source: "live_scrape" };
+  if (live === false) return { allowed: false, source: "live_scrape" };
+
+  // 2) Static config (mockUniversities)
   const stat = university.calculatorPolicy;
-  if (stat === true || stat === false) {
-    return { allowed: stat, source: "static_fallback" };
+  if (stat === true) return { allowed: true, source: "static_fallback" };
+  if (stat === false) return { allowed: false, source: "static_fallback" };
+  if (stat === "conditional") {
+    return {
+      allowed: "conditional",
+      source: "static_fallback",
+      unitBreakdown: resolveVenuePolicy(university)?.calculatorUnitBreakdown,
+    };
   }
+
+  // 3) KB policy map
   const policy = resolveVenuePolicy(university);
-  if (policy && (policy.calculator === true || policy.calculator === false)) {
-    return { allowed: policy.calculator, source: "static_fallback" };
+  if (policy) {
+    if (policy.calculator === true) {
+      return { allowed: true, source: "static_fallback" };
+    }
+    if (policy.calculator === false) {
+      return { allowed: false, source: "static_fallback" };
+    }
+    if (policy.calculator === "conditional") {
+      return {
+        allowed: "conditional",
+        source: "static_fallback",
+        unitBreakdown: policy.calculatorUnitBreakdown,
+      };
+    }
   }
+
   return { allowed: null, source: "unknown" };
 }
 

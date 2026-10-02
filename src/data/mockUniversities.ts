@@ -372,7 +372,7 @@ export const initialUniversitiesData: University[] = [
       "সেপ্টেম্বরের শুরুতে ঘোষিত: পরীক্ষা ২৯ জানুয়ারি থেকে ৮ ফেব্রুয়ারি ২০২৭। সি ইউনিট ২৯ জানুয়ারি, ক ইউনিট ৩০ জানুয়ারি। ⚠️ কুবির বি ইউনিটের (৬ ফেব্রুয়ারি) সঙ্গে তারিখ সংঘর্ষ রিপোর্টেড; সময়/কেন্দ্র পরিবর্তন হতে পারে।",
     sessionYear: "2026-27",
     examRegions: ["চট্টগ্রাম", "হাটহাজারী"],
-    calculatorPolicy: null,
+    calculatorPolicy: "conditional",
     examMode: "offline",
     admitCardMethod: "অনলাইনে ডাউনলোড",
     minGpa: {

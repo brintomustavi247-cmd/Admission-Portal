@@ -53,7 +53,7 @@ export interface University {
 
   /* ===== NEW v13.2: Static venue/calculator/session fallbacks ===== */
   examRegions?: string[]; // Verified exam center cities/divisions
-  calculatorPolicy?: boolean | null; // true=allowed, false=banned, null=unknown
+  calculatorPolicy?: boolean | "conditional" | null; // true=allowed, false=banned, "conditional"=unit-wise, null=unknown
   sessionYear?: string; // e.g. "2026-27"
   examMode?: "offline" | "online" | "hybrid" | "unknown";
   admitCardMethod?: string; // e.g. "অনলাইনে ডাউনলোড"
@@ -135,9 +135,13 @@ export interface ResolvedVenueInfo {
   source: DataSource;
 }
 
+export type CalculatorState = "allowed" | "banned" | "conditional" | "unknown";
+
 export interface ResolvedCalculatorInfo {
-  allowed: boolean | null;
+  allowed: boolean | "conditional" | null;
   source: DataSource;
+  /** CU-এর মতো unit-wise breakup */
+  unitBreakdown?: Array<{ unit: string; allowed: boolean; note?: string }>;
 }
 
 export interface ResolvedSessionInfo {
