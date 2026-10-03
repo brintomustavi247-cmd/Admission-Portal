@@ -297,7 +297,20 @@ export const UpdateQueueTab: React.FC = () => {
         { body: { uni: uniId.trim() } },
       );
       if (error) {
-        showToast("❌ Proxy error — login/admin check করো", "error");
+        let detail = "";
+        try {
+          const ctx = (error as unknown as { context?: Response }).context;
+          if (ctx && typeof ctx.json === "function") {
+            const j = (await ctx.json()) as { error?: string; detail?: string };
+            detail = j?.detail || j?.error || "";
+          }
+        } catch {
+          /* ignore — নিচে fallback toast */
+        }
+        showToast(
+          `❌ Proxy: ${detail || "function deploy নেই বা secrets set নেই — Dashboard → Edge Functions → Logs দেখো"}`,
+          "error",
+        );
         return;
       }
       const json: any = data;
@@ -308,13 +321,9 @@ export const UpdateQueueTab: React.FC = () => {
         );
         return;
       }
-      if (json.error) {
+      if (json.error || json.ok === false) {
         showToast(
-          `❌ ${
-            json.error === "forbidden"
-              ? "শুধু admin — তোমার role admin না"
-              : json.error
-          }`,
+          `❌ Proxy: ${json.detail || json.error || "unknown"}${json.error && json.detail && json.detail !== json.error ? ` (${json.error})` : ""}`,
           "error",
         );
         return;

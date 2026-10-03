@@ -165,7 +165,7 @@ export const initialUniversitiesData: University[] = [
     category: "general",
     categoryLabel: "সাধারণ বিশ্ববিদ্যালয়",
     location: "সাভার, ঢাকা",
-    applicationLink: "https://ju-admission.org/",
+    applicationLink: "https://bachelor.ju-admission.com/",
     applicationProcess:
       "অনলাইন পোর্টালে লগইন করে ইউনিট ভিত্তিক আবেদন করুন। বিকাশ, রকেট বা নগদে ফি প্রদান করুন।",
     startDate: "",
